@@ -4,6 +4,10 @@
     android:layout_height="match_parent"
     android:background="#ADD8E6">
 
+    <com.example.hydrohabit.RainView
+        android:id="@+id/rainView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
     <TextView
         android:id="@+id/appTitle"
