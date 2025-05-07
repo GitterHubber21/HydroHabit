@@ -1,11 +1,16 @@
 package com.example.hydrohabit
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.view.MotionEvent
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.TextView
+import android.graphics.drawable.Drawable
+import androidx.core.content.getSystemService
 
 class MainActivity : Activity() {
 
@@ -58,34 +63,73 @@ class MainActivity : Activity() {
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun setupButtons() {
-        fillButton.setOnTouchListener { _, event ->
+        val vibrator = getSystemService<Vibrator>()
+
+        setupPressable(
+            fillButton,
+            vibrator,
+            pressedDrawableRes = R.drawable.pressed_button_rectangle,
+            onPress = { rainView.startRain() },
+            onRelease = {
+                rainView.stopRain()
+                addWaterToTracker(FILL_AMOUNT)
+            }
+        )
+
+        setupPressable(
+            add250Button,
+            vibrator,
+            pressedDrawableRes = R.drawable.pressed_button_rectangle_bottom
+        ) {
+            addWaterToTracker(AMOUNT_250)
+        }
+
+        setupPressable(
+            add500Button,
+            vibrator,
+            pressedDrawableRes = R.drawable.pressed_button_rectangle_bottom
+        ) {
+            addWaterToTracker(AMOUNT_500)
+        }
+
+        setupPressable(
+            add750Button,
+            vibrator,
+            pressedDrawableRes = R.drawable.pressed_button_rectangle_bottom
+        ) {
+            addWaterToTracker(AMOUNT_750)
+        }
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setupPressable(
+        button: Button,
+        vibrator: Vibrator?,
+        pressedDrawableRes: Int,
+        onPress: (() -> Unit)? = null,
+        onRelease: (() -> Unit)? = null
+    ) {
+        val originalBackground: Drawable = button.background
+        button.setOnTouchListener { v, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    rainView.startRain()
+                    v.setBackgroundResource(pressedDrawableRes)
+                    vibrator?.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
+                    onPress?.invoke()
                     true
                 }
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                    rainView.stopRain()
-                    addWaterToTracker(FILL_AMOUNT)
+                    v.background = originalBackground
+                    onRelease?.invoke()
                     true
                 }
                 else -> false
             }
         }
-
-        add250Button.setOnClickListener {
-            addWaterToTracker(AMOUNT_250)
-        }
-
-        add500Button.setOnClickListener {
-            addWaterToTracker(AMOUNT_500)
-        }
-
-        add750Button.setOnClickListener {
-            addWaterToTracker(AMOUNT_750)
-        }
     }
+
 
     private fun addWaterToTracker(amountMl: Int) {
         // Implement water tracking logic
