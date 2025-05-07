@@ -37,6 +37,8 @@ class RainView @JvmOverloads constructor(
     private var glassContainerView: View? = null
     private var glassContainerRect: RectF? = null
 
+    private var isRaining = false
+
     private val handler = Handler(Looper.getMainLooper())
     private val animator = object : Runnable {
         @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
@@ -67,29 +69,51 @@ class RainView @JvmOverloads constructor(
         glassContainerView = view
     }
 
+    fun startRain() {
+        refreshGlassContainerRect()
+        isRaining = true
+    }
+
+    fun stopRain() {
+        isRaining = false
+    }
+
     private fun refreshGlassContainerRect() {
         glassContainerView?.let {
             glassContainerRect = getViewRect(it)
         }
+        glassContainerRect?.let { rect ->
+            val width = rect.width()
+            val height = rect.height()
+            Log.d("RainView", "Glass rect - X: ${rect.left}, Y: ${rect.top}, Width: $width, Height: $height")
+
+        }
     }
 
     private fun getViewRect(view: View): RectF {
-        val rect = RectF()
         val location = IntArray(2)
-        this.getLocationOnScreen(location)
+        val parentLocation = IntArray(2)
 
-        view.getGlobalVisibleRect(Rect().apply {
-            rect.set(left.toFloat(), top.toFloat(), right.toFloat(), bottom.toFloat())
-            rect.offset(-location[0].toFloat(), -location[1].toFloat())
-        })
-        return rect
+        view.getLocationOnScreen(location)
+        this.getLocationOnScreen(parentLocation)
+
+        val left = (location[0] - parentLocation[0]).toFloat()
+        val top = (location[1] - parentLocation[1]).toFloat()
+        val right = left + view.width
+        val bottom = top + view.height
+
+        return RectF(left, top, right, bottom)
     }
+
 
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     private fun updateRaindrops() {
-        if (random.nextFloat() < 0.6f && raindrops.size < 300) {
-            val x = random.nextInt(width).toFloat()
-            raindrops.add(Raindrop(x, 0f, random.nextInt(15, 45).toFloat()))
+        if (isRaining) {
+            if (random.nextFloat() < 0.6f && raindrops.size < 300) {
+                val screenCenter = width / 2f
+                val x = screenCenter - 100f + random.nextFloat() * 200f
+                raindrops.add(Raindrop(x, 0f, random.nextInt(15, 45).toFloat()))
+            }
         }
 
         val iterator = raindrops.iterator()
@@ -104,10 +128,17 @@ class RainView @JvmOverloads constructor(
                 raindrop.y
             )
             refreshGlassContainerRect()
-            val hitsGlass = glassContainerRect?.let { RectF.intersects(raindropRect, it) } == true
+            val hitsGlass = glassContainerRect?.let {
+                val raindropBottom = raindrop.y
+                val bottomLine = it.bottom - 20f
+                val xInside = raindrop.x in it.left..it.right
+                val yTouchingBottom = raindropBottom in (bottomLine - raindrop.speed)..bottomLine
+                xInside && yTouchingBottom
+            } == true
+
 
             if (hitsGlass) {
-                Log.d("RainView", "Raindrop touched glass at (${raindrop.x}, ${raindrop.y})")
+                Log.d("RainView", "Raindrop touched the bottom of the glass at (${raindrop.x}, ${raindrop.y})")
                 iterator.remove()
             } else if (raindrop.y > height) {
                 Log.d("RainView", "Raindrop fell off screen at (${raindrop.x}, ${raindrop.y})")
@@ -123,14 +154,7 @@ class RainView @JvmOverloads constructor(
             val isBlurred = isOverlappingUIElement(raindrop)
             val paint = if (isBlurred) blurPaint else regularPaint
 
-            val path = Path()
-            val dropWidth = raindrop.size / 2
-
-            path.moveTo(raindrop.x, raindrop.y - raindrop.size)
-            path.quadTo(raindrop.x + dropWidth, raindrop.y - raindrop.size * 0.5f, raindrop.x, raindrop.y)
-            path.quadTo(raindrop.x - dropWidth, raindrop.y - raindrop.size * 0.5f, raindrop.x, raindrop.y - raindrop.size)
-
-            canvas.drawPath(path, paint)
+            canvas.drawCircle(raindrop.x, raindrop.y - raindrop.size/2, raindrop.size/2, paint)
         }
     }
 

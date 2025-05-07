@@ -2,6 +2,7 @@ package com.example.hydrohabit
 
 import android.app.Activity
 import android.os.Bundle
+import android.view.MotionEvent
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.TextView
@@ -16,12 +17,18 @@ class MainActivity : Activity() {
     private lateinit var add500Button: Button
     private lateinit var add750Button: Button
 
+    private val FILL_AMOUNT = 1000
+    private val AMOUNT_250 = 250
+    private val AMOUNT_500 = 500
+    private val AMOUNT_750 = 750
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.home)
 
         initViews()
         setupRainView()
+        setupButtons()
     }
 
     private fun initViews() {
@@ -44,27 +51,43 @@ class MainActivity : Activity() {
         )
 
         rainView.post {
-
             rainView.registerGlassContainer(glassContainer)
             otherElements.forEach { element ->
                 rainView.registerUIElement(element)
             }
         }
+    }
 
-        fillButton.setOnClickListener {
-            // Handle fill button click
+    private fun setupButtons() {
+        fillButton.setOnTouchListener { _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    rainView.startRain()
+                    true
+                }
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    rainView.stopRain()
+                    addWaterToTracker(FILL_AMOUNT)
+                    true
+                }
+                else -> false
+            }
         }
 
         add250Button.setOnClickListener {
-            // Handle +250ml button click
+            addWaterToTracker(AMOUNT_250)
         }
 
         add500Button.setOnClickListener {
-            // Handle +500ml button click
+            addWaterToTracker(AMOUNT_500)
         }
 
         add750Button.setOnClickListener {
-            // Handle +750ml button click
+            addWaterToTracker(AMOUNT_750)
         }
+    }
+
+    private fun addWaterToTracker(amountMl: Int) {
+        // Implement water tracking logic
     }
 }
