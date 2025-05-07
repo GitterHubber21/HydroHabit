@@ -121,12 +121,6 @@ class RainView @JvmOverloads constructor(
             val raindrop = iterator.next()
             raindrop.y += raindrop.speed
 
-            val raindropRect = RectF(
-                raindrop.x - raindrop.size / 2,
-                raindrop.y - raindrop.size,
-                raindrop.x + raindrop.size / 2,
-                raindrop.y
-            )
             refreshGlassContainerRect()
             val hitsGlass = glassContainerRect?.let {
                 val raindropBottom = raindrop.y
