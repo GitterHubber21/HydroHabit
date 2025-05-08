@@ -2,7 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#ADD8E6">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#b5b5b5">
 
     <com.example.hydrohabit.RainView
         android:id="@+id/rainView"
@@ -15,7 +16,7 @@
         android:layout_height="wrap_content"
         android:text="@string/app_name"
         android:textSize="32sp"
-        android:textColor="#000000"
+        android:textColor="#ffffff"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
         android:fontFamily="@font/dosis_bold"
@@ -76,6 +77,14 @@
                 android:text="+750 ml"
                 android:textColor="@android:color/black" />
         </LinearLayout>
+
     </LinearLayout>
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigationView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#888888"
+        app:menu="@menu/bottom_nav_menu" />
 
 </RelativeLayout>

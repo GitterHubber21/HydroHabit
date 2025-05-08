@@ -3,11 +3,11 @@
     android:height="300dp"
     android:viewportWidth="300"
     android:viewportHeight="300">
-    <!-- Glass body -->
+
     <path
         android:fillColor="#80FFFFFF"
         android:strokeColor="#B3FFFFFF"
         android:strokeWidth="4"
-        android:pathData="M40,20 L260,20 L220,280 L80,280 Z" />
+        android:pathData="M60,20 L240,20 L220,280 L80,280 Z" />
 </vector>
 

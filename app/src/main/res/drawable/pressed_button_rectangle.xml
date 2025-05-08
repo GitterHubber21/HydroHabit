@@ -7,13 +7,14 @@
             <stroke android:width="2dp" android:color="#B3FFFFFF" />
         </shape>
     </item>
-    <item android:top="0dp" android:bottom="50px">
+    <item >
         <shape android:shape="rectangle">
             <gradient
-                android:startColor="#7fb3d5"
+                android:startColor="#3b86d6"
                 android:endColor="#00FFFFFF"
                 android:angle="270" />
             <corners android:radius="20dp" />
+            <stroke android:width="2dp" android:color="#B3FFFFFF" />
         </shape>
     </item>
 </layer-list>

@@ -21,13 +21,13 @@ class RainView @JvmOverloads constructor(
     private val raindrops = mutableListOf<Raindrop>()
 
     private val regularPaint = Paint().apply {
-        color = Color.parseColor("#7fb3d5")
+        color = Color.parseColor("#3b86d6")
         isAntiAlias = true
         style = Paint.Style.FILL
     }
 
     private val blurPaint = Paint().apply {
-        color = Color.parseColor("#7fb3d5")
+        color = Color.parseColor("#3b86d6")
         isAntiAlias = true
         style = Paint.Style.FILL
         maskFilter = BlurMaskFilter(15f, BlurMaskFilter.Blur.NORMAL)
