@@ -2,6 +2,7 @@ package com.example.hydrohabit
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
@@ -10,7 +11,10 @@ import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.TextView
 import android.graphics.drawable.Drawable
+
 import androidx.core.content.getSystemService
+import com.google.android.material.bottomnavigation.BottomNavigationView
+
 
 class MainActivity : Activity() {
 
@@ -34,6 +38,29 @@ class MainActivity : Activity() {
         initViews()
         setupRainView()
         setupButtons()
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+        bottomNavigationView.selectedItemId = R.id.nav_home
+
+        bottomNavigationView.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_home -> true
+                R.id.nav_insights -> {
+                    startActivity(Intent(applicationContext, InsightsActivity::class.java))
+
+                    finish()
+                    true
+                }
+                R.id.nav_challenges -> {
+                    startActivity(Intent(applicationContext, ChallengesActivity::class.java))
+
+                    finish()
+                    true
+                }
+                else -> false
+            }
+        }
+
+
     }
 
     private fun initViews() {

@@ -3,7 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="#b5b5b5">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="#b5b5b5"
+    tools:context=".MainActivity">
 
     <com.example.hydrohabit.RainView
         android:id="@+id/rainView"
@@ -39,7 +41,7 @@
             android:id="@+id/fillButton"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:layout_marginTop="60dp"
+            android:layout_marginTop="30dp"
             android:background="@drawable/rounded_transparent_square"
             android:text="@string/fill_glass"
             android:textColor="@android:color/black" />
@@ -84,7 +86,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="#888888"
-        app:menu="@menu/bottom_nav_menu" />
+        android:background="@drawable/rounded_transparent_square"
+        app:menu="@menu/bottom_nav_menu"
+        android:elevation="5dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="10dp"
+        app:itemIconTint="@null"
+        app:itemTextColor="@drawable/bottom_nav_item_color"
+        app:labelVisibilityMode="labeled"
+        app:itemIconSize="30dp"
+        app:itemPaddingTop="8dp"
+        app:itemPaddingBottom="8dp" />
 
 </RelativeLayout>

@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">HydroHabit</string>
     <string name="fill_glass">Fill Glass</string>
+    <string name="insights">Insights</string>
+    <string name="challenges">Challenges</string>
 
 </resources>
