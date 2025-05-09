@@ -11,6 +11,7 @@ import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.TextView
 import android.graphics.drawable.Drawable
+import android.widget.ImageView
 import androidx.core.content.getSystemService
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.core.graphics.toColorInt
@@ -30,18 +31,31 @@ class MainActivity : Activity() {
     private val AMOUNT_250 = 250
     private val AMOUNT_500 = 500
     private val AMOUNT_750 = 750
-
+    private var isBellSelected = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         window.statusBarColor = "#292929".toColorInt()
+
         initViews()
         setupRainView()
         setupButtons()
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         bottomNavigationView.selectedItemId = R.id.nav_home
         bottomNavigationView.itemIconTintList = null
+        val bellIcon: ImageView = findViewById(R.id.bellIcon)
 
+        bellIcon.setOnClickListener {
+            if (isBellSelected) {
+                bellIcon.setImageResource(R.drawable.ic_bell)
+            } else {
+
+                bellIcon.setImageResource(R.drawable.ic_bell_unselected)
+            }
+
+
+            isBellSelected = !isBellSelected
+        }
 
         bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {

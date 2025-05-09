@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="#b5b5b5"
+    android:background="#7fb3d5"
     tools:context=".ChallengesActivity">
 
     <com.example.hydrohabit.RainView
@@ -23,6 +23,15 @@
         android:layout_alignParentStart="true"
         android:fontFamily="@font/dosis_bold"
         android:layout_margin="16dp" />
+    <ImageView
+        android:id="@+id/bellIcon"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:clickable="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@id/appTitle"
+        android:src="@drawable/ic_bell_selector"
+        android:layout_marginEnd="10dp"/>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigationView"

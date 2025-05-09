@@ -2,6 +2,7 @@ package com.example.hydrohabit
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.ImageView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -10,6 +11,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.core.graphics.toColorInt
 
 class ChallengesActivity : AppCompatActivity() {
+    private var isBellSelected = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.statusBarColor = "#292929".toColorInt()
@@ -34,6 +36,19 @@ class ChallengesActivity : AppCompatActivity() {
                 }
                 else -> false
             }
+        }
+        val bellIcon: ImageView = findViewById(R.id.bellIcon)
+
+        bellIcon.setOnClickListener {
+            if (isBellSelected) {
+                bellIcon.setImageResource(R.drawable.ic_bell)
+            } else {
+
+                bellIcon.setImageResource(R.drawable.ic_bell_unselected)
+            }
+
+
+            isBellSelected = !isBellSelected
         }
     }
 }
