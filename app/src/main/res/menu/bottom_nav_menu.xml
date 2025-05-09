@@ -2,14 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/nav_home"
-        android:icon="@drawable/ic_home"
+        android:icon="@drawable/ic_home_selector"
         android:title="Home" />
     <item
         android:id="@+id/nav_insights"
-        android:icon="@drawable/ic_insights"
+        android:icon="@drawable/ic_insights_selector"
         android:title="Insights" />
     <item
         android:id="@+id/nav_challenges"
-        android:icon="@drawable/ic_challenges"
+        android:icon="@drawable/ic_challenges_selector"
         android:title="Challenges" />
 </menu>

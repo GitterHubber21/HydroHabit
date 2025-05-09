@@ -11,7 +11,6 @@ import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.TextView
 import android.graphics.drawable.Drawable
-
 import androidx.core.content.getSystemService
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
@@ -33,26 +32,28 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.home)
+        setContentView(R.layout.activity_main)
 
         initViews()
         setupRainView()
         setupButtons()
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         bottomNavigationView.selectedItemId = R.id.nav_home
+        bottomNavigationView.itemIconTintList = null
+
 
         bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_home -> true
                 R.id.nav_insights -> {
                     startActivity(Intent(applicationContext, InsightsActivity::class.java))
-
+                    overridePendingTransition(0, 0)
                     finish()
                     true
                 }
                 R.id.nav_challenges -> {
                     startActivity(Intent(applicationContext, ChallengesActivity::class.java))
-
+                    overridePendingTransition(0, 0)
                     finish()
                     true
                 }

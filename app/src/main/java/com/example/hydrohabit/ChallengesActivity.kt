@@ -14,19 +14,19 @@ class ChallengesActivity : AppCompatActivity() {
         setContentView(R.layout.activity_challenges)
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         bottomNavigationView.selectedItemId = R.id.nav_challenges
-
+        bottomNavigationView.itemIconTintList = null
         bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_challenges -> true
                 R.id.nav_insights -> {
                     startActivity(Intent(applicationContext, InsightsActivity::class.java))
-
+                    overridePendingTransition(0, 0)
                     finish()
                     true
                 }
                 R.id.nav_home -> {
                     startActivity(Intent(applicationContext, MainActivity::class.java))
-
+                    overridePendingTransition(0, 0)
                     finish()
                     true
                 }
