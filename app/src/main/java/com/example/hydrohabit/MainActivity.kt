@@ -13,6 +13,7 @@ import android.widget.TextView
 import android.graphics.drawable.Drawable
 import androidx.core.content.getSystemService
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import androidx.core.graphics.toColorInt
 
 
 class MainActivity : Activity() {
@@ -33,7 +34,7 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
+        window.statusBarColor = "#292929".toColorInt()
         initViews()
         setupRainView()
         setupButtons()
