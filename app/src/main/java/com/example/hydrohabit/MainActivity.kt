@@ -47,10 +47,10 @@ class MainActivity : Activity() {
 
         bellIcon.setOnClickListener {
             if (isBellSelected) {
-                bellIcon.setImageResource(R.drawable.ic_bell)
+                bellIcon.setImageResource(R.drawable.ic_bell_unselected)
             } else {
 
-                bellIcon.setImageResource(R.drawable.ic_bell_unselected)
+                bellIcon.setImageResource(R.drawable.ic_bell)
             }
 
 
