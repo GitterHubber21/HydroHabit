@@ -26,6 +26,7 @@ class MainActivity : Activity() {
     private lateinit var add250Button: Button
     private lateinit var add500Button: Button
     private lateinit var add750Button: Button
+    private lateinit var waterVolumeText: TextView
 
     private val FILL_AMOUNT = 1000
     private val AMOUNT_250 = 250
@@ -44,7 +45,13 @@ class MainActivity : Activity() {
         bottomNavigationView.selectedItemId = R.id.nav_home
         bottomNavigationView.itemIconTintList = null
         val bellIcon: ImageView = findViewById(R.id.bellIcon)
-
+        rainView = findViewById(R.id.rainView)
+        waterVolumeText = findViewById(R.id.waterVolume)
+        rainView.onVolumeChanged = { volume ->
+            runOnUiThread {
+                waterVolumeText.text = String.format("%.1f ml", volume)
+            }
+        }
         bellIcon.setOnClickListener {
             if (isBellSelected) {
                 bellIcon.setImageResource(R.drawable.ic_bell_unselected)

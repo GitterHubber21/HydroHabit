@@ -46,6 +46,13 @@
             android:layout_height="200dp"
             android:layout_marginTop="120dp"
             android:background="@drawable/ic_cup" />
+        <TextView
+            android:id="@+id/waterVolume"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/volume"
+            android:textSize="20sp"
+            android:textColor="@android:color/white" />
 
         <Button
             android:id="@+id/fillButton"

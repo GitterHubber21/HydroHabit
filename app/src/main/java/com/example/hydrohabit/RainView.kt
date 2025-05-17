@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.View
 import androidx.annotation.RequiresApi
 import java.util.Random
+import androidx.core.graphics.toColorInt
 
 class RainView @JvmOverloads constructor(
     context: Context,
@@ -21,24 +22,27 @@ class RainView @JvmOverloads constructor(
     private val raindrops = mutableListOf<Raindrop>()
 
     private val regularPaint = Paint().apply {
-        color = Color.parseColor("#3b86d6")
+        color = "#3b86d6".toColorInt()
         isAntiAlias = true
         style = Paint.Style.FILL
     }
 
     private val blurPaint = Paint().apply {
-        color = Color.parseColor("#3b86d6")
+        color = "#3b86d6".toColorInt()
         isAntiAlias = true
         style = Paint.Style.FILL
         maskFilter = BlurMaskFilter(15f, BlurMaskFilter.Blur.NORMAL)
     }
 
     private val uiElements = mutableListOf<RectF>()
+    var onVolumeChanged: ((Float) -> Unit)? = null
     private var glassContainerView: View? = null
     private var glassContainerRect: RectF? = null
-
+    private var waterLevel: Float = 0f
     private var isRaining = false
-
+    private val glassVolumeMl = 1000f
+    private var currentVolumeMl = 0f
+    private var waterLevelRatio = 0f
     private val handler = Handler(Looper.getMainLooper())
     private val animator = object : Runnable {
         @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
@@ -133,6 +137,11 @@ class RainView @JvmOverloads constructor(
 
             if (hitsGlass) {
                 Log.d("RainView", "Raindrop touched the bottom of the glass at (${raindrop.x}, ${raindrop.y})")
+                val dropVolume = if (raindrop.size < 30f) 0.5f else 1.0f
+                currentVolumeMl += dropVolume
+                if (currentVolumeMl > glassVolumeMl) currentVolumeMl = glassVolumeMl
+                waterLevelRatio = currentVolumeMl / glassVolumeMl
+                onVolumeChanged?.invoke(currentVolumeMl)
                 iterator.remove()
             } else if (raindrop.y > height) {
                 Log.d("RainView", "Raindrop fell off screen at (${raindrop.x}, ${raindrop.y})")
@@ -150,6 +159,18 @@ class RainView @JvmOverloads constructor(
 
             canvas.drawCircle(raindrop.x, raindrop.y - raindrop.size/2, raindrop.size/2, paint)
         }
+        glassContainerRect?.let { glass ->
+            val waterTop = glass.bottom - (glass.height() * waterLevelRatio)
+            val waterRect = RectF(glass.left, waterTop, glass.right, glass.bottom)
+
+            val waterPaint = Paint().apply {
+                color = "#3b86d6".toColorInt() // Light blue
+                isAntiAlias = true
+            }
+
+            canvas.drawRect(waterRect, waterPaint)
+        }
+
     }
 
     private fun isOverlappingUIElement(raindrop: Raindrop): Boolean {
