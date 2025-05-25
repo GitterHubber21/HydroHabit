@@ -1,26 +1,22 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="20dp"
-    android:height="20dp"
-    android:viewportWidth="100"
-    android:viewportHeight="100"
-    android:autoMirrored="true"
-    android:tint="@null">
-
+    android:width="35dp"
+    android:height="35dp"
+    android:viewportWidth="35"
+    android:viewportHeight="35">
 
     <path
-        android:fillColor="#ffffff"
-        android:pathData="M5,95 H95 V90 H5 Z" />
-
-
-    <path
-        android:fillColor="#ffffff"
-        android:pathData="M17.75,30 H30.75 V85 H17.75 Z" />
+        android:fillColor="#FFFFFF"
+        android:pathData="M23.5,0h7c0.553,0 1,0.447 1,1v30c0,0.553 -0.447,1 -1,1h-7c-0.553,0 -1,-0.447 -1,-1V1c0,-0.553 0.447,-1 1,-1z" />
 
     <path
-        android:fillColor="#ffffff"
-        android:pathData="M43.5,35 H56.5 V85 H43.5 Z" />
+        android:fillColor="#FFFFFF"
+        android:pathData="M12.5,16h7c0.553,0 1,0.447 1,1v14c0,0.553 -0.447,1 -1,1h-7c-0.553,0 -1,-0.447 -1,-1V17c0,-0.553 0.447,-1 1,-1z" />
 
     <path
-        android:fillColor="#ffffff"
-        android:pathData="M69.25,20 H82.25 V85 H69.25 Z" />
+        android:fillColor="#FFFFFF"
+        android:pathData="M1.5,10h7c0.553,0 1,0.447 1,1v20c0,0.553 -0.447,1 -1,1h-7c-0.553,0 -1,-0.447 -1,-1V11c0,-0.553 0.447,-1 1,-1z" />
+
 </vector>
+
+    <!--Source:https://www.svgrepo.com/svg/509028/bar-chart-->
+    <!--Add link to the repo-->

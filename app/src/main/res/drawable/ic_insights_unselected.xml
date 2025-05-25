@@ -1,30 +1,12 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="20dp"
-    android:height="20dp"
-    android:viewportWidth="100"
-    android:viewportHeight="100"
-    android:autoMirrored="true"
-    android:tint="@null">
-
-
-    <path
-        android:strokeColor="#ffffff"
-        android:strokeWidth="2"
-        android:pathData="M5,95 H95 V90 H5 Z" />
-
-
-    <path
-        android:strokeColor="#ffffff"
-        android:strokeWidth="2"
-        android:pathData="M17.75,30 H30.75 V85 H17.75 Z" />
-
-    <path
-        android:strokeColor="#ffffff"
-        android:strokeWidth="2"
-        android:pathData="M43.5,35 H56.5 V85 H43.5 Z" />
-
-    <path
-        android:strokeColor="#ffffff"
-        android:strokeWidth="2"
-        android:pathData="M69.25,20 H82.25 V85 H69.25 Z" />
+    android:height="35dp"
+    android:viewportHeight="35"
+    android:viewportWidth="35"
+    android:width="35dp">
+      
+    <path android:fillColor="#FFFFFF" android:pathData="M30.5,32L23.5,32C22.947,32 22.5,31.552 22.5,31L22.5,1C22.5,0.448 22.947,-0 23.5,-0L30.5,-0C31.053,-0 31.5,0.448 31.5,1L31.5,31C31.5,31.552 31.053,32 30.5,32ZM29.5,2L24.5,2L24.5,30L29.5,30L29.5,2ZM19.5,32L12.5,32C11.948,32 11.5,31.552 11.5,31L11.5,17C11.5,16.448 11.948,16 12.5,16L19.5,16C20.053,16 20.5,16.448 20.5,17L20.5,31C20.5,31.552 20.053,32 19.5,32ZM18.5,18L13.5,18L13.5,30L18.5,30L18.5,18ZM8.5,32L1.5,32C0.948,32 0.5,31.552 0.5,31L0.5,11C0.5,10.448 0.948,10 1.5,10L8.5,10C9.052,10 9.5,10.448 9.5,11L9.5,31C9.5,31.552 9.052,32 8.5,32ZM7.5,12L2.5,12L2.5,30L7.5,30L7.5,12Z"/>
+    
 </vector>
+
+    <!--Source:https://www.svgrepo.com/svg/509028/bar-chart-->
+    <!--Add link to the repo-->

@@ -2,14 +2,12 @@
     android:width="15dp"
     android:height="15dp"
     android:viewportWidth="100"
-    android:viewportHeight="100"
-    android:autoMirrored="true"
-    android:tint="@null">
+    android:viewportHeight="100">
 
 
     <path
         android:strokeColor="#ffffff"
-        android:strokeWidth="4"
+        android:strokeWidth="8"
         android:fillColor="#3b86d6"
         android:pathData="M50,10 A40,40 0 1,1 49.9,10 Z" />
 
