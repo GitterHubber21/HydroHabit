@@ -11,7 +11,9 @@ import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.TextView
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.widget.ImageView
+import androidx.annotation.RequiresApi
 import androidx.core.content.getSystemService
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.core.graphics.toColorInt
@@ -33,6 +35,10 @@ class MainActivity : Activity() {
     private val AMOUNT_500 = 500
     private val AMOUNT_750 = 750
     private var isBellSelected = false
+    private var isTimedRainActive = false
+    private var displayedVolume = 0f
+
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -47,20 +53,30 @@ class MainActivity : Activity() {
         val bellIcon: ImageView = findViewById(R.id.bellIcon)
         rainView = findViewById(R.id.rainView)
         waterVolumeText = findViewById(R.id.waterVolume)
-        rainView.onVolumeChanged = { volume ->
+
+        rainView.onVolumeChanged = { dropletVolume ->
             runOnUiThread {
-                waterVolumeText.text = String.format("%.1f ml", volume)
+                if (!isTimedRainActive) {
+                    displayedVolume += dropletVolume
+                    if (displayedVolume > 2000f) displayedVolume = 2000f
+                    waterVolumeText.text = String.format("%.1f ml", displayedVolume)
+                }
             }
         }
+
+        rainView.onTimedRainStateChanged = { isActive ->
+            runOnUiThread {
+                isTimedRainActive = isActive
+                updateButtonStates()
+            }
+        }
+
         bellIcon.setOnClickListener {
             if (isBellSelected) {
                 bellIcon.setImageResource(R.drawable.ic_bell_unselected)
             } else {
-
                 bellIcon.setImageResource(R.drawable.ic_bell)
             }
-
-
             isBellSelected = !isBellSelected
         }
 
@@ -82,8 +98,6 @@ class MainActivity : Activity() {
                 else -> false
             }
         }
-
-
     }
 
     private fun initViews() {
@@ -113,6 +127,7 @@ class MainActivity : Activity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     @SuppressLint("ClickableViewAccessibility")
     private fun setupButtons() {
         val vibrator = getSystemService<Vibrator>()
@@ -121,51 +136,83 @@ class MainActivity : Activity() {
             fillButton,
             vibrator,
             pressedDrawableRes = R.drawable.pressed_button_rectangle,
-            onPress = { rainView.startRain() },
+            onPress = {
+                if (!isTimedRainActive) {
+                    rainView.startRain()
+                }
+            },
             onRelease = {
-                rainView.stopRain()
+                if (!isTimedRainActive) {
+                    rainView.stopRain()
+                }
             }
         )
 
         setupPressable(
             add250Button,
             vibrator,
-            pressedDrawableRes = R.drawable.pressed_button_rectangle_bottom,
+            pressedDrawableRes = R.drawable.rounded_transparent_square,
             onPress = {
-
-                rainView.startTimedRain(AMOUNT_250.toFloat(), 3.0f)
+                if (!isTimedRainActive) {
+                    displayedVolume += AMOUNT_250
+                    if (displayedVolume > 2000f) displayedVolume = 2000f
+                    waterVolumeText.text = String.format("%.1f ml", displayedVolume)
+                    rainView.startTimedRain(AMOUNT_250.toFloat(), 3.0f)
+                    addWaterToTracker(AMOUNT_250)
+                }
             },
             onRelease = {
-
-                addWaterToTracker(AMOUNT_250)
             }
         )
 
         setupPressable(
             add500Button,
             vibrator,
-            pressedDrawableRes = R.drawable.pressed_button_rectangle_bottom,
+            pressedDrawableRes = R.drawable.rounded_transparent_square,
             onPress = {
-
-                rainView.startTimedRain(AMOUNT_500.toFloat(), 4.0f)
+                if (!isTimedRainActive) {
+                    displayedVolume += AMOUNT_500
+                    if (displayedVolume > 2000f) displayedVolume = 2000f
+                    waterVolumeText.text = String.format("%.1f ml", displayedVolume)
+                    rainView.startTimedRain(AMOUNT_500.toFloat(), 4.0f)
+                    addWaterToTracker(AMOUNT_500)
+                }
             },
             onRelease = {
-                addWaterToTracker(AMOUNT_500)
             }
         )
 
         setupPressable(
             add750Button,
             vibrator,
-            pressedDrawableRes = R.drawable.pressed_button_rectangle_bottom,
+            pressedDrawableRes = R.drawable.rounded_transparent_square,
             onPress = {
-
-                rainView.startTimedRain(AMOUNT_750.toFloat(), 5.0f)
+                if (!isTimedRainActive) {
+                    displayedVolume += AMOUNT_750
+                    if (displayedVolume > 2000f) displayedVolume = 2000f
+                    waterVolumeText.text = String.format("%.1f ml", displayedVolume)
+                    rainView.startTimedRain(AMOUNT_750.toFloat(), 5.0f)
+                    addWaterToTracker(AMOUNT_750)
+                }
             },
             onRelease = {
-                addWaterToTracker(AMOUNT_750)
             }
         )
+
+        updateButtonStates()
+    }
+
+    private fun updateButtonStates() {
+        val alpha = if (isTimedRainActive) 0.5f else 1.0f
+        fillButton.alpha = alpha
+        add250Button.alpha = alpha
+        add500Button.alpha = alpha
+        add750Button.alpha = alpha
+
+        fillButton.isEnabled = !isTimedRainActive
+        add250Button.isEnabled = !isTimedRainActive
+        add500Button.isEnabled = !isTimedRainActive
+        add750Button.isEnabled = !isTimedRainActive
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -178,6 +225,8 @@ class MainActivity : Activity() {
     ) {
         val originalBackground: Drawable = button.background
         button.setOnTouchListener { v, event ->
+            if (!button.isEnabled) return@setOnTouchListener false
+
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     v.setBackgroundResource(pressedDrawableRes)
@@ -195,8 +244,6 @@ class MainActivity : Activity() {
         }
     }
 
-
     private fun addWaterToTracker(amountMl: Int) {
-        // Implement water tracking logic
     }
 }
