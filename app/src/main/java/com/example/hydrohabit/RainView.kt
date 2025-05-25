@@ -47,11 +47,16 @@ class RainView @JvmOverloads constructor(
     var onVolumeChanged: ((Float) -> Unit)? = null
     private var glassContainerView: View? = null
     private var glassContainerRect: RectF? = null
-    private var waterLevel: Float = 0f
     private var isRaining = false
-    private val glassVolumeMl = 1000f
+    private val glassVolumeMl = 2000f
     private var currentVolumeMl = 0f
     private var waterLevelRatio = 0f
+    private var isTimedRain = false
+    private var timedRainTargetMl = 0f
+    private var timedRainAddedMl = 0f
+    private var timedRainStartTime = 0L
+    private var timedRainDurationMs = 0L
+    private var timedRainIntensity = 0.6f
     private val handler = Handler(Looper.getMainLooper())
     private val animator = object : Runnable {
         @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
@@ -91,6 +96,19 @@ class RainView @JvmOverloads constructor(
     fun stopRain() {
         isRaining = false
     }
+    fun startTimedRain(volumeMl: Float, durationSeconds: Float) {
+        refreshGlassContainerRect()
+        isRaining = true
+        isTimedRain = true
+        timedRainTargetMl = volumeMl
+        timedRainAddedMl = 0f
+        timedRainStartTime = System.currentTimeMillis()
+        timedRainDurationMs = (durationSeconds * 1000).toLong()
+
+        timedRainIntensity = (volumeMl / 250f) * 0.8f
+
+        Log.d("RainView", "Started timed rain: ${volumeMl}ml over ${durationSeconds}s")
+    }
 
     private fun refreshGlassContainerRect() {
         glassContainerView?.let {
@@ -99,7 +117,7 @@ class RainView @JvmOverloads constructor(
         glassContainerRect?.let { rect ->
             val width = rect.width()
             val height = rect.height()
-            Log.d("RainView", "Glass rect - X: ${rect.left}, Y: ${rect.top}, Width: $width, Height: $height")
+
         }
     }
 
@@ -134,10 +152,37 @@ class RainView @JvmOverloads constructor(
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     private fun updateRaindrops() {
         if (isRaining) {
-            if (random.nextFloat() < 0.6f && raindrops.size < 300) {
-                val screenCenter = width / 2f
-                val x = screenCenter - 100f + random.nextFloat() * 200f
-                raindrops.add(Raindrop(x, 0f, random.nextInt(15, 45).toFloat()))
+            if (isTimedRain) {
+                val elapsedTime = System.currentTimeMillis() - timedRainStartTime
+                val progress = elapsedTime.toFloat() / timedRainDurationMs
+
+                // Stop timed rain if duration exceeded or target volume reached
+                if (progress >= 1.0f) {
+                    isRaining = false
+                    isTimedRain = false
+                    Log.d("RainView", "Timed rain completed. Added: ${timedRainAddedMl}ml / ${timedRainTargetMl}ml")
+                } else {
+                    // Generate raindrops based on remaining volume and time
+                    val remainingVolume = timedRainTargetMl - timedRainAddedMl
+                    val remainingTime = timedRainDurationMs - elapsedTime
+
+                    // Adjust spawn rate to meet target volume in remaining time
+                    val targetDropsPerSecond = (remainingVolume / 0.5f) / (remainingTime / 1000f)
+                    val spawnProbability = (targetDropsPerSecond / 60f).coerceIn(0.5f, 1.0f) // 60fps
+
+                    if (random.nextFloat() < spawnProbability && raindrops.size < 300) {
+                        val screenCenter = width / 2f
+                        val x = screenCenter - 100f + random.nextFloat() * 200f
+                        raindrops.add(Raindrop(x, 0f, random.nextInt(15, 45).toFloat()))
+                    }
+                }
+            } else {
+                // Original rain generation for continuous rain (fill button)
+                if (random.nextFloat() < 0.6f && raindrops.size < 300) {
+                    val screenCenter = width / 2f
+                    val x = screenCenter - 100f + random.nextFloat() * 200f
+                    raindrops.add(Raindrop(x, 0f, random.nextInt(15, 45).toFloat()))
+                }
             }
         }
 
@@ -177,24 +222,22 @@ class RainView @JvmOverloads constructor(
                         val waterSurfaceY = glass.bottom - (glass.height() * waterLevelRatio)
                         createRipple(raindrop.x, waterSurfaceY, glass.left, glass.right)
                     }
-                    Log.d("RainView", "Raindrop hit water surface at (${raindrop.x}, ${raindrop.y})")
-                } else if (hitsBottom && !hitsWave) {
-                    Log.d("RainView", "Raindrop touched the bottom of the glass at (${raindrop.x}, ${raindrop.y})")
-                } else if (hitsWave) {
-                    Log.d("RainView", "Raindrop hit wave at (${raindrop.x}, ${raindrop.y})")
                 }
 
                 val dropVolume = if (raindrop.size < 30f) 0.5f else 1.0f
                 currentVolumeMl += dropVolume
+                if (isTimedRain) {
+                    timedRainAddedMl += dropVolume
+                }
+
                 if (currentVolumeMl > glassVolumeMl) currentVolumeMl = glassVolumeMl
                 waterLevelRatio = currentVolumeMl / glassVolumeMl
                 onVolumeChanged?.invoke(currentVolumeMl)
                 iterator.remove()
+
             } else if (isBeyondGlassBottom) {
-                Log.d("RainView", "Raindrop disappeared beyond glass bottom at (${raindrop.x}, ${raindrop.y})")
                 iterator.remove()
             } else if (raindrop.y > height) {
-                Log.d("RainView", "Raindrop fell off screen at (${raindrop.x}, ${raindrop.y})")
                 iterator.remove()
             }
         }

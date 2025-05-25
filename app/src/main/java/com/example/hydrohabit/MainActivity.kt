@@ -124,33 +124,48 @@ class MainActivity : Activity() {
             onPress = { rainView.startRain() },
             onRelease = {
                 rainView.stopRain()
-                addWaterToTracker(FILL_AMOUNT)
             }
         )
 
         setupPressable(
             add250Button,
             vibrator,
-            pressedDrawableRes = R.drawable.pressed_button_rectangle_bottom
-        ) {
-            addWaterToTracker(AMOUNT_250)
-        }
+            pressedDrawableRes = R.drawable.pressed_button_rectangle_bottom,
+            onPress = {
+
+                rainView.startTimedRain(AMOUNT_250.toFloat(), 3.0f)
+            },
+            onRelease = {
+
+                addWaterToTracker(AMOUNT_250)
+            }
+        )
 
         setupPressable(
             add500Button,
             vibrator,
-            pressedDrawableRes = R.drawable.pressed_button_rectangle_bottom
-        ) {
-            addWaterToTracker(AMOUNT_500)
-        }
+            pressedDrawableRes = R.drawable.pressed_button_rectangle_bottom,
+            onPress = {
+
+                rainView.startTimedRain(AMOUNT_500.toFloat(), 4.0f)
+            },
+            onRelease = {
+                addWaterToTracker(AMOUNT_500)
+            }
+        )
 
         setupPressable(
             add750Button,
             vibrator,
-            pressedDrawableRes = R.drawable.pressed_button_rectangle_bottom
-        ) {
-            addWaterToTracker(AMOUNT_750)
-        }
+            pressedDrawableRes = R.drawable.pressed_button_rectangle_bottom,
+            onPress = {
+
+                rainView.startTimedRain(AMOUNT_750.toFloat(), 5.0f)
+            },
+            onRelease = {
+                addWaterToTracker(AMOUNT_750)
+            }
+        )
     }
 
     @SuppressLint("ClickableViewAccessibility")
