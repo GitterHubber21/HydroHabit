@@ -35,6 +35,194 @@
         android:src="@drawable/ic_bell_selector"
         android:layout_marginEnd="16dp"/>
 
+    <Button
+        android:id="@+id/testButton"
+        android:layout_width="100dp"
+        android:gravity="center"
+        android:layout_height="50dp"
+        android:layout_marginStart="150dp"
+        android:background="@drawable/rounded_transparent_square"
+        android:text="Test"
+        android:textColor="@android:color/black" />
+
+    <LinearLayout
+        android:id="@+id/progressRow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_below="@id/appTitle"
+        android:layout_marginTop="30dp"
+        android:padding="5dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/rounded_transparent_square"
+        android:gravity="center"
+        android:layout_centerHorizontal="true">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginHorizontal="8dp"
+            android:gravity="center_horizontal">
+
+            <FrameLayout
+                android:layout_width="90dp"
+                android:layout_height="90dp">
+
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:id="@+id/progressDay"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    style="@style/Widget.MaterialComponents.CircularProgressIndicator"
+                    app:indicatorColor="#3b86d6"
+                    app:trackColor="#3b86d6"
+                    app:trackThickness="8dp"
+                    app:indicatorSize="80dp" />
+
+                <TextView
+                    android:id="@+id/dayPercent"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="70%"
+                    android:textColor="#000000"
+                    android:textStyle="bold"
+                    android:textSize="20sp" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/dayLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Day"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:layout_marginTop="8dp" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginHorizontal="8dp"
+            android:gravity="center_horizontal">
+
+            <FrameLayout
+                android:layout_width="90dp"
+                android:layout_height="90dp">
+
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:id="@+id/progressWeek"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    style="@style/Widget.MaterialComponents.CircularProgressIndicator"
+                    app:indicatorColor="#3b86d6"
+                    app:trackColor="#3b86d6"
+                    app:trackThickness="8dp"
+                    app:indicatorSize="80dp" />
+
+                <TextView
+                    android:id="@+id/weekPercent"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="80%"
+                    android:textColor="#000000"
+                    android:textStyle="bold"
+                    android:textSize="20sp" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/weekhLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Week"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:layout_marginTop="8dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginHorizontal="8dp"
+            android:gravity="center_horizontal">
+
+            <FrameLayout
+                android:layout_width="90dp"
+                android:layout_height="90dp">
+
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:id="@+id/progressMonth"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    style="@style/Widget.MaterialComponents.CircularProgressIndicator"
+                    app:indicatorColor="#3b86d6"
+                    app:trackColor="#3b86d6"
+                    app:trackThickness="8dp"
+                    app:indicatorSize="80dp" />
+
+                <TextView
+                    android:id="@+id/monthPercent"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="82%"
+                    android:textColor="#000000"
+                    android:textStyle="bold"
+                    android:textSize="20sp" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/monthLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Month"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:layout_marginTop="8dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/monthTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="June"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        android:textSize="30sp"
+        android:layout_below="@id/progressRow"
+        android:layout_marginTop="40dp"
+        android:layout_centerHorizontal="true"/>
+
+    <GridLayout
+        android:id="@+id/calendarGrid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/monthTitle"
+        android:layout_margin="16dp"
+        android:columnCount="7"
+        android:rowCount="6"
+        android:alignmentMode="alignMargins"
+        android:useDefaultMargins="true"
+        android:layout_above="@id/bottomNavigationView">
+
+        <TextView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:text="1"
+            android:gravity="center"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/circle_blue"
+            android:textStyle="bold" />
+    </GridLayout>
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigationView"
         android:layout_width="match_parent"

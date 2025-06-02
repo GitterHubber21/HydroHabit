@@ -2,11 +2,9 @@ package com.example.hydrohabit
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Button
 import android.widget.ImageView
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.core.graphics.toColorInt
 
@@ -38,6 +36,8 @@ class InsightsActivity : AppCompatActivity() {
             }
         }
         val bellIcon: ImageView = findViewById(R.id.bellIcon)
+        val testButton: Button = findViewById(R.id.testButton)
+        testButton.setBackgroundResource(R.drawable.rounded_transparent_square)
 
         bellIcon.setOnClickListener {
             if (isBellSelected) {
@@ -49,6 +49,11 @@ class InsightsActivity : AppCompatActivity() {
 
 
             isBellSelected = !isBellSelected
+        }
+        testButton.setOnClickListener {
+            startActivity(Intent(applicationContext, TestActivity::class.java))
+            overridePendingTransition(0, 0)
+            finish()
         }
     }
 }
