@@ -6,3 +6,4 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 gunicorn -b ":$PORT" main:app
+echo "PORT is set to: $PORT"
