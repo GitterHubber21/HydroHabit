@@ -12,6 +12,7 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import android.graphics.drawable.Drawable
 import android.os.Build
+import android.util.Log
 import android.widget.ImageView
 import androidx.annotation.RequiresApi
 import androidx.core.content.getSystemService
@@ -22,6 +23,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 import android.widget.Toast
+import kotlinx.coroutines.*
 
 
 
@@ -44,6 +46,8 @@ class MainActivity : Activity() {
     private var isTimedRainActive = false
     private var displayedVolume = 0f
     private val client = OkHttpClient()
+    private val job = Job()
+    private val coroutineScope = CoroutineScope(Dispatchers.Default + job)
 
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,7 +74,15 @@ class MainActivity : Activity() {
                     waterVolumeText.text = String.format("%.1f ml", displayedVolume)
                 }
             }
+            Log.d("RainVolume", "Displayed volume: $displayedVolume")
         }
+        coroutineScope.launch {
+            while (isActive) {
+                updateQuantity("quantity", displayedVolume.toString())
+                delay(3000L)
+            }
+        }
+
 
 
         rainView.onTimedRainStateChanged = { isActive ->
@@ -109,6 +121,10 @@ class MainActivity : Activity() {
             }
         }
     }
+    override fun onDestroy() {
+        super.onDestroy()
+        job.cancel()
+    }
 
     private fun initViews() {
         rainView = findViewById(R.id.rainView)
@@ -141,14 +157,14 @@ class MainActivity : Activity() {
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
                 runOnUiThread {
-                    Toast.makeText(this@MainActivity, "Request failed", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(this@MainActivity, "Request failed", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
                 val responseBody = response.body?.string()
                 runOnUiThread {
-                    Toast.makeText(this@MainActivity, "Response: $responseBody", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(this@MainActivity, "Response: $responseBody", Toast.LENGTH_SHORT).show()
                 }
             }
         })
@@ -270,7 +286,6 @@ class MainActivity : Activity() {
         val originalBackground: Drawable = button.background
         button.setOnTouchListener { v, event ->
             if (!button.isEnabled) return@setOnTouchListener false
-            updateQuantity("quantity", displayedVolume.toString())
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     v.setBackgroundResource(pressedDrawableRes)
