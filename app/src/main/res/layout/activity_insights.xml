@@ -35,16 +35,6 @@
         android:src="@drawable/ic_bell_selector"
         android:layout_marginEnd="16dp"/>
 
-    <Button
-        android:id="@+id/testButton"
-        android:layout_width="100dp"
-        android:gravity="center"
-        android:layout_height="50dp"
-        android:layout_marginStart="150dp"
-        android:background="@drawable/rounded_transparent_square"
-        android:text="Test"
-        android:textColor="@android:color/black" />
-
     <LinearLayout
         android:id="@+id/progressRow"
         android:layout_width="wrap_content"
@@ -54,7 +44,6 @@
         android:layout_marginTop="30dp"
         android:padding="10dp"
         android:layout_marginBottom="10dp"
-        android:background="@drawable/rounded_transparent_square"
         android:gravity="center"
         android:layout_centerHorizontal="true">
 
@@ -100,7 +89,6 @@
                 android:textSize="20sp"
                 android:layout_marginTop="8dp" />
         </LinearLayout>
-
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -198,7 +186,7 @@
         android:textStyle="bold"
         android:textSize="30sp"
         android:layout_below="@id/progressRow"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="20dp"
         android:layout_centerHorizontal="true"/>
 
     <GridLayout
@@ -206,6 +194,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/monthTitle"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="10dp"
         android:columnCount="7"
         android:rowCount="6"
         android:layout_alignStart="@id/progressRow"
