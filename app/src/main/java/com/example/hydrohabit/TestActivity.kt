@@ -16,7 +16,7 @@ class TestActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_test)
 
-        val url = "http://coolcoder.hackclub.dev/"
+        val url = "https://hydro.coolcoder.hackclub.app/api/hello"
         val request = Request.Builder().url(url).build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -28,7 +28,7 @@ class TestActivity : AppCompatActivity() {
 
             override fun onResponse(call: Call, response: Response) {
                 response.body?.string()?.let {
-                    val message = JSONObject(it).getString("color")
+                    val message = JSONObject(it).getString("message")
                     runOnUiThread {
                         findViewById<TextView>(R.id.testResponse).text = message
                     }
