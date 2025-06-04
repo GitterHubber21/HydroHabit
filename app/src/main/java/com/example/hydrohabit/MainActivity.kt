@@ -17,6 +17,12 @@ import androidx.annotation.RequiresApi
 import androidx.core.content.getSystemService
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.core.graphics.toColorInt
+import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.IOException
+import android.widget.Toast
+
 
 
 class MainActivity : Activity() {
@@ -37,10 +43,12 @@ class MainActivity : Activity() {
     private var isBellSelected = false
     private var isTimedRainActive = false
     private var displayedVolume = 0f
+    private val client = OkHttpClient()
 
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_main)
         window.statusBarColor = "#292929".toColorInt()
 
@@ -63,6 +71,8 @@ class MainActivity : Activity() {
                 }
             }
         }
+        updateQuantity("quantity", displayedVolume.toString())
+
 
         rainView.onTimedRainStateChanged = { isActive ->
             runOnUiThread {
@@ -70,6 +80,7 @@ class MainActivity : Activity() {
                 updateButtonStates()
             }
         }
+
 
         bellIcon.setOnClickListener {
             if (isBellSelected) {
@@ -108,6 +119,40 @@ class MainActivity : Activity() {
         add250Button = findViewById(R.id.add250Button)
         add500Button = findViewById(R.id.add500Button)
         add750Button = findViewById(R.id.add750Button)
+    }
+    private fun updateQuantity(key: String, value: String) {
+        val url = "https://hydro.coolcoder.hackclub.app/api/quantity"
+
+        val json = """
+            {
+                "key": "$key",
+                "value": "$value"
+            }
+        """.trimIndent()
+
+        val mediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
+        val body = json.toRequestBody(mediaType)
+
+        val request = Request.Builder()
+            .url(url)
+            .post(body)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                e.printStackTrace()
+                runOnUiThread {
+                    Toast.makeText(this@MainActivity, "Request failed", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseBody = response.body?.string()
+                runOnUiThread {
+                    Toast.makeText(this@MainActivity, "Response: $responseBody", Toast.LENGTH_SHORT).show()
+                }
+            }
+        })
     }
 
     private fun setupRainView() {
