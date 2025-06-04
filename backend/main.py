@@ -3,6 +3,10 @@ from flask import Flask, jsonify, request
 app = Flask(__name__)
 data_store = {"quantity": "100ml"}
 
+@app.route('/api/quantity', methods=['GET'])
+def get_value():
+    return jsonify(data_store)
+
 @app.route('/api/quantity', methods=['POST'])
 def update_value():
     content = request.get_json()
