@@ -71,7 +71,6 @@ class MainActivity : Activity() {
                 }
             }
         }
-        updateQuantity("quantity", displayedVolume.toString())
 
 
         rainView.onTimedRainStateChanged = { isActive ->
@@ -121,7 +120,7 @@ class MainActivity : Activity() {
         add750Button = findViewById(R.id.add750Button)
     }
     private fun updateQuantity(key: String, value: String) {
-        val url = "https://hydro.coolcoder.hackclub.app/api/quantity"
+        val url = "https://water.coolcoder.hackclub.app/api/quantity"
 
         val json = """
             {
@@ -271,7 +270,7 @@ class MainActivity : Activity() {
         val originalBackground: Drawable = button.background
         button.setOnTouchListener { v, event ->
             if (!button.isEnabled) return@setOnTouchListener false
-
+            updateQuantity("quantity", displayedVolume.toString())
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     v.setBackgroundResource(pressedDrawableRes)
