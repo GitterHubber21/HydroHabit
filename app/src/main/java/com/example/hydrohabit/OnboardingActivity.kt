@@ -7,16 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.widget.Button
 import android.widget.TextView
 import androidx.core.content.edit
-import android.util.Log
-import android.os.VibrationEffect
-import android.os.Vibrator
-import androidx.core.content.getSystemService
-import android.view.animation.AnimationUtils
-import android.view.animation.TranslateAnimation
-import android.view.animation.AlphaAnimation
-import android.view.animation.AnimationSet
 import android.view.animation.AccelerateDecelerateInterpolator
-import android.view.animation.BounceInterpolator
 import android.os.Handler
 import android.os.Looper
 
@@ -30,26 +21,23 @@ class OnboardingActivity : AppCompatActivity() {
         val sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE)
         val goButton: Button = findViewById(R.id.goButton)
         val welcomeText: TextView = findViewById(R.id.welcomeText)
-        val vibrator = getSystemService<Vibrator>()
 
-        // Initially hide views
+
+
         welcomeText.alpha = 0f
         goButton.alpha = 0f
 
-        // Start animations
+
         animateWelcomeText(welcomeText)
         animateGoButton(goButton)
 
         goButton.setOnClickListener {
-            // Add vibration here
-            vibrator?.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
 
             sharedPreferences.edit {
                 putBoolean("onboarding_completed", true)
             }
-            Log.d("Onboard", "Ended Onboarding")
-            startActivity(Intent(applicationContext, MainActivity::class.java))
-            overridePendingTransition(0, 0)
+            startActivity(Intent(applicationContext, LoginActivity::class.java))
+            overridePendingTransition(R.anim.slide_in_from_top, R.anim.slide_out_to_bottom)
             finish()
         }
     }
@@ -65,14 +53,12 @@ class OnboardingActivity : AppCompatActivity() {
             .setInterpolator(AccelerateDecelerateInterpolator())
             .withEndAction {
                 welcomeText.animate()
-                    .translationY(-30f)
-                    .setDuration(500)
-                    .setInterpolator(BounceInterpolator())
+                    .translationY(-20f)
+                    .setDuration(300)
                     .withEndAction {
                         welcomeText.animate()
                             .translationY(0f)
-                            .setDuration(150)
-                            .setInterpolator(BounceInterpolator())
+                            .setDuration(300)
                             .start()
                     }
                     .start()
@@ -90,7 +76,6 @@ class OnboardingActivity : AppCompatActivity() {
                 .scaleX(1f)
                 .scaleY(1f)
                 .alpha(1f)
-                .rotation(360f)
                 .setDuration(800)
                 .setInterpolator(AccelerateDecelerateInterpolator())
                 .withEndAction {

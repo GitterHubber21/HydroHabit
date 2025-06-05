@@ -24,7 +24,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 import android.widget.Toast
 import kotlinx.coroutines.*
-
+import androidx.core.content.edit
 
 
 class MainActivity : Activity() {
@@ -55,6 +55,8 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         val sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE)
         val isOnboardingCompleted = sharedPreferences.getBoolean("onboarding_completed", false)
+        val isLoginCompleted = sharedPreferences.getBoolean("login_completed", false)
+        sharedPreferences.edit { clear() }
         setContentView(R.layout.activity_main)
         window.statusBarColor = "#292929".toColorInt()
 
@@ -84,15 +86,6 @@ class MainActivity : Activity() {
                 delay(3000L)
             }
         }
-        if(!isOnboardingCompleted){
-            Log.d("Onboard", "Started Onboarding")
-            startActivity(Intent(applicationContext, OnboardingActivity::class.java))
-            overridePendingTransition(0, 0)
-            finish()
-        }
-
-
-
         rainView.onTimedRainStateChanged = { isActive ->
             runOnUiThread {
                 isTimedRainActive = isActive
@@ -127,6 +120,16 @@ class MainActivity : Activity() {
                 }
                 else -> false
             }
+        }
+        if(!isOnboardingCompleted){
+            startActivity(Intent(applicationContext, OnboardingActivity::class.java))
+            overridePendingTransition(0, 0)
+            finish()
+        }
+        if(!isLoginCompleted&&isOnboardingCompleted){
+            startActivity(Intent(applicationContext, LoginActivity::class.java))
+            overridePendingTransition(0, 0)
+            finish()
         }
     }
     override fun onDestroy() {
