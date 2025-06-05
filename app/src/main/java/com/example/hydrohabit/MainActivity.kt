@@ -49,10 +49,12 @@ class MainActivity : Activity() {
     private val job = Job()
     private val coroutineScope = CoroutineScope(Dispatchers.Default + job)
 
+
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        val sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE)
+        val isOnboardingCompleted = sharedPreferences.getBoolean("onboarding_completed", false)
         setContentView(R.layout.activity_main)
         window.statusBarColor = "#292929".toColorInt()
 
@@ -81,6 +83,12 @@ class MainActivity : Activity() {
                 updateQuantity("quantity", displayedVolume.toString())
                 delay(3000L)
             }
+        }
+        if(!isOnboardingCompleted){
+            Log.d("Onboard", "Started Onboarding")
+            startActivity(Intent(applicationContext, OnboardingActivity::class.java))
+            overridePendingTransition(0, 0)
+            finish()
         }
 
 

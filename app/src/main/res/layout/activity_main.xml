@@ -62,7 +62,7 @@
             android:layout_marginTop="40dp"
             android:background="@drawable/rounded_transparent_square"
             android:text="@string/fill_glass"
-            android:textColor="@android:color/black" />
+            android:textColor="@android:color/white" />
 
 
         <LinearLayout
@@ -78,7 +78,7 @@
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/rounded_transparent_square"
                 android:text="+250 ml"
-                android:textColor="@android:color/black" />
+                android:textColor="@android:color/white" />
 
             <Button
                 android:id="@+id/add500Button"
@@ -87,7 +87,7 @@
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/rounded_transparent_square"
                 android:text="+500 ml"
-                android:textColor="@android:color/black" />
+                android:textColor="@android:color/white" />
 
             <Button
                 android:id="@+id/add750Button"
@@ -95,7 +95,7 @@
                 android:layout_height="50dp"
                 android:background="@drawable/rounded_transparent_square"
                 android:text="+750 ml"
-                android:textColor="@android:color/black" />
+                android:textColor="@android:color/white" />
         </LinearLayout>
 
     </LinearLayout>
