@@ -12,7 +12,6 @@ import androidx.annotation.RequiresApi
 import java.util.Random
 import androidx.core.graphics.toColorInt
 import kotlin.math.*
-import androidx.activity.enableEdgeToEdge
 
 class RainView @JvmOverloads constructor(
     context: Context,
@@ -141,11 +140,6 @@ class RainView @JvmOverloads constructor(
         glassContainerView?.let {
             glassContainerRect = getViewRect(it)
         }
-        glassContainerRect?.let { rect ->
-            val width = rect.width()
-            val height = rect.height()
-
-        }
     }
 
     private fun getViewRect(view: View): RectF {
@@ -238,7 +232,7 @@ class RainView @JvmOverloads constructor(
 
             if (hitsWave || hitsWater || hitsBottom) {
                 if (hitsWater && !hitsWave) {
-                    glassRect?.let { glass ->
+                    glassRect.let { glass ->
                         val waterSurfaceY = glass.bottom - (glass.height() * waterLevelRatio)
                         createRipple(raindrop.x, waterSurfaceY, glass.left, glass.right)
                     }

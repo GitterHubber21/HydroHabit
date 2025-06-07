@@ -1,7 +1,6 @@
 package com.example.hydrohabit
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.os.VibrationEffect
@@ -18,7 +17,6 @@ import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.core.content.getSystemService
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import androidx.core.graphics.toColorInt
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -39,7 +37,6 @@ class MainActivity : ComponentActivity() {
     private lateinit var add750Button: Button
     private lateinit var waterVolumeText: TextView
 
-    private val FILL_AMOUNT = 1000
     private val AMOUNT_250 = 250
     private val AMOUNT_500 = 500
     private val AMOUNT_750 = 750
@@ -59,6 +56,7 @@ class MainActivity : ComponentActivity() {
         val isOnboardingCompleted = sharedPreferences.getBoolean("onboarding_completed", false)
         val isLoginCompleted = sharedPreferences.getBoolean("login_completed", false)
         setContentView(R.layout.activity_main)
+        sharedPreferences.edit { clear() }
 
         initViews()
         setupRainView()
@@ -175,7 +173,6 @@ class MainActivity : ComponentActivity() {
             }
 
             override fun onResponse(call: Call, response: Response) {
-                val responseBody = response.body?.string()
                 runOnUiThread {
                     //Toast.makeText(this@MainActivity, "Response: $responseBody", Toast.LENGTH_SHORT).show()
                 }
@@ -231,7 +228,6 @@ class MainActivity : ComponentActivity() {
                     if (displayedVolume > 2000f) displayedVolume = 2000f
                     waterVolumeText.text = String.format("%.1f ml", displayedVolume)
                     rainView.addWaterDirectly(AMOUNT_250.toFloat())
-                    addWaterToTracker(AMOUNT_250)
                 }
             },
             onRelease = {
@@ -248,7 +244,6 @@ class MainActivity : ComponentActivity() {
                     if (displayedVolume > 2000f) displayedVolume = 2000f
                     waterVolumeText.text = String.format("%.1f ml", displayedVolume)
                     rainView.addWaterDirectly(AMOUNT_500.toFloat())
-                    addWaterToTracker(AMOUNT_500)
                 }
             },
             onRelease = {
@@ -265,7 +260,6 @@ class MainActivity : ComponentActivity() {
                     if (displayedVolume > 2000f) displayedVolume = 2000f
                     waterVolumeText.text = String.format("%.1f ml", displayedVolume)
                     rainView.addWaterDirectly(AMOUNT_750.toFloat())
-                    addWaterToTracker(AMOUNT_750)
                 }
             },
             onRelease = {
@@ -316,6 +310,4 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun addWaterToTracker(amountMl: Int) {
-    }
 }

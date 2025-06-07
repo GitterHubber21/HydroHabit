@@ -1,10 +1,7 @@
 package com.example.hydrohabit
 
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
-import android.util.DisplayMetrics
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -15,7 +12,6 @@ import androidx.core.graphics.toColorInt
 import androidx.core.content.ContextCompat
 import java.util.*
 import androidx.core.content.res.ResourcesCompat
-import kotlin.math.min
 
 class InsightsActivity : AppCompatActivity() {
     private var isBellSelected = false
@@ -101,7 +97,6 @@ class InsightsActivity : AppCompatActivity() {
 
         val calendar = Calendar.getInstance()
         val currentMonth = calendar.get(Calendar.MONTH)
-        val currentYear = calendar.get(Calendar.YEAR)
         val today = calendar.get(Calendar.DAY_OF_MONTH)
 
         val englishMonths = arrayOf(
