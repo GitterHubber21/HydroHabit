@@ -11,6 +11,7 @@ import androidx.core.view.WindowInsetsCompat
 class SignupActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContentView(R.layout.activity_signup)
         val backArrow: ImageView = findViewById(R.id.backIcon)
 

@@ -12,6 +12,7 @@ import androidx.annotation.RequiresApi
 import java.util.Random
 import androidx.core.graphics.toColorInt
 import kotlin.math.*
+import androidx.activity.enableEdgeToEdge
 
 class RainView @JvmOverloads constructor(
     context: Context,

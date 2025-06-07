@@ -14,6 +14,7 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import android.util.Log
 import android.widget.ImageView
+import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.core.content.getSystemService
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -24,9 +25,10 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 import kotlinx.coroutines.*
 import androidx.core.content.edit
+import androidx.activity.enableEdgeToEdge
 
 
-class MainActivity : Activity() {
+class MainActivity : ComponentActivity() {
 
     private lateinit var rainView: RainView
     private lateinit var appTitle: TextView
@@ -52,11 +54,11 @@ class MainActivity : Activity() {
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         val sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE)
         val isOnboardingCompleted = sharedPreferences.getBoolean("onboarding_completed", false)
         val isLoginCompleted = sharedPreferences.getBoolean("login_completed", false)
         setContentView(R.layout.activity_main)
-        window.statusBarColor = "#292929".toColorInt()
 
         initViews()
         setupRainView()

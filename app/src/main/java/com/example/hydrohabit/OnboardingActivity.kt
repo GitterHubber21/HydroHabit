@@ -10,6 +10,7 @@ import androidx.core.content.edit
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.os.Handler
 import android.os.Looper
+import androidx.activity.enableEdgeToEdge
 
 class OnboardingActivity : AppCompatActivity() {
 
