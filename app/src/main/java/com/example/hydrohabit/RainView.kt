@@ -53,11 +53,8 @@ class RainView @JvmOverloads constructor(
     private var currentVolumeMl = 0f
     private var waterLevelRatio = 0f
     private var isTimedRain = false
-    private var timedRainStartTime = 0L
-    private var timedRainDurationMs = 0L
 
     private var plannedDrops = mutableListOf<PlannedDrop>()
-    private var nextDropTime = 0L
     private var currentDropIndex = 0
 
     private val handler = Handler(Looper.getMainLooper())
@@ -107,50 +104,36 @@ class RainView @JvmOverloads constructor(
         isRaining = false
     }
 
-    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
-    fun startTimedRain(volumeMl: Float, durationSeconds: Float) {
-        refreshGlassContainerRect()
-        generateBigDrops(volumeMl, durationSeconds)
-        isRaining = true
-        isTimedRain = true
-        timedRainStartTime = System.currentTimeMillis()
-        timedRainDurationMs = (durationSeconds * 1000).toLong()
-        currentDropIndex = 0
-        nextDropTime = timedRainStartTime
 
-        onTimedRainStateChanged?.invoke(true)
+    fun addWaterDirectly(volumeMl: Float) {
+        currentVolumeMl += volumeMl
+        if (currentVolumeMl > glassVolumeMl) currentVolumeMl = glassVolumeMl
+        waterLevelRatio = currentVolumeMl / glassVolumeMl
 
-        Log.d("RainView", "Started timed rain: ${volumeMl}ml over ${durationSeconds}s with ${plannedDrops.size} drops")
-    }
 
-    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
-    private fun generateBigDrops(totalVolumeMl: Float, durationSeconds: Float) {
-        plannedDrops.clear()
+        glassContainerRect?.let { glass ->
+            if (waterLevelRatio > 0f) {
+                val waterSurfaceY = glass.bottom - (glass.height() * waterLevelRatio)
+                val centerX = glass.left + glass.width() / 2f
+                createRipple(centerX, waterSurfaceY, glass.left, glass.right)
+                val leftX= centerX-glass.width()*0.2f
+                val rightX=centerX +glass.width()*0.2f
+                handler.postDelayed({
+                    createRipple(leftX, waterSurfaceY, glass.left, glass.right)
+                }, 100)
 
-        val numberOfDrops = random.nextInt(40, 61)
-        val volumePerDrop = totalVolumeMl / numberOfDrops
-        val durationMs = (durationSeconds * 1000).toLong()
-
-        val dropTimes = mutableListOf<Long>()
-        for (i in 0 until numberOfDrops) {
-            val baseTime = (i * durationMs / numberOfDrops)
-            val maxRandomOffset = (durationMs / numberOfDrops).coerceAtLeast(200L)
-            val randomOffset = random.nextLong(-maxRandomOffset/2, maxRandomOffset/2)
-            val timeOffset = (baseTime + randomOffset).coerceIn(0L, durationMs)
-            dropTimes.add(timeOffset)
+                handler.postDelayed({
+                    createRipple(rightX, waterSurfaceY, glass.left, glass.right)
+                }, 200)
+            }
         }
 
-        dropTimes.sort()
+        invalidate()
 
-        for (i in 0 until numberOfDrops) {
-            val size = random.nextInt(30, 45).toFloat()
-            plannedDrops.add(PlannedDrop(
-                spawnTime = timedRainStartTime + dropTimes[i],
-                volume = volumePerDrop,
-                size = size
-            ))
-        }
+        onVolumeChanged?.invoke(volumeMl)
     }
+
+
 
     private fun refreshGlassContainerRect() {
         glassContainerView?.let {

@@ -55,7 +55,6 @@ class MainActivity : Activity() {
         val sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE)
         val isOnboardingCompleted = sharedPreferences.getBoolean("onboarding_completed", false)
         val isLoginCompleted = sharedPreferences.getBoolean("login_completed", false)
-        sharedPreferences.edit { clear() }
         setContentView(R.layout.activity_main)
         window.statusBarColor = "#292929".toColorInt()
 
@@ -69,6 +68,7 @@ class MainActivity : Activity() {
         rainView = findViewById(R.id.rainView)
         waterVolumeText = findViewById(R.id.waterVolume)
 
+
         rainView.onVolumeChanged = { dropletVolume ->
             runOnUiThread {
                 if (!isTimedRainActive) {
@@ -79,6 +79,7 @@ class MainActivity : Activity() {
             }
             Log.d("RainVolume", "Displayed volume: $displayedVolume")
         }
+
         coroutineScope.launch {
             while (isActive) {
                 updateQuantity("quantity", displayedVolume.toString())
@@ -227,7 +228,7 @@ class MainActivity : Activity() {
                     displayedVolume += AMOUNT_250
                     if (displayedVolume > 2000f) displayedVolume = 2000f
                     waterVolumeText.text = String.format("%.1f ml", displayedVolume)
-                    rainView.startTimedRain(AMOUNT_250.toFloat(), 3.0f)
+                    rainView.addWaterDirectly(AMOUNT_250.toFloat())
                     addWaterToTracker(AMOUNT_250)
                 }
             },
@@ -244,7 +245,7 @@ class MainActivity : Activity() {
                     displayedVolume += AMOUNT_500
                     if (displayedVolume > 2000f) displayedVolume = 2000f
                     waterVolumeText.text = String.format("%.1f ml", displayedVolume)
-                    rainView.startTimedRain(AMOUNT_500.toFloat(), 4.0f)
+                    rainView.addWaterDirectly(AMOUNT_500.toFloat())
                     addWaterToTracker(AMOUNT_500)
                 }
             },
@@ -261,7 +262,7 @@ class MainActivity : Activity() {
                     displayedVolume += AMOUNT_750
                     if (displayedVolume > 2000f) displayedVolume = 2000f
                     waterVolumeText.text = String.format("%.1f ml", displayedVolume)
-                    rainView.startTimedRain(AMOUNT_750.toFloat(), 5.0f)
+                    rainView.addWaterDirectly(AMOUNT_750.toFloat())
                     addWaterToTracker(AMOUNT_750)
                 }
             },
