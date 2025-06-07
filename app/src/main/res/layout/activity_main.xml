@@ -88,8 +88,6 @@
             android:layout_marginTop="32dp"
             android:minWidth="120dp"
             android:minHeight="120dp"
-            android:paddingStart="24dp"
-            android:paddingEnd="24dp"
             android:contentDescription="@string/fill_glass_description"
             android:fontFamily="@font/dosis_bold"
             android:text="@string/fill_glass"

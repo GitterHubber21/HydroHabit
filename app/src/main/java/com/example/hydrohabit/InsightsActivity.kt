@@ -3,6 +3,7 @@ package com.example.hydrohabit
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
@@ -14,16 +15,18 @@ import androidx.core.graphics.toColorInt
 import androidx.core.content.ContextCompat
 import java.util.*
 import androidx.core.content.res.ResourcesCompat
+import kotlin.math.min
 
 class InsightsActivity : AppCompatActivity() {
     private var isBellSelected = false
+    private var cellSize = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_insights)
 
-        setupCalendar()
+        calculateCellSize()
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         bottomNavigationView.selectedItemId = R.id.nav_insights
@@ -57,7 +60,32 @@ class InsightsActivity : AppCompatActivity() {
             }
             isBellSelected = !isBellSelected
         }
+    }
 
+    private fun calculateCellSize() {
+        val calendarGrid = findViewById<GridLayout>(R.id.calendarGrid)
+        calendarGrid.post {
+            val gridWidth = calendarGrid.width
+            val gridHeight = calendarGrid.height
+
+            val marginWidth = (gridWidth * 0.02).toInt()
+            val marginHeight = (gridHeight * 0.02).toInt()
+
+            val totalMarginsWidth = marginWidth * 2 * 7
+            val usableWidth = gridWidth - totalMarginsWidth
+            val cellWidth = usableWidth / 7
+
+            val totalRows = 7
+            val totalMarginsHeight = marginHeight * 2 * totalRows
+            val usableHeight = gridHeight - totalMarginsHeight
+            val cellHeight = usableHeight / totalRows
+
+            cellSize = minOf(cellWidth, cellHeight)
+
+            if (cellSize > 0) {
+                setupCalendar()
+            }
+        }
     }
 
     private fun setupCalendar() {
@@ -65,6 +93,11 @@ class InsightsActivity : AppCompatActivity() {
         val monthTitle = findViewById<TextView>(R.id.monthTitle)
 
         calendarGrid.removeAllViews()
+
+        val gridWidth = calendarGrid.width
+        val gridHeight = calendarGrid.height
+        val marginWidth = (gridWidth * 0.02).toInt()
+        val marginHeight = (gridHeight * 0.02).toInt()
 
         val calendar = Calendar.getInstance()
         val currentMonth = calendar.get(Calendar.MONTH)
@@ -80,18 +113,20 @@ class InsightsActivity : AppCompatActivity() {
         monthTitle.text = monthName
 
         val dayHeaders = arrayOf("M", "T", "W", "T", "F", "S", "S")
+        val headerTextSize = calculateTextSize(0.5f)
+
         for (dayHeader in dayHeaders) {
             val headerView = TextView(this).apply {
                 text = dayHeader
-                textSize = 20f
+                textSize = headerTextSize
                 setTextColor("#3b86d6".toColorInt())
                 gravity = android.view.Gravity.CENTER
-                setPadding(8, 8, 8, 8)
                 typeface = ResourcesCompat.getFont(this@InsightsActivity, R.font.dosis_bold)
                 layoutParams = GridLayout.LayoutParams().apply {
-                    width = GridLayout.LayoutParams.WRAP_CONTENT
-                    height = GridLayout.LayoutParams.WRAP_CONTENT
+                    width = cellSize
+                    height = (cellSize * 0.8).toInt()
                     columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
+                    setMargins(marginWidth, marginHeight, marginWidth, marginHeight)
                 }
             }
             calendarGrid.addView(headerView)
@@ -105,25 +140,27 @@ class InsightsActivity : AppCompatActivity() {
         for (i in 0 until adjustedFirstDay) {
             val emptyView = TextView(this).apply {
                 layoutParams = GridLayout.LayoutParams().apply {
-                    width = 120
-                    height = 120
+                    width = cellSize
+                    height = cellSize
                     columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
+                    setMargins(marginWidth, marginHeight, marginWidth, marginHeight)
                 }
             }
             calendarGrid.addView(emptyView)
         }
 
+        val dayTextSize = calculateTextSize(0.4f)
+
         for (day in 1..daysInMonth) {
             val dayView = TextView(this).apply {
                 text = day.toString()
-                textSize = 20f
+                textSize = dayTextSize
                 gravity = android.view.Gravity.CENTER
-                setPadding(8, 8, 8, 8)
                 layoutParams = GridLayout.LayoutParams().apply {
-                    width = 120
-                    height = 120
+                    width = cellSize
+                    height = cellSize
                     columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
-                    setMargins(12, 14, 12, 14)
+                    setMargins(marginWidth, marginHeight, marginWidth, marginHeight)
                 }
 
                 if (day == today) {
@@ -147,12 +184,29 @@ class InsightsActivity : AppCompatActivity() {
         for (i in 0 until remainingCells) {
             val emptyView = TextView(this).apply {
                 layoutParams = GridLayout.LayoutParams().apply {
-                    width = 120
-                    height = 120
+                    width = cellSize
+                    height = cellSize
                     columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
+                    setMargins(marginWidth, marginHeight, marginWidth, marginHeight)
                 }
             }
             calendarGrid.addView(emptyView)
         }
+    }
+
+    private fun calculateTextSize(ratio: Float): Float {
+        val baseTextSize = (cellSize * ratio) / resources.displayMetrics.density
+
+        return when {
+            baseTextSize < 12f -> 12f
+            baseTextSize > 24f -> 24f
+            else -> baseTextSize
+        }
+    }
+
+    override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
+        super.onConfigurationChanged(newConfig)
+        calculateCellSize()
+        setupCalendar()
     }
 }
