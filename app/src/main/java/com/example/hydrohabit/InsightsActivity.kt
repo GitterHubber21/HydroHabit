@@ -126,11 +126,12 @@ class InsightsActivity : AppCompatActivity() {
                 }
 
                 if (day == today) {
-                    setBackgroundResource(R.drawable.transparent_circle)
+                    setBackgroundResource(R.drawable.rounded_day_current_background)
                     setTextColor(ContextCompat.getColor(this@InsightsActivity, android.R.color.black))
                     setTypeface(null, android.graphics.Typeface.BOLD)
                 } else {
                     setTextColor(ContextCompat.getColor(this@InsightsActivity, android.R.color.white))
+                    setBackgroundResource(R.drawable.rounded_day_background)
                 }
 
                 setOnClickListener {
