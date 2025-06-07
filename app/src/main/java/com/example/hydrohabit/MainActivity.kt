@@ -22,7 +22,6 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 import kotlinx.coroutines.*
-import androidx.core.content.edit
 import androidx.activity.enableEdgeToEdge
 
 
@@ -53,10 +52,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE)
-        val isOnboardingCompleted = sharedPreferences.getBoolean("onboarding_completed", false)
+        val isOnboardingCompleted = sharedPreferences.getBoolean("onboarding_complete", false)
         val isLoginCompleted = sharedPreferences.getBoolean("login_completed", false)
+        Log.d("value of onboarding", "Onboarding is : $isOnboardingCompleted")
+        Log.d("value of login", "Login is : $isLoginCompleted")
         setContentView(R.layout.activity_main)
-        sharedPreferences.edit { clear() }
 
         initViews()
         setupRainView()
@@ -121,12 +121,13 @@ class MainActivity : ComponentActivity() {
                 else -> false
             }
         }
-        if(!isOnboardingCompleted){
+        if(!isOnboardingCompleted&&!isLoginCompleted){
             startActivity(Intent(applicationContext, OnboardingActivity::class.java))
             overridePendingTransition(0, 0)
             finish()
         }
         if(!isLoginCompleted&&isOnboardingCompleted){
+
             startActivity(Intent(applicationContext, LoginActivity::class.java))
             overridePendingTransition(0, 0)
             finish()

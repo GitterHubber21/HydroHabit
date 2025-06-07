@@ -34,7 +34,7 @@ class OnboardingActivity : AppCompatActivity() {
         goButton.setOnClickListener {
 
             sharedPreferences.edit {
-                putBoolean("onboarding_completed", true)
+                putBoolean("onboarding_complete", true)
             }
             startActivity(Intent(applicationContext, LoginActivity::class.java))
             overridePendingTransition(R.anim.slide_in_from_top, R.anim.slide_out_to_bottom)
