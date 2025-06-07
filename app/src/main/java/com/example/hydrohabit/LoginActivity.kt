@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
@@ -18,6 +19,7 @@ class LoginActivity : AppCompatActivity() {
 
         val sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE)
         val loginButton: Button = findViewById(R.id.loginButton)
+        val signupText: TextView = findViewById(R.id.signupText)
 
         loginButton.setOnClickListener {
 
@@ -26,6 +28,12 @@ class LoginActivity : AppCompatActivity() {
             }
             startActivity(Intent(applicationContext, MainActivity::class.java))
             overridePendingTransition(R.anim.slide_in_from_top, R.anim.slide_out_to_bottom)
+            finish()
+        }
+
+        signupText.setOnClickListener {
+            startActivity(Intent(applicationContext, SignupActivity::class.java))
+            overridePendingTransition(R.anim.slide_in_from_right, R.anim.slide_out_to_left)
             finish()
         }
     }

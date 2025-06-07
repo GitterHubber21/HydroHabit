@@ -58,17 +58,6 @@
         android:background="@drawable/rounded_transparent_square" />
 
     <TextView
-        android:id="@+id/forgotPasswordText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/loginButton"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
-        android:text="Forgot Password?"
-        android:textColor="#87CEEB"
-        android:textSize="14sp" />
-
-    <TextView
         android:id="@+id/signupText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

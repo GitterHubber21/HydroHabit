@@ -5,14 +5,14 @@
     android:background="#3b86d6"
     android:padding="32dp">
     <ImageView
-        android:id="@+id/bellIcon"
+        android:id="@+id/backIcon"
         android:layout_width="45dp"
         android:layout_height="45dp"
         android:clickable="true"
         android:layout_alignParentStart="true"
         android:src="@drawable/ic_back_arrow" />
     <TextView
-        android:id="@+id/loginTitle"
+        android:id="@+id/signupTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Signup to HydroHabit"
@@ -27,7 +27,7 @@
         android:id="@+id/usernameInput"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_below="@id/loginTitle"
+        android:layout_below="@id/signupTitle"
         android:layout_marginTop="60dp"
         android:hint="Username"
         android:textColorHint="#CCFFFFFF"

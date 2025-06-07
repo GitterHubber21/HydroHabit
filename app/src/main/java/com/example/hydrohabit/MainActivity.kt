@@ -22,7 +22,6 @@ import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
-import android.widget.Toast
 import kotlinx.coroutines.*
 import androidx.core.content.edit
 
@@ -206,7 +205,7 @@ class MainActivity : Activity() {
         setupPressable(
             fillButton,
             vibrator,
-            pressedDrawableRes = R.drawable.pressed_button_rectangle,
+            pressedDrawableRes = R.drawable.pressed_button_circle,
             onPress = {
                 if (!isTimedRainActive) {
                     rainView.startRain()

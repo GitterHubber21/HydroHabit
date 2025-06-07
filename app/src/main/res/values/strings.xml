@@ -5,5 +5,11 @@
     <string name="challenges">Challenges</string>
     <string name="home">Home</string>
     <string name="volume">0 ml</string>
+    <string name="notifications">Notifications</string>
+    <string name="water_glass">Water glass tracker</string>
+    <string name="fill_glass_description">Fill a full glass of water</string>
+    <string name="add_250ml_description">Add 250 milliliters</string>
+    <string name="add_500ml_description">Add 500 milliliters</string>
+    <string name="add_750ml_description">Add 750 milliliters</string>
 
 </resources>
