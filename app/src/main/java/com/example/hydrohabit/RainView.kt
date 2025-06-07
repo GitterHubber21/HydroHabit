@@ -106,18 +106,21 @@ class RainView @JvmOverloads constructor(
 
 
     fun addWaterDirectly(volumeMl: Float) {
+        refreshGlassContainerRect()
         currentVolumeMl += volumeMl
         if (currentVolumeMl > glassVolumeMl) currentVolumeMl = glassVolumeMl
         waterLevelRatio = currentVolumeMl / glassVolumeMl
-
 
         glassContainerRect?.let { glass ->
             if (waterLevelRatio > 0f) {
                 val waterSurfaceY = glass.bottom - (glass.height() * waterLevelRatio)
                 val centerX = glass.left + glass.width() / 2f
+
                 createRipple(centerX, waterSurfaceY, glass.left, glass.right)
-                val leftX= centerX-glass.width()*0.2f
-                val rightX=centerX +glass.width()*0.2f
+
+                val leftX = centerX - glass.width() * 0.2f
+                val rightX = centerX + glass.width() * 0.2f
+
                 handler.postDelayed({
                     createRipple(leftX, waterSurfaceY, glass.left, glass.right)
                 }, 100)
@@ -129,8 +132,6 @@ class RainView @JvmOverloads constructor(
         }
 
         invalidate()
-
-        onVolumeChanged?.invoke(volumeMl)
     }
 
 
