@@ -10,6 +10,7 @@ class User(UserMixin, db.Model):
     id=db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(128), nullable=False)
     water_logs = db.relationship("WaterLog", backref="user", lazy=True)
+    password_hash = db.Column(db.String(128), nullable=False)
 
     def set_password(self, password: str):
         self.password_hash = generate_password_hash(password)
@@ -24,7 +25,8 @@ class WaterLog(db.Model):
     id= db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date, default=date.today, nullable=False)
     volume_ml = db.Column(db.Integer, default=0, nullable=False)
-    goal_met = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    goal_met = db.Column(db.Boolean, default=False, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
 
 
 @login_manager.user_loader

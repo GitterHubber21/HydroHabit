@@ -1,5 +1,3 @@
-set -euo pipefail
-
 PORT="${1:-4000}"
 
 kill -9 $(lsof -ti ":$PORT") 2>/dev/null
