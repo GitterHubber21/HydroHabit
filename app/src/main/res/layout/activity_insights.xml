@@ -16,34 +16,28 @@
         android:id="@+id/appTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/insights"
-        android:textSize="32sp"
-        android:textColor="#ffffff"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:fontFamily="@font/dosis_bold"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="24dp"
-        android:layout_marginStart="16dp"/>
+        android:fontFamily="@font/dosis_bold"
+        android:text="@string/insights"
+        android:textColor="#ffffff"
+        android:textSize="35sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/bellIcon"
-        android:layout_width="45dp"
-        android:layout_height="45dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="16dp"
         android:clickable="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignTop="@id/appTitle"
+        android:contentDescription="@string/notifications"
         android:src="@drawable/ic_bell_selector"
-        android:layout_marginEnd="16dp"/>
-
-    <Button
-        android:id="@+id/testButton"
-        android:layout_width="100dp"
-        android:gravity="center"
-        android:layout_height="50dp"
-        android:layout_marginStart="150dp"
-        android:background="@drawable/rounded_transparent_square"
-        android:text="Test"
-        android:textColor="@android:color/black" />
+        android:focusable="true"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:elevation="4dp"
+        android:layout_alignParentEnd="true" />
 
     <LinearLayout
         android:id="@+id/progressRow"
@@ -54,8 +48,8 @@
         android:layout_marginTop="30dp"
         android:padding="10dp"
         android:layout_marginBottom="10dp"
-        android:background="@drawable/rounded_transparent_square"
         android:gravity="center"
+        android:background="@drawable/rounded_transparent_square"
         android:layout_centerHorizontal="true">
 
         <LinearLayout
@@ -85,7 +79,7 @@
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:text="70%"
-                    android:textColor="#000000"
+                    android:textColor="#FFFFFF"
                     android:textStyle="bold"
                     android:textSize="20sp" />
             </FrameLayout>
@@ -95,12 +89,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Day"
-                android:textColor="#000000"
+                android:textColor="#FFFFFF"
                 android:textStyle="bold"
                 android:textSize="20sp"
                 android:layout_marginTop="8dp" />
         </LinearLayout>
-
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -129,7 +122,7 @@
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:text="80%"
-                    android:textColor="#000000"
+                    android:textColor="#FFFFFF"
                     android:textStyle="bold"
                     android:textSize="20sp" />
             </FrameLayout>
@@ -139,7 +132,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Week"
-                android:textColor="#000000"
+                android:textColor="#FFFFFF"
                 android:textStyle="bold"
                 android:textSize="20sp"
                 android:layout_marginTop="8dp" />
@@ -172,7 +165,7 @@
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:text="82%"
-                    android:textColor="#000000"
+                    android:textColor="#FFFFFF"
                     android:textStyle="bold"
                     android:textSize="20sp" />
             </FrameLayout>
@@ -182,7 +175,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Month"
-                android:textColor="#000000"
+                android:textColor="#FFFFFF"
                 android:textStyle="bold"
                 android:textSize="20sp"
                 android:layout_marginTop="8dp" />
@@ -198,7 +191,7 @@
         android:textStyle="bold"
         android:textSize="30sp"
         android:layout_below="@id/progressRow"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="20dp"
         android:layout_centerHorizontal="true"/>
 
     <GridLayout
@@ -206,22 +199,81 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/monthTitle"
+        android:layout_marginTop="20dp"
         android:columnCount="7"
-        android:rowCount="6"
         android:layout_alignStart="@id/progressRow"
         android:layout_alignEnd="@id/progressRow"
-        android:alignmentMode="alignMargins"
+        android:alignmentMode="alignBounds"
         android:useDefaultMargins="true"
         android:layout_above="@id/bottomNavigationView">
 
         <TextView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:text="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:text="S"
             android:gravity="center"
-            android:textColor="#FFFFFF"
-            android:background="@drawable/circle_blue"
+            android:textColor="#ffffff"
+            android:textSize="14sp"
             android:textStyle="bold" />
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:text="M"
+            android:gravity="center"
+            android:textColor="#ffffff"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:text="T"
+            android:gravity="center"
+            android:textColor="#ffffff"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:text="W"
+            android:gravity="center"
+            android:textColor="#ffffff"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:text="T"
+            android:gravity="center"
+            android:textColor="#ffffff"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:text="F"
+            android:gravity="center"
+            android:textColor="#ffffff"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:text="S"
+            android:gravity="center"
+            android:textColor="#ffffff"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+
+
+
     </GridLayout>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView

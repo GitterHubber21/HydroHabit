@@ -1,7 +1,6 @@
 package com.example.hydrohabit
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.os.VibrationEffect
@@ -12,20 +11,21 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import android.graphics.drawable.Drawable
 import android.os.Build
+import android.util.Log
 import android.widget.ImageView
+import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.core.content.getSystemService
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import androidx.core.graphics.toColorInt
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
-import android.widget.Toast
+import kotlinx.coroutines.*
+import androidx.activity.enableEdgeToEdge
 
 
-
-class MainActivity : Activity() {
+class MainActivity : ComponentActivity() {
 
     private lateinit var rainView: RainView
     private lateinit var appTitle: TextView
@@ -36,7 +36,6 @@ class MainActivity : Activity() {
     private lateinit var add750Button: Button
     private lateinit var waterVolumeText: TextView
 
-    private val FILL_AMOUNT = 1000
     private val AMOUNT_250 = 250
     private val AMOUNT_500 = 500
     private val AMOUNT_750 = 750
@@ -44,13 +43,20 @@ class MainActivity : Activity() {
     private var isTimedRainActive = false
     private var displayedVolume = 0f
     private val client = OkHttpClient()
+    private val job = Job()
+    private val coroutineScope = CoroutineScope(Dispatchers.Default + job)
+
 
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        enableEdgeToEdge()
+        val sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE)
+        val isOnboardingCompleted = sharedPreferences.getBoolean("onboarding_complete", false)
+        val isLoginCompleted = sharedPreferences.getBoolean("login_completed", false)
+        Log.d("value of onboarding", "Onboarding is : $isOnboardingCompleted")
+        Log.d("value of login", "Login is : $isLoginCompleted")
         setContentView(R.layout.activity_main)
-        window.statusBarColor = "#292929".toColorInt()
 
         initViews()
         setupRainView()
@@ -62,6 +68,7 @@ class MainActivity : Activity() {
         rainView = findViewById(R.id.rainView)
         waterVolumeText = findViewById(R.id.waterVolume)
 
+
         rainView.onVolumeChanged = { dropletVolume ->
             runOnUiThread {
                 if (!isTimedRainActive) {
@@ -70,10 +77,15 @@ class MainActivity : Activity() {
                     waterVolumeText.text = String.format("%.1f ml", displayedVolume)
                 }
             }
+            Log.d("RainVolume", "Displayed volume: $displayedVolume")
         }
-        updateQuantity("quantity", displayedVolume.toString())
 
-
+        coroutineScope.launch {
+            while (isActive) {
+                updateQuantity("quantity", displayedVolume.toString())
+                delay(3000L)
+            }
+        }
         rainView.onTimedRainStateChanged = { isActive ->
             runOnUiThread {
                 isTimedRainActive = isActive
@@ -109,6 +121,21 @@ class MainActivity : Activity() {
                 else -> false
             }
         }
+        if(!isOnboardingCompleted&&!isLoginCompleted){
+            startActivity(Intent(applicationContext, OnboardingActivity::class.java))
+            overridePendingTransition(0, 0)
+            finish()
+        }
+        if(!isLoginCompleted&&isOnboardingCompleted){
+
+            startActivity(Intent(applicationContext, LoginActivity::class.java))
+            overridePendingTransition(0, 0)
+            finish()
+        }
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        job.cancel()
     }
 
     private fun initViews() {
@@ -121,7 +148,7 @@ class MainActivity : Activity() {
         add750Button = findViewById(R.id.add750Button)
     }
     private fun updateQuantity(key: String, value: String) {
-        val url = "https://hydro.coolcoder.hackclub.app/api/quantity"
+        val url = "https://water.coolcoder.hackclub.app/api/quantity"
 
         val json = """
             {
@@ -142,14 +169,13 @@ class MainActivity : Activity() {
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
                 runOnUiThread {
-                    Toast.makeText(this@MainActivity, "Request failed", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(this@MainActivity, "Request failed", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
-                val responseBody = response.body?.string()
                 runOnUiThread {
-                    Toast.makeText(this@MainActivity, "Response: $responseBody", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(this@MainActivity, "Response: $responseBody", Toast.LENGTH_SHORT).show()
                 }
             }
         })
@@ -180,7 +206,7 @@ class MainActivity : Activity() {
         setupPressable(
             fillButton,
             vibrator,
-            pressedDrawableRes = R.drawable.pressed_button_rectangle,
+            pressedDrawableRes = R.drawable.pressed_button_circle,
             onPress = {
                 if (!isTimedRainActive) {
                     rainView.startRain()
@@ -202,8 +228,7 @@ class MainActivity : Activity() {
                     displayedVolume += AMOUNT_250
                     if (displayedVolume > 2000f) displayedVolume = 2000f
                     waterVolumeText.text = String.format("%.1f ml", displayedVolume)
-                    rainView.startTimedRain(AMOUNT_250.toFloat(), 3.0f)
-                    addWaterToTracker(AMOUNT_250)
+                    rainView.addWaterDirectly(AMOUNT_250.toFloat())
                 }
             },
             onRelease = {
@@ -219,8 +244,7 @@ class MainActivity : Activity() {
                     displayedVolume += AMOUNT_500
                     if (displayedVolume > 2000f) displayedVolume = 2000f
                     waterVolumeText.text = String.format("%.1f ml", displayedVolume)
-                    rainView.startTimedRain(AMOUNT_500.toFloat(), 4.0f)
-                    addWaterToTracker(AMOUNT_500)
+                    rainView.addWaterDirectly(AMOUNT_500.toFloat())
                 }
             },
             onRelease = {
@@ -236,8 +260,7 @@ class MainActivity : Activity() {
                     displayedVolume += AMOUNT_750
                     if (displayedVolume > 2000f) displayedVolume = 2000f
                     waterVolumeText.text = String.format("%.1f ml", displayedVolume)
-                    rainView.startTimedRain(AMOUNT_750.toFloat(), 5.0f)
-                    addWaterToTracker(AMOUNT_750)
+                    rainView.addWaterDirectly(AMOUNT_750.toFloat())
                 }
             },
             onRelease = {
@@ -271,7 +294,6 @@ class MainActivity : Activity() {
         val originalBackground: Drawable = button.background
         button.setOnTouchListener { v, event ->
             if (!button.isEnabled) return@setOnTouchListener false
-
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     v.setBackgroundResource(pressedDrawableRes)
@@ -289,6 +311,4 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun addWaterToTracker(amountMl: Int) {
-    }
 }

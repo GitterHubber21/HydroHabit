@@ -16,24 +16,28 @@
         android:id="@+id/appTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/challenges"
-        android:textSize="32sp"
-        android:textColor="#ffffff"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:fontFamily="@font/dosis_bold"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="24dp"
-        android:layout_marginStart="16dp"/>
+        android:fontFamily="@font/dosis_bold"
+        android:text="@string/challenges"
+        android:textColor="#ffffff"
+        android:textSize="35sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/bellIcon"
-        android:layout_width="45dp"
-        android:layout_height="45dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="16dp"
         android:clickable="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignTop="@id/appTitle"
+        android:contentDescription="@string/notifications"
         android:src="@drawable/ic_bell_selector"
-        android:layout_marginEnd="16dp"/>
+        android:focusable="true"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:elevation="4dp"
+        android:layout_alignParentEnd="true" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigationView"
