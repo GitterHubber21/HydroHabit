@@ -54,13 +54,24 @@ class SignupActivity : AppCompatActivity() {
             override fun onResponse(call: Call, response: Response) {
                 val msg = if (response.isSuccessful) {
                     "Signup successful!"
+
                 } else {
                     "Signup failed: ${response.code}"
                 }
-
-                runOnUiThread {
-                    Toast.makeText(this@SignupActivity, msg, Toast.LENGTH_SHORT).show()
+                if(response.isSuccessful) {
+                    runOnUiThread {
+                        Toast.makeText(this@SignupActivity, msg, Toast.LENGTH_SHORT).show()
+                    }
+                    startActivity(Intent(applicationContext, LoginActivity::class.java))
+                    overridePendingTransition(R.anim.slide_in_from_left, R.anim.slide_out_to_right)
                 }
+                else{
+                    runOnUiThread {
+                        Toast.makeText(this@SignupActivity, msg, Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+
             }
         })
     }
