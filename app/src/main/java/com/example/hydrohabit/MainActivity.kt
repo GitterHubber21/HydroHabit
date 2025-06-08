@@ -64,7 +64,7 @@ class MainActivity : ComponentActivity() {
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         bottomNavigationView.selectedItemId = R.id.nav_home
         bottomNavigationView.itemIconTintList = null
-        val bellIcon: ImageView = findViewById(R.id.bellIcon)
+        val settingsIcon: ImageView = findViewById(R.id.settingsIcon)
         rainView = findViewById(R.id.rainView)
         waterVolumeText = findViewById(R.id.waterVolume)
 
@@ -94,13 +94,9 @@ class MainActivity : ComponentActivity() {
         }
 
 
-        bellIcon.setOnClickListener {
-            if (isBellSelected) {
-                bellIcon.setImageResource(R.drawable.ic_bell_unselected)
-            } else {
-                bellIcon.setImageResource(R.drawable.ic_bell)
-            }
-            isBellSelected = !isBellSelected
+        settingsIcon.setOnClickListener {
+            startActivity(Intent(applicationContext, SettingsActivity::class.java))
+            overridePendingTransition(R.anim.slide_in_from_top, R.anim.slide_out_to_bottom)
         }
 
         bottomNavigationView.setOnItemSelectedListener { item ->
