@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.activity)
+    implementation(libs.androidx.security.crypto)
     implementation(libs.androidx.constraintlayout)
     testImplementation(libs.junit)
     implementation(libs.okhttp)
