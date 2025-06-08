@@ -1,9 +1,13 @@
-PORT="$1"
+PORT="${1:-4000}"
 
 kill -9 $(lsof -ti ":$PORT") 2>/dev/null
 git pull
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-gunicorn -b ":$PORT" main:app
-echo "PORT is set to: $PORT"
+export FLASK_APP=run.py
+flask db upgrade || (
+  flask db init && flask db migrate -m "init" && flask db upgrade
+)
+gunicorn -b ":$PORT" run:app
+echo "Backend is running on PORT: $PORT"
