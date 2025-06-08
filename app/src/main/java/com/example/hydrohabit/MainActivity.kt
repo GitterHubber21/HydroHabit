@@ -148,7 +148,7 @@ class MainActivity : ComponentActivity() {
         add750Button = findViewById(R.id.add750Button)
     }
     private fun updateQuantity(key: String, value: String) {
-        val url = "https://water.coolcoder.hackclub.app/api/quantity"
+        val url = "https://water.coolcoder.hackclub.app/api/log"
 
         val json = """
             {

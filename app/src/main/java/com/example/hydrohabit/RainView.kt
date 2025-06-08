@@ -2,6 +2,10 @@ package com.example.hydrohabit
 
 import android.content.Context
 import android.graphics.*
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -17,11 +21,29 @@ class RainView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : View(context, attrs, defStyleAttr) {
+) : View(context, attrs, defStyleAttr), SensorEventListener {
 
     private val random = Random()
     private val raindrops = mutableListOf<Raindrop>()
-    private val ripples = mutableListOf<Ripple>()
+
+    private val sensorManager: SensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+    private val gyroscopeSensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
+    private val accelerometerSensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+
+    private var waterSurfacePoints = mutableListOf<WaterPoint>()
+    private var waterTiltX = 0f
+    private var waterTiltY = 0f
+    private var waterVelocityX = 0f
+    private var waterVelocityY = 0f
+    private var lastGyroTime = 0L
+    private var baselineRoll = 0f
+    private var baselinePitch = 0f
+    private var isCalibrated = false
+
+    private val dampingFactor = 0.95f
+    private val springConstant = 0.1f
+    private val maxTilt = 30f
+    private val tiltSensitivity = 0.8f
 
     private val regularPaint = Paint().apply {
         color = "#3b86d6".toColorInt()
@@ -36,11 +58,10 @@ class RainView @JvmOverloads constructor(
         maskFilter = BlurMaskFilter(15f, BlurMaskFilter.Blur.NORMAL)
     }
 
-    private val ripplePaint = Paint().apply {
+    private val waterPaint = Paint().apply {
         color = "#3b86d6".toColorInt()
         isAntiAlias = true
-        style = Paint.Style.STROKE
-        strokeWidth = 2f
+        style = Paint.Style.FILL
     }
 
     private val uiElements = mutableListOf<RectF>()
@@ -62,7 +83,7 @@ class RainView @JvmOverloads constructor(
         @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
         override fun run() {
             updateRaindrops()
-            updateRipples()
+            updateWaterPhysics()
             invalidate()
             handler.postDelayed(this, 16)
         }
@@ -74,16 +95,160 @@ class RainView @JvmOverloads constructor(
         val size: Float
     )
 
+    data class WaterPoint(
+        var x: Float,
+        var y: Float,
+        var restY: Float,
+        var velocity: Float = 0f
+    )
+
     init {
         setLayerType(LAYER_TYPE_HARDWARE, null)
+        initializeWaterSurface()
+    }
+
+    private fun initializeWaterSurface() {
+        waterSurfacePoints.clear()
+    }
+
+    private fun updateWaterSurfacePoints() {
+        val glassRect = glassContainerRect ?: return
+        if (waterLevelRatio <= 0f) return
+
+        val numPoints = 20
+        val width = glassRect.width()
+        val waterSurfaceY = glassRect.bottom - (glassRect.height() * waterLevelRatio)
+
+        if (waterSurfacePoints.size != numPoints) {
+            waterSurfacePoints.clear()
+            for (i in 0 until numPoints) {
+                val x = glassRect.left + (i * width / (numPoints - 1))
+                waterSurfacePoints.add(WaterPoint(x, waterSurfaceY, waterSurfaceY))
+            }
+        } else {
+            for (i in waterSurfacePoints.indices) {
+                waterSurfacePoints[i].restY = waterSurfaceY
+            }
+        }
+    }
+
+    private fun updateWaterPhysics() {
+        if (waterLevelRatio <= 0f || waterSurfacePoints.isEmpty()) return
+
+        val glassRect = glassContainerRect ?: return
+
+        val tiltEffect = -sin(waterTiltX * PI / 40f).toFloat()
+        val baseWaterY = glassRect.bottom - (glassRect.height() * waterLevelRatio)
+        val maxWaterDisplacement = glassRect.height() * 0.0001f
+
+        for (i in waterSurfacePoints.indices) {
+            val point = waterSurfacePoints[i]
+            val normalizedX = (point.x - glassRect.left) / glassRect.width() - 0.5f
+
+            val tiltDisplacement = tiltEffect * maxWaterDisplacement * normalizedX * 2f
+            val targetY = baseWaterY + tiltDisplacement
+
+            val force = (targetY - point.y) * springConstant
+            point.velocity += force
+            point.velocity *= dampingFactor
+            point.y += point.velocity
+
+            if (i > 0 && i < waterSurfacePoints.size - 1) {
+                val leftPoint = waterSurfacePoints[i - 1]
+                val rightPoint = waterSurfacePoints[i + 1]
+                val avgNeighborY = (leftPoint.y + rightPoint.y) / 2f
+                val waveForce = (avgNeighborY - point.y) * 0.02f
+                point.velocity += waveForce
+            }
+        }
+
+        for (point in waterSurfacePoints) {
+            if (point.y < glassRect.top + 10f) {
+                point.y = glassRect.top + 10f
+                point.velocity *= -0.5f
+            }
+            if (point.y > glassRect.bottom - 10f) {
+                point.y = glassRect.bottom - 10f
+                point.velocity *= -0.5f
+            }
+        }
     }
 
     fun start() {
         handler.post(animator)
+        gyroscopeSensor?.let {
+            sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_GAME)
+        }
+        accelerometerSensor?.let {
+            sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_GAME)
+        }
     }
 
     fun stop() {
         handler.removeCallbacks(animator)
+        sensorManager.unregisterListener(this)
+    }
+
+    override fun onSensorChanged(event: SensorEvent?) {
+        event ?: return
+
+        val currentTime = System.currentTimeMillis()
+
+        when (event.sensor.type) {
+            Sensor.TYPE_GYROSCOPE -> {
+                if (lastGyroTime == 0L) {
+                    lastGyroTime = currentTime
+                    return
+                }
+
+                val dt = (currentTime - lastGyroTime) / 1000f
+                lastGyroTime = currentTime
+
+                val rotationX = event.values[0] * dt * tiltSensitivity
+                val rotationY = event.values[1] * dt * tiltSensitivity
+
+                waterVelocityX += rotationX
+                waterVelocityY += rotationY
+
+                waterVelocityX *= 0.98f
+                waterVelocityY *= 0.98f
+
+                waterTiltX += waterVelocityX
+                waterTiltY += waterVelocityY
+
+                waterTiltX = waterTiltX.coerceIn(-maxTilt, maxTilt)
+                waterTiltY = waterTiltY.coerceIn(-maxTilt, maxTilt)
+            }
+
+            Sensor.TYPE_ACCELEROMETER -> {
+                val x = event.values[0]
+                val y = event.values[1]
+                val z = event.values[2]
+
+                val pitch = atan2(y, sqrt(x * x + z * z)) * 180f / PI.toFloat()
+                val roll = atan2(-x, sqrt(y * y + z * z)) * 180f / PI.toFloat()
+
+                if (!isCalibrated) {
+                    baselinePitch = pitch
+                    baselineRoll = roll
+                    isCalibrated = true
+                    return
+                }
+
+                val adjustedPitch = (pitch - baselinePitch)
+                val adjustedRoll = (roll - baselineRoll)
+
+                val alpha = 0.1f
+                waterTiltX = waterTiltX * (1f - alpha) + adjustedRoll * alpha * tiltSensitivity
+                waterTiltY = waterTiltY * (1f - alpha) + adjustedPitch * alpha * tiltSensitivity
+
+                waterTiltX = waterTiltX.coerceIn(-maxTilt, maxTilt)
+                waterTiltY = waterTiltY.coerceIn(-maxTilt, maxTilt)
+            }
+        }
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
     }
 
     fun registerUIElement(view: View) {
@@ -104,41 +269,21 @@ class RainView @JvmOverloads constructor(
         isRaining = false
     }
 
-
     fun addWaterDirectly(volumeMl: Float) {
         refreshGlassContainerRect()
         currentVolumeMl += volumeMl
         if (currentVolumeMl > glassVolumeMl) currentVolumeMl = glassVolumeMl
         waterLevelRatio = currentVolumeMl / glassVolumeMl
 
-        glassContainerRect?.let { glass ->
-            if (waterLevelRatio > 0f) {
-                val waterSurfaceY = glass.bottom - (glass.height() * waterLevelRatio)
-                val centerX = glass.left + glass.width() / 2f
-
-                createRipple(centerX, waterSurfaceY, glass.left, glass.right)
-
-                val leftX = centerX - glass.width() * 0.2f
-                val rightX = centerX + glass.width() * 0.2f
-
-                handler.postDelayed({
-                    createRipple(leftX, waterSurfaceY, glass.left, glass.right)
-                }, 100)
-
-                handler.postDelayed({
-                    createRipple(rightX, waterSurfaceY, glass.left, glass.right)
-                }, 200)
-            }
-        }
+        updateWaterSurfacePoints()
 
         invalidate()
     }
 
-
-
     private fun refreshGlassContainerRect() {
         glassContainerView?.let {
             glassContainerRect = getViewRect(it)
+            updateWaterSurfacePoints()
         }
     }
 
@@ -162,11 +307,22 @@ class RainView @JvmOverloads constructor(
 
         if (raindrop.x < glassRect.left || raindrop.x > glassRect.right) return false
 
-        for (ripple in ripples) {
-            if (ripple.isRaindropColliding(raindrop.x, raindrop.y)) {
-                return true
+        if (waterSurfacePoints.isNotEmpty()) {
+            for (i in 0 until waterSurfacePoints.size - 1) {
+                val point1 = waterSurfacePoints[i]
+                val point2 = waterSurfacePoints[i + 1]
+
+                if (raindrop.x >= point1.x && raindrop.x <= point2.x) {
+                    val ratio = (raindrop.x - point1.x) / (point2.x - point1.x)
+                    val waterY = point1.y + (point2.y - point1.y) * ratio
+
+                    if (abs(raindrop.y - waterY) < 5f) {
+                        return true
+                    }
+                }
             }
         }
+
         return false
     }
 
@@ -211,7 +367,22 @@ class RainView @JvmOverloads constructor(
             val hitsWave = isRaindropHittingWave(raindrop)
 
             val hitsWater = glassRect?.let {
-                val waterSurfaceY = it.bottom - (it.height() * waterLevelRatio)
+                val waterSurfaceY = if (waterSurfacePoints.isNotEmpty()) {
+                    var surfaceY = it.bottom - (it.height() * waterLevelRatio)
+                    for (i in 0 until waterSurfacePoints.size - 1) {
+                        val point1 = waterSurfacePoints[i]
+                        val point2 = waterSurfacePoints[i + 1]
+                        if (raindrop.x >= point1.x && raindrop.x <= point2.x) {
+                            val ratio = (raindrop.x - point1.x) / (point2.x - point1.x)
+                            surfaceY = point1.y + (point2.y - point1.y) * ratio
+                            break
+                        }
+                    }
+                    surfaceY
+                } else {
+                    it.bottom - (it.height() * waterLevelRatio)
+                }
+
                 val raindropBottom = raindrop.y
                 val xInside = raindrop.x in it.left..it.right
                 val yTouchingWater = raindropBottom >= waterSurfaceY && raindrop.y - raindrop.speed < waterSurfaceY
@@ -232,38 +403,25 @@ class RainView @JvmOverloads constructor(
 
             if (hitsWave || hitsWater || hitsBottom) {
                 if (hitsWater && !hitsWave) {
-                    glassRect.let { glass ->
-                        val waterSurfaceY = glass.bottom - (glass.height() * waterLevelRatio)
-                        createRipple(raindrop.x, waterSurfaceY, glass.left, glass.right)
+                    for (point in waterSurfacePoints) {
+                        val distance = abs(point.x - raindrop.x)
+                        if (distance < 30f) {
+                            val impact = (1f - distance / 30f) * raindrop.size * 0.3f
+                            point.velocity -= impact
+                        }
                     }
                 }
 
                 currentVolumeMl += raindrop.volume
                 if (currentVolumeMl > glassVolumeMl) currentVolumeMl = glassVolumeMl
                 waterLevelRatio = currentVolumeMl / glassVolumeMl
+                updateWaterSurfacePoints()
                 onVolumeChanged?.invoke(raindrop.volume)
                 iterator.remove()
 
             } else if (isBeyondGlassBottom) {
                 iterator.remove()
             } else if (raindrop.y > height) {
-                iterator.remove()
-            }
-        }
-    }
-
-    private fun createRipple(x: Float, y: Float, leftBound: Float, rightBound: Float) {
-        ripples.add(Ripple(x, y, leftBound, rightBound, expanding = true, direction = -1))
-        ripples.add(Ripple(x, y, leftBound, rightBound, expanding = true, direction = 1))
-    }
-
-    private fun updateRipples() {
-        val iterator = ripples.iterator()
-        while (iterator.hasNext()) {
-            val ripple = iterator.next()
-            ripple.update()
-
-            if (ripple.isFinished()) {
                 iterator.remove()
             }
         }
@@ -280,19 +438,33 @@ class RainView @JvmOverloads constructor(
         }
 
         glassContainerRect?.let { glass ->
-            val waterTop = glass.bottom - (glass.height() * waterLevelRatio)
-            val waterRect = RectF(glass.left, waterTop, glass.right, glass.bottom)
+            if (waterLevelRatio > 0f) {
+                if (waterSurfacePoints.isNotEmpty()) {
+                    val path = Path()
 
-            val waterPaint = Paint().apply {
-                color = "#3b86d6".toColorInt()
-                isAntiAlias = true
+                    path.moveTo(glass.left, glass.bottom)
+
+                    path.lineTo(glass.right, glass.bottom)
+
+                    val rightWaterPoint = waterSurfacePoints.last()
+                    path.lineTo(glass.right, rightWaterPoint.y)
+
+                    for (i in waterSurfacePoints.size - 1 downTo 0) {
+                        val point = waterSurfacePoints[i]
+                        path.lineTo(point.x, point.y)
+                    }
+
+                    path.lineTo(glass.left, waterSurfacePoints.first().y)
+
+                    path.close()
+
+                    canvas.drawPath(path, waterPaint)
+                } else {
+                    val waterTop = glass.bottom - (glass.height() * waterLevelRatio)
+                    val waterRect = RectF(glass.left, waterTop, glass.right, glass.bottom)
+                    canvas.drawRect(waterRect, waterPaint)
+                }
             }
-
-            canvas.drawRect(waterRect, waterPaint)
-        }
-
-        for (ripple in ripples) {
-            ripple.draw(canvas, ripplePaint)
         }
     }
 
@@ -329,90 +501,4 @@ class RainView @JvmOverloads constructor(
         val speed: Float = size / 2f,
         val volume: Float = 0.5f
     )
-
-    private class Ripple(
-        private val originX: Float,
-        private val originY: Float,
-        private val leftBound: Float,
-        private val rightBound: Float,
-        private var expanding: Boolean,
-        private val direction: Int
-    ) {
-        private var currentX: Float = originX
-        private var amplitude: Float = 8f
-        private var speed: Float = 3f
-        private var damping: Float = 0.95f
-        private var phase: Float = 0f
-        private var finished = false
-
-        fun update() {
-            if (finished) return
-
-            if (expanding) {
-                currentX += direction * speed
-                phase += 0.3f
-
-                amplitude *= damping
-
-                if ((direction < 0 && currentX <= leftBound) || (direction > 0 && currentX >= rightBound)) {
-                    expanding = false
-                    amplitude *= 0.3f
-                    speed *= 0.5f
-                }
-
-                if (amplitude < 0.5f) {
-                    finished = true
-                }
-            } else {
-                amplitude *= 0.85f
-                phase += 0.2f
-
-                if (amplitude < 0.2f) {
-                    finished = true
-                }
-            }
-        }
-
-        fun isRaindropColliding(raindropX: Float, raindropY: Float): Boolean {
-            if (finished || amplitude < 0.1f) return false
-
-            val distance = abs(raindropX - currentX)
-            if (distance > 15f) return false
-
-            val waveOffset = sin(phase) * amplitude
-            val waveY = originY + waveOffset
-
-            return abs(raindropY - waveY) < 5f
-        }
-
-        fun draw(canvas: Canvas, paint: Paint) {
-            if (finished || amplitude < 0.1f) return
-
-            val alpha = (amplitude / 8f * 255).toInt().coerceIn(20, 150)
-            paint.alpha = alpha
-
-            val waveLength = 20f
-            val numPoints = 15
-            val points = mutableListOf<Float>()
-
-            for (i in 0 until numPoints) {
-                val x = currentX - waveLength/2 + (i * waveLength / numPoints)
-                if (x < leftBound || x > rightBound) continue
-
-                val waveOffset = sin(phase + i * 0.5f) * amplitude
-                val y = originY + waveOffset
-
-                points.add(x)
-                points.add(y)
-            }
-
-            for (i in 0 until points.size step 2) {
-                if (i + 1 < points.size) {
-                    canvas.drawCircle(points[i], points[i + 1], 1.5f, paint)
-                }
-            }
-        }
-
-        fun isFinished(): Boolean = finished
-    }
 }
