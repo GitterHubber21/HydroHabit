@@ -23,6 +23,8 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 import kotlinx.coroutines.*
 import androidx.activity.enableEdgeToEdge
+import android.view.GestureDetector
+import kotlin.math.abs
 
 
 class MainActivity : ComponentActivity() {
@@ -35,6 +37,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var add500Button: Button
     private lateinit var add750Button: Button
     private lateinit var waterVolumeText: TextView
+    private lateinit var gestureDetector: GestureDetector
 
     private val AMOUNT_250 = 250
     private val AMOUNT_500 = 500
@@ -51,6 +54,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         val sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE)
         val isOnboardingCompleted = sharedPreferences.getBoolean("onboarding_complete", false)
         val isLoginCompleted = sharedPreferences.getBoolean("login_completed", false)
@@ -61,6 +65,7 @@ class MainActivity : ComponentActivity() {
         initViews()
         setupRainView()
         setupButtons()
+
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         bottomNavigationView.selectedItemId = R.id.nav_home
         bottomNavigationView.itemIconTintList = null
@@ -128,10 +133,16 @@ class MainActivity : ComponentActivity() {
             overridePendingTransition(0, 0)
             finish()
         }
+
+        gestureDetector = GestureDetector(this, SwipeGestureListener())
+
     }
     override fun onDestroy() {
         super.onDestroy()
         job.cancel()
+    }
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        return gestureDetector.onTouchEvent(event) || super.onTouchEvent(event)
     }
 
     private fun initViews() {
@@ -142,6 +153,37 @@ class MainActivity : ComponentActivity() {
         add250Button = findViewById(R.id.add250Button)
         add500Button = findViewById(R.id.add500Button)
         add750Button = findViewById(R.id.add750Button)
+    }
+    private inner class SwipeGestureListener : GestureDetector.SimpleOnGestureListener() {
+
+        private val swipeThreshold = 100
+        private val swipeVelocityThreshold = 100
+
+        override fun onFling(
+            e1: MotionEvent?,
+            e2: MotionEvent,
+            velocityX: Float,
+            velocityY: Float
+        ): Boolean {
+            if (e1 == null) return false
+
+            val diffY = e2.y - e1.y
+            val diffX = e2.x - e1.x
+
+            if (abs(diffY) > abs(diffX)) {
+
+                if (diffY > swipeThreshold && abs(velocityY) > swipeVelocityThreshold) {
+                    finishWithAnimation()
+                    return true
+                }
+            }
+
+            return false
+        }
+    }
+    private fun finishWithAnimation() {
+        startActivity(Intent(applicationContext, SettingsActivity::class.java))
+        overridePendingTransition(R.anim.slide_in_from_top, R.anim.slide_out_to_bottom)
     }
     private fun updateQuantity(key: String, value: String) {
         val url = "https://water.coolcoder.hackclub.app/api/log"
