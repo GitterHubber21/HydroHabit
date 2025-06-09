@@ -2,6 +2,7 @@ package com.example.hydrohabit
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
@@ -25,6 +26,10 @@ import kotlinx.coroutines.*
 import androidx.activity.enableEdgeToEdge
 import android.view.GestureDetector
 import android.widget.Toast
+import androidx.core.content.edit
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
+import org.json.JSONObject
 import kotlin.math.abs
 
 
@@ -46,10 +51,40 @@ class MainActivity : ComponentActivity() {
     private var isBellSelected = false
     private var isTimedRainActive = false
     private var displayedVolume = 0f
-    private val client = OkHttpClient()
     private val job = Job()
     private val coroutineScope = CoroutineScope(Dispatchers.Default + job)
+    private lateinit var encryptedPrefs: SharedPreferences
 
+    private val client = OkHttpClient.Builder()
+        .cookieJar(object : CookieJar {
+            override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
+                if (url.host == "water.coolcoder.hackclub.app") {
+                    for (cookie in cookies) {
+                        encryptedPrefs.edit {
+                            putString(cookie.name, cookie.value)
+                        }
+                    }
+                }
+            }
+
+            override fun loadForRequest(url: HttpUrl): List<Cookie> {
+                val cookies = mutableListOf<Cookie>()
+                val allCookies = encryptedPrefs.all
+                for ((name, value) in allCookies) {
+                    if (value is String) {
+                        cookies.add(
+                            Cookie.Builder()
+                                .name(name)
+                                .value(value)
+                                .domain(url.host)
+                                .build()
+                        )
+                    }
+                }
+                return cookies
+            }
+        })
+        .build()
 
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,7 +92,17 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContentView(R.layout.activity_main)
+        val masterKey = MasterKey.Builder(applicationContext)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
 
+        encryptedPrefs = EncryptedSharedPreferences.create(
+            applicationContext,
+            "secure_cookies",
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
         initViews()
         setupRainView()
         setupButtons()
@@ -83,7 +128,7 @@ class MainActivity : ComponentActivity() {
 
         coroutineScope.launch {
             while (isActive) {
-                updateQuantity("quantity", displayedVolume.toString())
+                updateQuantity(displayedVolume.toFloat())
                 delay(3000L)
             }
         }
@@ -168,18 +213,13 @@ class MainActivity : ComponentActivity() {
         startActivity(Intent(applicationContext, SettingsActivity::class.java))
         overridePendingTransition(R.anim.slide_in_from_top, R.anim.slide_out_to_bottom)
     }
-    private fun updateQuantity(key: String, value: String) {
+    private fun updateQuantity(volume: Float) {
         val url = "https://water.coolcoder.hackclub.app/api/log"
+        val json = JSONObject().apply { put("volume_ml", volume) }.toString()
 
-        val json = """
-            {
-                "key": "$key",
-                "value": "$value"
-            }
-        """.trimIndent()
-
-        val mediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
-        val body = json.toRequestBody(mediaType)
+        val body = RequestBody.create(
+            "application/json; charset=utf-8".toMediaTypeOrNull(), json
+        )
 
         val request = Request.Builder()
             .url(url)
@@ -188,19 +228,16 @@ class MainActivity : ComponentActivity() {
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                e.printStackTrace()
-                runOnUiThread {
-                    //Toast.makeText(this@MainActivity, "Request failed", Toast.LENGTH_SHORT).show()
-                }
+                //pass
             }
 
             override fun onResponse(call: Call, response: Response) {
-                runOnUiThread {
-                    //Toast.makeText(this@MainActivity, "Data sent successfully", Toast.LENGTH_SHORT).show()
-                }
+                val serverReply = response.body?.use { it.string() } ?: "Empty response"
+                Log.d("server_response", serverReply)
             }
         })
     }
+
 
     private fun setupRainView() {
         val otherElements = listOf(
