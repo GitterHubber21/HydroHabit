@@ -92,6 +92,11 @@ class LoginActivity : AppCompatActivity() {
                             putBoolean("login_completed", true)
                             apply()
                         }
+                        Toast.makeText(
+                            this@LoginActivity,
+                            "Login successful",
+                            Toast.LENGTH_SHORT
+                        ).show()
                         startActivity(
                             Intent(this@LoginActivity, MainActivity::class.java)
                         )

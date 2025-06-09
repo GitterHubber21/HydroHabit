@@ -25,6 +25,7 @@
         android:layout_marginBottom="80dp" />
 
     <ProgressBar
+        android:id="@+id/progressIndicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"

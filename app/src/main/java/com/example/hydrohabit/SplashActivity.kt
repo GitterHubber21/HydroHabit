@@ -4,12 +4,15 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
+import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.content.edit
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import okhttp3.*
 import java.io.IOException
-import androidx.core.content.edit
 
 class SplashActivity : AppCompatActivity() {
 
@@ -20,35 +23,31 @@ class SplashActivity : AppCompatActivity() {
         .cookieJar(object : CookieJar {
             override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
                 if (url.host == "water.coolcoder.hackclub.app") {
-                    for (cookie in cookies) {
-                        cookieStorage[cookie.name] = cookie.value
-                    }
+                    cookies.forEach { cookieStorage[it.name] = it.value }
                 }
             }
 
-            override fun loadForRequest(url: HttpUrl): List<Cookie> {
-                val cookies = mutableListOf<Cookie>()
-                for ((name, value) in cookieStorage) {
-                    cookies.add(
-                        Cookie.Builder()
-                            .name(name)
-                            .value(value)
-                            .domain(url.host)
-                            .build()
-                    )
+            override fun loadForRequest(url: HttpUrl): List<Cookie> =
+                cookieStorage.map { (name, value) ->
+                    Cookie.Builder()
+                        .name(name)
+                        .value(value)
+                        .domain(url.host)
+                        .build()
                 }
-                return cookies
-            }
         })
         .build()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
+        val progressBar: ProgressBar=findViewById(R.id.progressIndicator)
 
+        val drawable = DrawableCompat.wrap(progressBar.indeterminateDrawable)
+        DrawableCompat.setTint(drawable, getColor(android.R.color.white))
+        progressBar.indeterminateDrawable = drawable
         initializeEncryptedPrefs()
         initializeCookies()
-
         checkAuthenticationStatus()
     }
 
@@ -67,27 +66,27 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun initializeCookies() {
-        val allCookies = encryptedPrefs.all
-        for ((key, value) in allCookies) {
-            if (value is String) {
-                cookieStorage[key] = value
-            }
+        encryptedPrefs.all.forEach { (k, v) ->
+            if (v is String) cookieStorage[k] = v
         }
     }
 
     private fun checkAuthenticationStatus() {
-        val loginCompleted = getSharedPreferences("app_prefs", MODE_PRIVATE)
-            .getBoolean("login_completed", false)
-        val onboardingCompleted = getSharedPreferences("app_prefs", MODE_PRIVATE)
-            .getBoolean("onboarding_complete", false)
-        if (!loginCompleted && onboardingCompleted || cookieStorage.isEmpty() ) {
+        if (cookieStorage.isEmpty()) {
+            handleExpiredSession()
+        } else {
             validateStoredSession()
-            navigateToLogin()
-
         }
-        if(!onboardingCompleted){
-            navigateToOnboarding()
+    }
 
+    private fun handleExpiredSession() {
+        val onboardingDone = getSharedPreferences("app_prefs", MODE_PRIVATE)
+            .getBoolean("onboarding_complete", false)
+
+        if (onboardingDone) {
+            navigateToLogin()
+        } else {
+            navigateToOnboarding()
         }
     }
 
@@ -100,26 +99,20 @@ class SplashActivity : AppCompatActivity() {
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 Log.e("SplashActivity", "Session validation failed", e)
-                runOnUiThread {
-                    navigateToLogin()
-                }
+                runOnUiThread { handleExpiredSession() }
             }
 
             override fun onResponse(call: Call, response: Response) {
                 runOnUiThread {
                     when (response.code) {
-                        200 -> {
-                            Log.d("SplashActivity", "Session valid, navigating to MainActivity")
-                            navigateToMain()
-                        }
+                        200 -> navigateToMain()
                         401 -> {
-                            Log.d("SplashActivity", "Session expired, clearing data")
                             clearStoredSession()
-                            navigateToLogin()
+                            handleExpiredSession()
                         }
                         else -> {
                             Log.w("SplashActivity", "Server error: ${response.code}")
-                            navigateToLogin()
+                            handleExpiredSession()
                         }
                     }
                 }
@@ -128,31 +121,25 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun clearStoredSession() {
-
         encryptedPrefs.edit { clear() }
         cookieStorage.clear()
-
         getSharedPreferences("app_prefs", MODE_PRIVATE)
-            .edit {
-                putBoolean("login_completed", false)
-            }
+            .edit { putBoolean("login_completed", false) }
     }
 
     private fun navigateToLogin() {
-        val intent = Intent(this, LoginActivity::class.java)
-        startActivity(intent)
+        startActivity(Intent(this, LoginActivity::class.java))
         finish()
     }
 
     private fun navigateToMain() {
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
+        startActivity(Intent(this, MainActivity::class.java))
         overridePendingTransition(R.anim.slide_in_from_top, R.anim.slide_out_to_bottom)
         finish()
     }
+
     private fun navigateToOnboarding() {
-        val intent = Intent(this, OnboardingActivity::class.java)
-        startActivity(intent)
+        startActivity(Intent(this, OnboardingActivity::class.java))
         overridePendingTransition(R.anim.slide_in_from_bottom, R.anim.slide_out_to_top)
         finish()
     }
