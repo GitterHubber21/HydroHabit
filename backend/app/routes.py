@@ -9,7 +9,7 @@ main_bp = Blueprint("main", __name__, url_prefix="/api")
 @login_required
 def log_water():
     data = request.json or {}
-    volume = int(data.get("volume_ml", 0))
+    volume = float(data.get("volume_ml", 0))
     if volume <= 0:
         return jsonify({"error":"Positive volume required"}), 400
 
