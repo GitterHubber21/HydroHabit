@@ -17,50 +17,41 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import java.io.IOException
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
-
+import org.json.JSONObject
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var encryptedPrefs: SharedPreferences
-    private val cookieStorage = mutableMapOf<String, String>()
 
     private val client = OkHttpClient.Builder()
         .cookieJar(object : CookieJar {
             override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
-
-                for (cookie in cookies) {
-                    cookieStorage[cookie.name] = cookie.value
-
-                    encryptedPrefs.edit {
-                        putString(cookie.name, cookie.value)
+                if (url.host == "water.coolcoder.hackclub.app") {
+                    for (cookie in cookies) {
+                        encryptedPrefs.edit {
+                            putString(cookie.name, cookie.value)
+                        }
                     }
                 }
             }
 
             override fun loadForRequest(url: HttpUrl): List<Cookie> {
-
                 val cookies = mutableListOf<Cookie>()
-                for ((name, value) in cookieStorage) {
-                    cookies.add(
-                        Cookie.Builder()
-                            .name(name)
-                            .value(value)
-                            .domain(url.host)
-                            .build()
-                    )
+                val allCookies = encryptedPrefs.all
+                for ((name, value) in allCookies) {
+                    if (value is String) {
+                        cookies.add(
+                            Cookie.Builder()
+                                .name(name)
+                                .value(value)
+                                .domain(url.host)
+                                .build()
+                        )
+                    }
                 }
                 return cookies
             }
         })
         .build()
-
-    private fun initializeCookies() {
-        val allCookies = encryptedPrefs.all
-        for ((key, value) in allCookies) {
-            if (value is String) {
-                cookieStorage[key] = value
-            }
-        }
-    }
 
     private fun forceHideKeyboard() {
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -69,7 +60,11 @@ class LoginActivity : AppCompatActivity() {
 
     private fun attemptLogin(username: String, password: String) {
         val url = "https://water.coolcoder.hackclub.app/api/login"
-        val json = """{"username":"$username","password":"$password"}"""
+        val jsonObject = JSONObject().apply {
+            put("username", username)
+            put("password", password)
+        }
+        val json = jsonObject.toString()
         val body = RequestBody.create(
             "application/json; charset=utf-8".toMediaTypeOrNull(), json
         )
@@ -122,6 +117,7 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_login)
+
         val masterKey = MasterKey.Builder(applicationContext)
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
             .build()
@@ -133,8 +129,6 @@ class LoginActivity : AppCompatActivity() {
             EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
             EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
         )
-
-        initializeCookies()
 
         val loginButton: Button = findViewById(R.id.loginButton)
         val signupText: TextView = findViewById(R.id.signupText)

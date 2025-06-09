@@ -1,18 +1,63 @@
 package com.example.hydrohabit
 
+import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.Cookie
+import okhttp3.CookieJar
+import okhttp3.HttpUrl
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import org.json.JSONObject
+import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 
 class SettingsActivity : AppCompatActivity() {
 
     private lateinit var gestureDetector: GestureDetector
+    private lateinit var usernameDisplay: TextView
+    private lateinit var encryptedPrefs: SharedPreferences
+    private val cookieStorage = mutableMapOf<String, String>()
+
+    private val client = OkHttpClient.Builder()
+        .cookieJar(object : CookieJar {
+            override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
+                if (url.host == "water.coolcoder.hackclub.app") {
+                    for (cookie in cookies) {
+                        cookieStorage[cookie.name] = cookie.value
+                    }
+                }
+            }
+
+            override fun loadForRequest(url: HttpUrl): List<Cookie> {
+                val cookies = mutableListOf<Cookie>()
+                for ((name, value) in cookieStorage) {
+                    cookies.add(
+                        Cookie.Builder()
+                            .name(name)
+                            .value(value)
+                            .domain(url.host)
+                            .build()
+                    )
+                }
+                return cookies
+            }
+        })
+        .build()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,7 +76,79 @@ class SettingsActivity : AppCompatActivity() {
             finishWithAnimation()
         }
 
+        usernameDisplay = findViewById(R.id.usernameDisplay)
+        initializeEncryptedPrefs()
+        initializeCookies()
+
+        loadUsername()
+
         gestureDetector = GestureDetector(this, SwipeGestureListener())
+    }
+    private fun initializeEncryptedPrefs() {
+        val masterKey = MasterKey.Builder(applicationContext)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+
+        encryptedPrefs = EncryptedSharedPreferences.create(
+            applicationContext,
+            "secure_cookies",
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+    }
+
+    private fun initializeCookies() {
+        val allCookies = encryptedPrefs.all
+        for ((key, value) in allCookies) {
+            if (value is String) {
+                cookieStorage[key] = value
+            }
+        }
+    }
+
+    private fun loadUsername() {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val username = fetchUsernameFromApi()
+                withContext(Dispatchers.Main) {
+                    usernameDisplay.text = username
+                }
+            } catch (e: Exception) {
+                Log.e("SettingsActivity", "Error loading username", e)
+                withContext(Dispatchers.Main) {
+                    usernameDisplay.text = "Error loading username"
+                }
+            }
+        }
+    }
+
+    private suspend fun fetchUsernameFromApi(): String {
+        return withContext(Dispatchers.IO) {
+            try {
+                val request = Request.Builder()
+                    .url("https://water.coolcoder.hackclub.app/api/current_user")
+                    .get()
+                    .build()
+
+                client.newCall(request).execute().use { response ->
+                    if (response.isSuccessful) {
+                        val responseBody = response.body?.string()
+                        if (responseBody != null) {
+                            val jsonResponse = JSONObject(responseBody)
+                            jsonResponse.getString("username")
+                        } else {
+                            "No response body"
+                        }
+                    } else {
+                        "Failed to load user (${response.code})"
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("SettingsActivity", "Network error", e)
+                "Network error"
+            }
+        }
     }
 
     private fun finishWithAnimation() {
