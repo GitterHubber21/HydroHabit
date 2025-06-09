@@ -107,6 +107,18 @@ class MainActivity : ComponentActivity() {
         setupRainView()
         setupButtons()
 
+        coroutineScope.launch {
+            val initialVolume = fetchTotalVolume()
+
+            withContext(Dispatchers.Main) {
+                displayedVolume = initialVolume
+                waterVolumeText.text = String.format("%.1f ml", displayedVolume)
+                rainView.addWaterDirectly(initialVolume)
+
+                Log.d("MainActivity", "Initial server volume = $initialVolume ml")
+            }
+        }
+
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         bottomNavigationView.selectedItemId = R.id.nav_home
         bottomNavigationView.itemIconTintList = null
@@ -129,7 +141,7 @@ class MainActivity : ComponentActivity() {
         coroutineScope.launch {
             while (isActive) {
                 updateQuantity(displayedVolume.toFloat())
-                delay(3000L)
+                delay(1000L)
             }
         }
         rainView.onTimedRainStateChanged = { isActive ->
@@ -236,6 +248,30 @@ class MainActivity : ComponentActivity() {
                 Log.d("server_response", serverReply)
             }
         })
+    }
+    private suspend fun fetchTotalVolume(): Float = withContext(Dispatchers.IO) {
+        try {
+            val request = Request.Builder()
+                .url("https://water.coolcoder.hackclub.app/api/stats")
+                .get()
+                .build()
+
+            client.newCall(request).execute().use { response ->
+                if (response.isSuccessful) {
+                    val body = response.body?.string()
+                    if (body != null) {
+                        val total = JSONObject(body).optDouble("total_volume_ml", 0.0)
+                        total.toFloat()
+                    } else 0f
+                } else {
+                    Log.w("MainActivity", "stats request failed: ${response.code}")
+                    0f
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("MainActivity", "stats request error", e)
+            0f
+        }
     }
 
 

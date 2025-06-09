@@ -48,7 +48,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/dosis_bold"
-            android:text="Current username..."
+            android:text="@string/Loading"
             android:textColor="#ffffff"
             android:textSize="35sp"
             app:layout_constraintStart_toStartOf="parent"
