@@ -36,4 +36,8 @@ def login():
 def logout():
     logout_user()
     return jsonify({"message":"Logged out successfully"})
-
+@auth_bp.route("/current_user", methods=["GET"])
+@login_required
+def current_user():
+    from flask_login import current_user
+    return jsonify({"username": current_user.username})
