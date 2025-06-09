@@ -41,7 +41,7 @@ class RainView @JvmOverloads constructor(
     private var isCalibrated = false
 
     private val dampingFactor = 0.95f
-    private val springConstant = 0.1f
+    private val springConstant = 0.4f
     private val maxTilt = 30f
     private val tiltSensitivity = 0.8f
 
@@ -115,7 +115,7 @@ class RainView @JvmOverloads constructor(
         val glassRect = glassContainerRect ?: return
         if (waterLevelRatio <= 0f) return
 
-        val numPoints = 20
+        val numPoints = 40
         val width = glassRect.width()
         val waterSurfaceY = glassRect.bottom - (glassRect.height() * waterLevelRatio)
 
@@ -131,15 +131,35 @@ class RainView @JvmOverloads constructor(
             }
         }
     }
+    private fun updateWaterSurfacePointsDirect() {
+        val glassRect = glassContainerRect ?: return
+        if (waterLevelRatio <= 0f) return
+
+        val numPoints = 40
+        val width = glassRect.width()
+        val waterSurfaceY = glassRect.bottom - (glassRect.height() * waterLevelRatio)
+
+
+        waterSurfacePoints.clear()
+        for (i in 0 until numPoints) {
+            val x = glassRect.left + (i * width / (numPoints - 1))
+            waterSurfacePoints.add(WaterPoint(x, waterSurfaceY, waterSurfaceY))
+
+        }
+    }
 
     private fun updateWaterPhysics() {
         if (waterLevelRatio <= 0f || waterSurfacePoints.isEmpty()) return
 
         val glassRect = glassContainerRect ?: return
 
-        val tiltEffect = -sin(waterTiltX * PI / 40f).toFloat()
+        val tiltEffect = if (currentVolumeMl >= glassVolumeMl) {
+            0f
+        } else {
+            -sin(waterTiltX * PI / 50f).toFloat()
+        }
         val baseWaterY = glassRect.bottom - (glassRect.height() * waterLevelRatio)
-        val maxWaterDisplacement = glassRect.height() * 0.0001f
+        val maxWaterDisplacement = glassRect.height() * 0.2f
 
         for (i in waterSurfacePoints.indices) {
             val point = waterSurfacePoints[i]
@@ -157,7 +177,7 @@ class RainView @JvmOverloads constructor(
                 val leftPoint = waterSurfacePoints[i - 1]
                 val rightPoint = waterSurfacePoints[i + 1]
                 val avgNeighborY = (leftPoint.y + rightPoint.y) / 2f
-                val waveForce = (avgNeighborY - point.y) * 0.02f
+                val waveForce = (avgNeighborY - point.y) * 0.05f
                 point.velocity += waveForce
             }
         }
@@ -275,7 +295,7 @@ class RainView @JvmOverloads constructor(
         if (currentVolumeMl > glassVolumeMl) currentVolumeMl = glassVolumeMl
         waterLevelRatio = currentVolumeMl / glassVolumeMl
 
-        updateWaterSurfacePoints()
+        updateWaterSurfacePointsDirect()
 
         invalidate()
     }

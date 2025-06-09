@@ -24,6 +24,7 @@ import java.io.IOException
 import kotlinx.coroutines.*
 import androidx.activity.enableEdgeToEdge
 import android.view.GestureDetector
+import android.widget.Toast
 import kotlin.math.abs
 
 
@@ -195,7 +196,7 @@ class MainActivity : ComponentActivity() {
 
             override fun onResponse(call: Call, response: Response) {
                 runOnUiThread {
-                    //Toast.makeText(this@MainActivity, "Response: $responseBody", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(this@MainActivity, "Data sent successfully", Toast.LENGTH_SHORT).show()
                 }
             }
         })
