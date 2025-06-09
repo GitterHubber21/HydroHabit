@@ -37,13 +37,11 @@ class InsightsActivity : AppCompatActivity() {
                 R.id.nav_home -> {
                     startActivity(Intent(applicationContext, MainActivity::class.java))
                     overridePendingTransition(0, 0)
-                    finish()
                     true
                 }
                 R.id.nav_challenges -> {
                     startActivity(Intent(applicationContext, ChallengesActivity::class.java))
                     overridePendingTransition(0, 0)
-                    finish()
                     true
                 }
                 else -> false

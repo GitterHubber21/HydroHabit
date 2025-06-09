@@ -80,6 +80,8 @@ class SettingsActivity : AppCompatActivity() {
             finishWithAnimation()
         }
 
+
+
         usernameDisplay = findViewById(R.id.usernameDisplay)
         initializeEncryptedPrefs()
         initializeCookies()
@@ -190,5 +192,10 @@ class SettingsActivity : AppCompatActivity() {
 
             return false
         }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        finishWithAnimation()
     }
 }

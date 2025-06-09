@@ -157,7 +157,6 @@ class LoginActivity : AppCompatActivity() {
                 R.anim.slide_in_from_right,
                 R.anim.slide_out_to_left
             )
-            finish()
         }
 
         rootLayout.setOnTouchListener { _, event ->

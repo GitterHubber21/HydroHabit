@@ -105,13 +105,11 @@ class MainActivity : ComponentActivity() {
                 R.id.nav_insights -> {
                     startActivity(Intent(applicationContext, InsightsActivity::class.java))
                     overridePendingTransition(0, 0)
-                    finish()
                     true
                 }
                 R.id.nav_challenges -> {
                     startActivity(Intent(applicationContext, ChallengesActivity::class.java))
                     overridePendingTransition(0, 0)
-                    finish()
                     true
                 }
                 else -> false
