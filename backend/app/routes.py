@@ -16,7 +16,7 @@ def log_water():
     today = date.today()
     log = WaterLog.query.filter_by(user_id=current_user.id, date=today).first()
     if not log:
-        log=WaterLog.query.filter_by(user_id=current_user.id, date=today)
+        log = WaterLog(user_id=current_user.id, date=today, volume_ml=0)
 
     log.volume_ml += volume
     daily_goal = current_app.config["DAILY_GOAL_ML"]
