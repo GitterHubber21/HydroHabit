@@ -26,14 +26,14 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/bellIcon"
+        android:id="@+id/settingsIcon"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="16dp"
         android:clickable="true"
         android:contentDescription="@string/notifications"
-        android:src="@drawable/ic_bell_selector"
+        android:src="@drawable/ic_settings"
         android:focusable="true"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:elevation="4dp"
@@ -206,74 +206,6 @@
         android:alignmentMode="alignBounds"
         android:useDefaultMargins="true"
         android:layout_above="@id/bottomNavigationView">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:text="S"
-            android:gravity="center"
-            android:textColor="#ffffff"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:text="M"
-            android:gravity="center"
-            android:textColor="#ffffff"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:text="T"
-            android:gravity="center"
-            android:textColor="#ffffff"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:text="W"
-            android:gravity="center"
-            android:textColor="#ffffff"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:text="T"
-            android:gravity="center"
-            android:textColor="#ffffff"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:text="F"
-            android:gravity="center"
-            android:textColor="#ffffff"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:text="S"
-            android:gravity="center"
-            android:textColor="#ffffff"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
-
-
-
     </GridLayout>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView

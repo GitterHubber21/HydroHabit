@@ -12,10 +12,14 @@ import androidx.core.graphics.toColorInt
 import androidx.core.content.ContextCompat
 import java.util.*
 import androidx.core.content.res.ResourcesCompat
+import android.view.GestureDetector
+import android.view.MotionEvent
+import kotlin.math.abs
 
 class InsightsActivity : AppCompatActivity() {
     private var isBellSelected = false
     private var cellSize = 0
+    private lateinit var gestureDetector: GestureDetector
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,16 +50,47 @@ class InsightsActivity : AppCompatActivity() {
             }
         }
 
-        val bellIcon: ImageView = findViewById(R.id.bellIcon)
+        val settingsIcon: ImageView = findViewById(R.id.settingsIcon)
 
-        bellIcon.setOnClickListener {
-            if (isBellSelected) {
-                bellIcon.setImageResource(R.drawable.ic_bell_unselected)
-            } else {
-                bellIcon.setImageResource(R.drawable.ic_bell)
-            }
-            isBellSelected = !isBellSelected
+        settingsIcon.setOnClickListener {
+            startActivity(Intent(applicationContext, SettingsActivity::class.java))
+            overridePendingTransition(R.anim.slide_in_from_top, R.anim.slide_out_to_bottom)
         }
+        gestureDetector = GestureDetector(this, SwipeGestureListener())
+    }
+    private inner class SwipeGestureListener : GestureDetector.SimpleOnGestureListener() {
+
+        private val swipeThreshold = 100
+        private val swipeVelocityThreshold = 100
+
+        override fun onFling(
+            e1: MotionEvent?,
+            e2: MotionEvent,
+            velocityX: Float,
+            velocityY: Float
+        ): Boolean {
+            if (e1 == null) return false
+
+            val diffY = e2.y - e1.y
+            val diffX = e2.x - e1.x
+
+            if (abs(diffY) > abs(diffX)) {
+
+                if (diffY > swipeThreshold && abs(velocityY) > swipeVelocityThreshold) {
+                    finishWithAnimation()
+                    return true
+                }
+            }
+
+            return false
+        }
+        private fun finishWithAnimation() {
+            startActivity(Intent(applicationContext, SettingsActivity::class.java))
+            overridePendingTransition(R.anim.slide_in_from_top, R.anim.slide_out_to_bottom)
+        }
+    }
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        return gestureDetector.onTouchEvent(event) || super.onTouchEvent(event)
     }
 
     private fun calculateCellSize() {

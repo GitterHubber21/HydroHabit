@@ -6,9 +6,13 @@ import android.widget.ImageView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import android.view.GestureDetector
+import android.view.MotionEvent
+import kotlin.math.abs
 
 class ChallengesActivity : AppCompatActivity() {
     private var isBellSelected = false
+    private lateinit var gestureDetector: GestureDetector
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -34,18 +38,47 @@ class ChallengesActivity : AppCompatActivity() {
                 else -> false
             }
         }
-        val bellIcon: ImageView = findViewById(R.id.bellIcon)
+        val settingsIcon: ImageView = findViewById(R.id.settingsIcon)
 
-        bellIcon.setOnClickListener {
-            if (isBellSelected) {
-                bellIcon.setImageResource(R.drawable.ic_bell_unselected)
-            } else {
+        settingsIcon.setOnClickListener {
+            startActivity(Intent(applicationContext, SettingsActivity::class.java))
+            overridePendingTransition(R.anim.slide_in_from_top, R.anim.slide_out_to_bottom)
+        }
+        gestureDetector= GestureDetector(this, SwipeGestureListener())
+    }
+    private inner class SwipeGestureListener : GestureDetector.SimpleOnGestureListener() {
 
-                bellIcon.setImageResource(R.drawable.ic_bell)
+        private val swipeThreshold = 100
+        private val swipeVelocityThreshold = 100
+
+        override fun onFling(
+            e1: MotionEvent?,
+            e2: MotionEvent,
+            velocityX: Float,
+            velocityY: Float
+        ): Boolean {
+            if (e1 == null) return false
+
+            val diffY = e2.y - e1.y
+            val diffX = e2.x - e1.x
+
+            if (abs(diffY) > abs(diffX)) {
+
+                if (diffY > swipeThreshold && abs(velocityY) > swipeVelocityThreshold) {
+                    finishWithAnimation()
+                    return true
+                }
             }
 
-
-            isBellSelected = !isBellSelected
+            return false
         }
+
+    }
+    private fun finishWithAnimation() {
+        startActivity(Intent(applicationContext, SettingsActivity::class.java))
+        overridePendingTransition(R.anim.slide_in_from_top, R.anim.slide_out_to_bottom)
+    }
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        return gestureDetector.onTouchEvent(event) || super.onTouchEvent(event)
     }
 }
