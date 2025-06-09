@@ -18,7 +18,7 @@ def log_water():
     if not log:
         log = WaterLog(user_id=current_user.id, date=today, volume_ml=0)
 
-    log.volume_ml += volume
+    log.volume_ml = volume
     daily_goal = current_app.config["DAILY_GOAL_ML"]
     log.goal_met = log.volume_ml >= daily_goal
 
