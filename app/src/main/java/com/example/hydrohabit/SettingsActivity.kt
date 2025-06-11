@@ -31,7 +31,6 @@ import kotlin.math.abs
 class SettingsActivity : AppCompatActivity() {
 
     private lateinit var gestureDetector: GestureDetector
-    private lateinit var usernameDisplay: TextView
     private lateinit var encryptedPrefs: SharedPreferences
     private val cookieStorage = mutableMapOf<String, String>()
 
@@ -80,13 +79,8 @@ class SettingsActivity : AppCompatActivity() {
             finishWithAnimation()
         }
 
-
-
-        usernameDisplay = findViewById(R.id.usernameDisplay)
         initializeEncryptedPrefs()
         initializeCookies()
-
-        loadUsername()
 
         gestureDetector = GestureDetector(this, SwipeGestureListener())
     }
@@ -109,22 +103,6 @@ class SettingsActivity : AppCompatActivity() {
         for ((key, value) in allCookies) {
             if (value is String) {
                 cookieStorage[key] = value
-            }
-        }
-    }
-
-    private fun loadUsername() {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val username = fetchUsernameFromApi()
-                withContext(Dispatchers.Main) {
-                    usernameDisplay.text = username
-                }
-            } catch (e: Exception) {
-                Log.e("SettingsActivity", "Error loading username", e)
-                withContext(Dispatchers.Main) {
-                    usernameDisplay.text = "Error loading username"
-                }
             }
         }
     }
@@ -194,6 +172,7 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
+    @Deprecated("This method has been deprecated in favor of using the\n      {@link OnBackPressedDispatcher} via {@link #getOnBackPressedDispatcher()}.\n      The OnBackPressedDispatcher controls how back button events are dispatched\n      to one or more {@link OnBackPressedCallback} objects.")
     override fun onBackPressed() {
         super.onBackPressed()
         finishWithAnimation()
