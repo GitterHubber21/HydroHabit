@@ -72,7 +72,7 @@
 
             <View
                 android:layout_width="match_parent"
-                android:layout_height="8dp"
+                android:layout_height="6dp"
                 android:background="@drawable/glass_rift" />
             <TextView
                 android:id="@+id/resetButton"
@@ -118,7 +118,7 @@
                 android:textSize="18sp" />
             <View
                 android:layout_width="match_parent"
-                android:layout_height="8dp"
+                android:layout_height="6dp"
                 android:background="@drawable/glass_rift_variant" />
             <TextView
                 android:id="@+id/resetPasswordButton"
