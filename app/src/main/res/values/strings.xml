@@ -11,5 +11,6 @@
     <string name="add_250ml_description">Add 250 milliliters</string>
     <string name="add_500ml_description">Add 500 milliliters</string>
     <string name="add_750ml_description">Add 750 milliliters</string>
+    <string name="Loading">Loading…</string>
 
 </resources>

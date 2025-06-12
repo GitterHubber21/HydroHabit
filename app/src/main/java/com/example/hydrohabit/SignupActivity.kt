@@ -16,6 +16,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import org.json.JSONObject
 import java.io.IOException
 
 class SignupActivity : AppCompatActivity() {
@@ -30,18 +31,18 @@ class SignupActivity : AppCompatActivity() {
     private fun sendSignupRequest(username: String, password: String) {
         val url = "https://water.coolcoder.hackclub.app/api/signup"
 
-        val json = """
-            {
-                "username": "$username",
-                "password": "$password"
-            }
-        """.trimIndent()
-
-        val requestBody = RequestBody.create("application/json; charset=utf-8".toMediaTypeOrNull(), json)
+        val jsonObject = JSONObject().apply {
+            put("username", username)
+            put("password", password)
+        }
+        val json = jsonObject.toString()
+        val body = RequestBody.create(
+            "application/json; charset=utf-8".toMediaTypeOrNull(), json
+        )
 
         val request = Request.Builder()
             .url(url)
-            .post(requestBody)
+            .post(body)
             .build()
 
         client.newCall(request).enqueue(object : Callback {
