@@ -29,6 +29,31 @@ class WaterLog(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
 
 
+class WaterStats(db.Model):
+    __tablename__ = "water_stats"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+
+    calculated_date = db.Column(db.Date, default=date.today, nullable=False)
+
+    today_percentage = db.Column(db.Float, default=0.0, nullable=False)
+
+    week_percentage = db.Column(db.Float, default=0.0, nullable=False)
+
+    month_percentage = db.Column(db.Float, default=0.0, nullable=False)
+
+    month_goal_completed_dates = db.Column(db.Text, default="[]", nullable=False)
+
+    today_volume_ml = db.Column(db.Integer, default=0, nullable=False)
+
+    week_volume_ml = db.Column(db.Integer, default=0, nullable=False)
+
+    month_volume_ml = db.Column(db.Integer, default=0, nullable=False)
+
+    days_in_current_month = db.Column(db.Integer, default=0, nullable=False)
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
