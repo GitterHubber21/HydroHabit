@@ -3,10 +3,8 @@ import json
 from datetime import date, timedelta
 from flask import Blueprint, request, jsonify, current_app
 from flask_login import login_required, current_user
-from app.models import WaterLog
+from app.models import WaterLog, WaterStats
 from app import db
-
-from HydroHabit.backend.app.models import WaterStats
 
 main_bp = Blueprint("main", __name__, url_prefix="/api")
 
