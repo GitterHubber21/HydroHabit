@@ -122,9 +122,9 @@ def update_user_stats(user_id):
     stats.week_percentage = week_percentage
     stats.month_percentage = month_percentage
     stats.month_goal_completed_dates = json.dumps(goal_completed_dates)
-    stats.today_volume_ml = today_volume
-    stats.week_volume_ml = week_volume
-    stats.month_volume_ml = month_volume
+    stats.today_volume_ml = float(today_volume)
+    stats.week_volume_ml = float(week_volume)
+    stats.month_volume_ml = float(month_volume)
     stats.days_in_current_month = days_in_month
 
     db.session.add(stats)
