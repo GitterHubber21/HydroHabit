@@ -7,18 +7,13 @@ import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.widget.ImageView
-import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKey
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.Cookie
 import okhttp3.CookieJar
@@ -26,14 +21,13 @@ import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
-import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 import androidx.core.content.edit
 
 class SettingsActivity : AppCompatActivity() {
 
     private lateinit var gestureDetector: GestureDetector
-    private lateinit var encryptedPrefs: SharedPreferences
+    private lateinit var sharedPrefs: SharedPreferences
     private val cookieStorage = mutableMapOf<String, String>()
 
     private val client = OkHttpClient.Builder()
@@ -67,7 +61,6 @@ class SettingsActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_settings)
 
-
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -81,7 +74,7 @@ class SettingsActivity : AppCompatActivity() {
             finishWithAnimation()
         }
 
-        initializeEncryptedPrefs()
+        initializePrefs()
         initializeCookies()
 
         gestureDetector = GestureDetector(this, SwipeGestureListener())
@@ -93,22 +86,13 @@ class SettingsActivity : AppCompatActivity() {
             overridePendingTransition(0, 0)
         }
     }
-    private fun initializeEncryptedPrefs() {
-        val masterKey = MasterKey.Builder(applicationContext)
-            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-            .build()
 
-        encryptedPrefs = EncryptedSharedPreferences.create(
-            applicationContext,
-            "secure_cookies",
-            masterKey,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
+    private fun initializePrefs() {
+        sharedPrefs = getSharedPreferences("secure_cookies", MODE_PRIVATE)
     }
 
     private fun initializeCookies() {
-        val allCookies = encryptedPrefs.all
+        val allCookies = sharedPrefs.all
         for ((key, value) in allCookies) {
             if (value is String) {
                 cookieStorage[key] = value
@@ -170,7 +154,6 @@ class SettingsActivity : AppCompatActivity() {
             val diffX = e2.x - e1.x
 
             if (abs(diffY) > abs(diffX)) {
-
                 if (diffY < swipeThreshold && abs(velocityY) > swipeVelocityThreshold) {
                     finishWithAnimation()
                     return true
@@ -180,9 +163,15 @@ class SettingsActivity : AppCompatActivity() {
             return false
         }
     }
+
     private suspend fun clearCookiesAndLogout() {
         withContext(Dispatchers.Main) {
-            encryptedPrefs.edit { clear() }
+            sharedPrefs.all.keys.forEach { key ->
+                if (!key.startsWith("__androidx_security_crypto_encrypted_prefs__")) {
+                    sharedPrefs.edit { remove(key) }
+                }
+            }
+
             cookieStorage.clear()
 
             val intent = Intent(this@SettingsActivity, LoginActivity::class.java)
@@ -193,11 +182,12 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
-
-    @Deprecated("This method has been deprecated in favor of using the\n      " +
-            "{@link OnBackPressedDispatcher} via {@link #getOnBackPressedDispatcher()}.\n      " +
-            "The OnBackPressedDispatcher controls how back button events are dispatched\n      " +
-            "to one or more {@link OnBackPressedCallback} objects.")
+    @Deprecated(
+        "This method has been deprecated in favor of using the\n      " +
+                "{@link OnBackPressedDispatcher} via {@link #getOnBackPressedDispatcher()}.\n      " +
+                "The OnBackPressedDispatcher controls how back button events are dispatched\n      " +
+                "to one or more {@link OnBackPressedCallback} objects."
+    )
     override fun onBackPressed() {
         super.onBackPressed()
         finishWithAnimation()
