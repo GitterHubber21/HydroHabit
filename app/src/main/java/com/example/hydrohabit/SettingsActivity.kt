@@ -1,5 +1,6 @@
 package com.example.hydrohabit
 
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
@@ -27,6 +28,7 @@ import okhttp3.Request
 import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
+import androidx.core.content.edit
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -83,6 +85,27 @@ class SettingsActivity : AppCompatActivity() {
         initializeCookies()
 
         gestureDetector = GestureDetector(this, SwipeGestureListener())
+
+        val logoutButton: TextView = findViewById(R.id.logoutButton)
+        logoutButton.setOnClickListener {
+            CoroutineScope(Dispatchers.IO).launch {
+                try{
+                    val request = Request.Builder()
+                        .url("https://water.coolcoder.hackclub.app/api/logout")
+                        .post(okhttp3.FormBody.Builder().build())
+                        .build()
+                    client.newCall(request).execute().use { response ->
+                        if(response.isSuccessful) {
+                            clearCookiesAndLogout()
+                        }else{
+                            Log.e("SettingsActivity", "Logout failed: ${response.code}")
+                        }
+                    }
+                }catch(e: Exception){
+                    Log.e("SettingsActivity", "Logout error", e)
+                }
+            }
+        }
     }
     private fun initializeEncryptedPrefs() {
         val masterKey = MasterKey.Builder(applicationContext)
@@ -176,5 +199,16 @@ class SettingsActivity : AppCompatActivity() {
     override fun onBackPressed() {
         super.onBackPressed()
         finishWithAnimation()
+    }
+    private suspend fun clearCookiesAndLogout(){
+        withContext(Dispatchers.Main){
+            cookieStorage.clear()
+            encryptedPrefs.edit { clear() }
+
+            val intent = Intent(this@SettingsActivity, LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_from_bottom, R.anim.slide_out_to_top)
+        }
     }
 }
