@@ -88,24 +88,9 @@ class SettingsActivity : AppCompatActivity() {
 
         val logoutButton: TextView = findViewById(R.id.logoutButton)
         logoutButton.setOnClickListener {
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    val request = Request.Builder()
-                        .url("https://water.coolcoder.hackclub.app/api/logout")
-                        .post(okhttp3.FormBody.Builder().build())
-                        .build()
-
-                    client.newCall(request).execute().use { response ->
-                        if (response.isSuccessful) {
-                            clearCookiesAndLogout()
-                        } else {
-                            Log.e("SettingsActivity", "Logout failed: ${response.code}")
-                        }
-                    }
-                } catch (e: Exception) {
-                    Log.e("SettingsActivity", "Logout error", e)
-                }
-            }
+            val intent = Intent(this@SettingsActivity, WarningPopupActivity::class.java)
+            startActivity(intent)
+            overridePendingTransition(0, 0)
         }
     }
     private fun initializeEncryptedPrefs() {
@@ -209,7 +194,10 @@ class SettingsActivity : AppCompatActivity() {
     }
 
 
-    @Deprecated("This method has been deprecated in favor of using the\n      {@link OnBackPressedDispatcher} via {@link #getOnBackPressedDispatcher()}.\n      The OnBackPressedDispatcher controls how back button events are dispatched\n      to one or more {@link OnBackPressedCallback} objects.")
+    @Deprecated("This method has been deprecated in favor of using the\n      " +
+            "{@link OnBackPressedDispatcher} via {@link #getOnBackPressedDispatcher()}.\n      " +
+            "The OnBackPressedDispatcher controls how back button events are dispatched\n      " +
+            "to one or more {@link OnBackPressedCallback} objects.")
     override fun onBackPressed() {
         super.onBackPressed()
         finishWithAnimation()
