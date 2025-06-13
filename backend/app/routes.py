@@ -77,10 +77,10 @@ def detailed_stats():
 
 def update_user_stats(user_id):
     today=date.today()
-    daily_goal_ml=2000
+    daily_goal_ml=2000.0
 
     today_log=WaterLog.query.filter_by(user_id=user_id, date=today).first()
-    today_volume=today_log.volume_ml if today_log else 0
+    today_volume=float(today_log.volume_ml) if today_log else 0
     today_percentage = (today_volume / daily_goal_ml) * 100
 
     week_start, week_end = get_week_start_end(today)
@@ -89,8 +89,8 @@ def update_user_stats(user_id):
         WaterLog.date >= week_start,
         WaterLog.date <= week_end
     ).all()
-    week_volume = sum(log.volume_ml for log in week_logs)
-    week_goal_ml = 14000
+    week_volume = float(sum(log.volume_ml for log in week_logs))
+    week_goal_ml = 14000.0
     week_percentage=(week_volume/week_goal_ml)*100
 
     month_start, month_end = get_month_start_end(today)
@@ -99,10 +99,10 @@ def update_user_stats(user_id):
         WaterLog.date >= month_start,
         WaterLog.date <= month_end
     ).all()
-    month_volume = sum(log.volume_ml for log in month_logs)
+    month_volume = float(sum(log.volume_ml for log in month_logs))
 
     days_in_month = calendar.monthrange(today.year, today.month)[1]
-    month_goal_ml = days_in_month * daily_goal_ml
+    month_goal_ml = float(days_in_month * daily_goal_ml)
     month_percentage = (month_volume / month_goal_ml) * 100
 
     goal_completed_dates=[
@@ -122,9 +122,9 @@ def update_user_stats(user_id):
     stats.week_percentage = week_percentage
     stats.month_percentage = month_percentage
     stats.month_goal_completed_dates = json.dumps(goal_completed_dates)
-    stats.today_volume_ml = float(today_volume)
-    stats.week_volume_ml = float(week_volume)
-    stats.month_volume_ml = float(month_volume)
+    stats.today_volume_ml = today_volume
+    stats.week_volume_ml = week_volume
+    stats.month_volume_ml = month_volume
     stats.days_in_current_month = days_in_month
 
     db.session.add(stats)

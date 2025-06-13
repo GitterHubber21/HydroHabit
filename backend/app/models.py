@@ -46,11 +46,11 @@ class WaterStats(db.Model):
 
     month_goal_completed_dates = db.Column(db.Text, default="[]", nullable=False)
 
-    today_volume_ml = db.Column(db.Integer, default=0.0, nullable=False)
+    today_volume_ml = db.Column(db.Float, default=0.0, nullable=False)
 
-    week_volume_ml = db.Column(db.Integer, default=0.0, nullable=False)
+    week_volume_ml = db.Column(db.Float, default=0.0, nullable=False)
 
-    month_volume_ml = db.Column(db.Integer, default=0.0, nullable=False)
+    month_volume_ml = db.Column(db.Float, default=0.0, nullable=False)
 
     days_in_current_month = db.Column(db.Integer, default=0, nullable=False)
 
