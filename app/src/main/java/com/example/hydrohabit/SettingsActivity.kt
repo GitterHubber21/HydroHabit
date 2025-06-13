@@ -89,19 +89,20 @@ class SettingsActivity : AppCompatActivity() {
         val logoutButton: TextView = findViewById(R.id.logoutButton)
         logoutButton.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
-                try{
+                try {
                     val request = Request.Builder()
                         .url("https://water.coolcoder.hackclub.app/api/logout")
                         .post(okhttp3.FormBody.Builder().build())
                         .build()
+
                     client.newCall(request).execute().use { response ->
-                        if(response.isSuccessful) {
+                        if (response.isSuccessful) {
                             clearCookiesAndLogout()
-                        }else{
+                        } else {
                             Log.e("SettingsActivity", "Logout failed: ${response.code}")
                         }
                     }
-                }catch(e: Exception){
+                } catch (e: Exception) {
                     Log.e("SettingsActivity", "Logout error", e)
                 }
             }
@@ -194,21 +195,23 @@ class SettingsActivity : AppCompatActivity() {
             return false
         }
     }
-
-    @Deprecated("This method has been deprecated in favor of using the\n      {@link OnBackPressedDispatcher} via {@link #getOnBackPressedDispatcher()}.\n      The OnBackPressedDispatcher controls how back button events are dispatched\n      to one or more {@link OnBackPressedCallback} objects.")
-    override fun onBackPressed() {
-        super.onBackPressed()
-        finishWithAnimation()
-    }
-    private suspend fun clearCookiesAndLogout(){
-        withContext(Dispatchers.Main){
-            cookieStorage.clear()
+    private suspend fun clearCookiesAndLogout() {
+        withContext(Dispatchers.Main) {
             encryptedPrefs.edit { clear() }
+            cookieStorage.clear()
 
             val intent = Intent(this@SettingsActivity, LoginActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
             overridePendingTransition(R.anim.slide_in_from_bottom, R.anim.slide_out_to_top)
+            finish()
         }
+    }
+
+
+    @Deprecated("This method has been deprecated in favor of using the\n      {@link OnBackPressedDispatcher} via {@link #getOnBackPressedDispatcher()}.\n      The OnBackPressedDispatcher controls how back button events are dispatched\n      to one or more {@link OnBackPressedCallback} objects.")
+    override fun onBackPressed() {
+        super.onBackPressed()
+        finishWithAnimation()
     }
 }
