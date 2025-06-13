@@ -29,6 +29,8 @@ import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.iterator
 import kotlinx.coroutines.*
+import org.json.JSONObject
+import com.google.android.material.progressindicator.CircularProgressIndicator
 
 class InsightsActivity : AppCompatActivity() {
     private var cellSize = 0
@@ -337,6 +339,11 @@ class InsightsActivity : AppCompatActivity() {
                         }
                     }
                 }
+                stats?.let {
+                    processDayPercentProgress(it)
+                    processWeekPercentProgress(it)
+                    processMonthPercentProgress(it)
+                }
 
             } catch (e: Exception) {
                 Log.e("InsightsActivity", "Stats request error", e)
@@ -346,6 +353,61 @@ class InsightsActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         scope.cancel()
+    }
+
+    private fun processDayPercentProgress(responseBody: String) {
+        try {
+            val jsonObject = JSONObject(responseBody)
+            val todayPercentage = jsonObject.optDouble("today_percentage", 0.0)
+            val progressIndicator = findViewById<CircularProgressIndicator>(R.id.progressDay)
+            val dayPercentTextView = findViewById<TextView>(R.id.dayPercent)
+
+            val progressValue = todayPercentage.toInt()
+            progressIndicator.setProgressCompat(progressValue, true)
+
+            dayPercentTextView.text = "${progressValue}%"
+            Log.d("InsightsActivity", "Updated UI with today_percentage: $todayPercentage")
+
+
+        }catch (e: Exception) {
+            Log.e("InsightsActivity", "Error parsing stats response", e)
+        }
+    }
+    private fun processWeekPercentProgress(responseBody: String) {
+        try {
+            val jsonObject = JSONObject(responseBody)
+            val weekPercentage = jsonObject.optDouble("week_percentage", 0.0)
+            val progressIndicator = findViewById<CircularProgressIndicator>(R.id.progressWeek)
+            val dayPercentTextView = findViewById<TextView>(R.id.weekPercent)
+
+            val progressValue = weekPercentage.toInt()
+            progressIndicator.setProgressCompat(progressValue, true)
+
+            dayPercentTextView.text = "${progressValue}%"
+            Log.d("InsightsActivity", "Updated UI with today_percentage: $weekPercentage")
+
+
+        }catch (e: Exception) {
+            Log.e("InsightsActivity", "Error parsing stats response", e)
+        }
+    }
+    private fun processMonthPercentProgress(responseBody: String) {
+        try {
+            val jsonObject = JSONObject(responseBody)
+            val monthPercentage = jsonObject.optDouble("month_percentage", 0.0)
+            val progressIndicator = findViewById<CircularProgressIndicator>(R.id.progressMonth)
+            val dayPercentTextView = findViewById<TextView>(R.id.monthPercent)
+
+            val progressValue = monthPercentage.toInt()
+            progressIndicator.setProgressCompat(progressValue, true)
+
+            dayPercentTextView.text = "${progressValue}%"
+            Log.d("InsightsActivity", "Updated UI with today_percentage: $monthPercentage")
+
+
+        }catch (e: Exception) {
+            Log.e("InsightsActivity", "Error parsing stats response", e)
+        }
     }
 
 }

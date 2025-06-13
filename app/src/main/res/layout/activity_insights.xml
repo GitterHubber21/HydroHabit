@@ -67,9 +67,8 @@
                     android:id="@+id/progressDay"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    style="@style/Widget.MaterialComponents.CircularProgressIndicator"
                     app:indicatorColor="#3b86d6"
-                    app:trackColor="#3b86d6"
+                    app:trackColor="#FFFFFF"
                     app:trackThickness="8dp"
                     app:indicatorSize="80dp" />
 
@@ -78,7 +77,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="70%"
+                    android:text="x%"
                     android:textColor="#FFFFFF"
                     android:textStyle="bold"
                     android:textSize="20sp" />
@@ -110,9 +109,8 @@
                     android:id="@+id/progressWeek"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    style="@style/Widget.MaterialComponents.CircularProgressIndicator"
                     app:indicatorColor="#3b86d6"
-                    app:trackColor="#3b86d6"
+                    app:trackColor="#FFFFFF"
                     app:trackThickness="8dp"
                     app:indicatorSize="80dp" />
 
@@ -121,7 +119,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="80%"
+                    android:text="x%"
                     android:textColor="#FFFFFF"
                     android:textStyle="bold"
                     android:textSize="20sp" />
@@ -153,9 +151,8 @@
                     android:id="@+id/progressMonth"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    style="@style/Widget.MaterialComponents.CircularProgressIndicator"
                     app:indicatorColor="#3b86d6"
-                    app:trackColor="#3b86d6"
+                    app:trackColor="#FFFFFF"
                     app:trackThickness="8dp"
                     app:indicatorSize="80dp" />
 
@@ -164,7 +161,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="82%"
+                    android:text="x%"
                     android:textColor="#FFFFFF"
                     android:textStyle="bold"
                     android:textSize="20sp" />
