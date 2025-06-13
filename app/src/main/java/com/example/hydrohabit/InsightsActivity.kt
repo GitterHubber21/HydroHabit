@@ -30,6 +30,7 @@ import kotlin.collections.component2
 import kotlin.collections.iterator
 import kotlinx.coroutines.*
 import org.json.JSONObject
+import org.json.JSONArray
 import com.google.android.material.progressindicator.CircularProgressIndicator
 
 class InsightsActivity : AppCompatActivity() {
@@ -37,6 +38,7 @@ class InsightsActivity : AppCompatActivity() {
     private lateinit var gestureDetector: GestureDetector
     private lateinit var encryptedPrefs: SharedPreferences
     private val scope = CoroutineScope(Dispatchers.Main+SupervisorJob())
+    private var completedDates = mutableSetOf<Int>()
 
     private val client = OkHttpClient.Builder()
         .cookieJar(object : CookieJar {
@@ -254,13 +256,25 @@ class InsightsActivity : AppCompatActivity() {
                     setMargins(marginWidth, marginHeight, marginWidth, marginHeight)
                 }
 
-                if (day == today) {
-                    setBackgroundResource(R.drawable.rounded_day_current_background)
-                    setTextColor(ContextCompat.getColor(this@InsightsActivity, android.R.color.black))
-                    setTypeface(null, android.graphics.Typeface.BOLD)
-                } else {
-                    setTextColor(ContextCompat.getColor(this@InsightsActivity, android.R.color.white))
-                    setBackgroundResource(R.drawable.rounded_day_background)
+                when {
+                    day == today && !completedDates.contains(day) -> {
+                        setBackgroundResource(R.drawable.rounded_day_current_background)
+                        setTextColor(ContextCompat.getColor(this@InsightsActivity, android.R.color.black))
+                        setTypeface(null, android.graphics.Typeface.BOLD)
+                    }
+                    completedDates.contains(day) && day!=today -> {
+                        setTextColor(ContextCompat.getColor(this@InsightsActivity, android.R.color.white))
+                        setBackgroundResource(R.drawable.rounded_completed_day_background)
+                    }
+                    day == today && completedDates.contains(day) -> {
+                        setBackgroundResource(R.drawable.rounded_completed_day_background)
+                        setTextColor(ContextCompat.getColor(this@InsightsActivity, android.R.color.black))
+                        setTypeface(null, android.graphics.Typeface.BOLD)
+                    }
+                    else -> {
+                        setTextColor(ContextCompat.getColor(this@InsightsActivity, android.R.color.white))
+                        setBackgroundResource(R.drawable.rounded_day_background)
+                    }
                 }
 
                 setOnClickListener {
@@ -309,7 +323,7 @@ class InsightsActivity : AppCompatActivity() {
         finish()
         overridePendingTransition(0, 0)
     }
-    @Deprecated("This method has been deprecated in favor of using the\n      {@link OnBackPressedDispatcher} via {@link #getOnBackPressedDispatcher()}.\n      The OnBackPressedDispatcher controls how back button events are dispatched\n      to one or more {@link OnBackPressedCallback} objects.")
+    @Deprecated("This method has been deprecated in favor of using the OnBackPressedDispatcher via getOnBackPressedDispatcher().")
     override fun onBackPressed() {
         super.onBackPressed()
         finishWithoutAnimation()
@@ -343,6 +357,7 @@ class InsightsActivity : AppCompatActivity() {
                     processDayPercentProgress(it)
                     processWeekPercentProgress(it)
                     processMonthPercentProgress(it)
+                    processCompletedDates(it)
                 }
 
             } catch (e: Exception) {
@@ -407,6 +422,47 @@ class InsightsActivity : AppCompatActivity() {
 
         }catch (e: Exception) {
             Log.e("InsightsActivity", "Error parsing stats response", e)
+        }
+    }
+
+    private fun processCompletedDates(responseBody: String) {
+        try {
+            val jsonObject = JSONObject(responseBody)
+            val completedDatesArray = jsonObject.optJSONArray("month_goal_completed_dates")
+
+            completedDates.clear()
+
+            if (completedDatesArray != null) {
+                val calendar = Calendar.getInstance()
+                val currentMonth = calendar.get(Calendar.MONTH) + 1
+                val currentYear = calendar.get(Calendar.YEAR)
+
+                for (i in 0 until completedDatesArray.length()) {
+                    val dateString = completedDatesArray.getString(i)
+
+                    val dateParts = dateString.split("-")
+                    if (dateParts.size == 3) {
+                        val year = dateParts[0].toIntOrNull()
+                        val month = dateParts[1].toIntOrNull()
+                        val day = dateParts[2].toIntOrNull()
+
+                        if (year == currentYear && month == currentMonth && day != null) {
+                            completedDates.add(day)
+                        }
+                    }
+                }
+
+                Log.d("InsightsActivity", "Processed completed dates: $completedDates")
+
+                if (cellSize > 0) {
+                    setupCalendar()
+                }
+            }else{
+                Log.d("InsightsActivity", "Response was empty")
+            }
+
+        } catch (e: Exception) {
+            Log.e("InsightsActivity", "Error parsing completed dates", e)
         }
     }
 
