@@ -73,7 +73,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="6dp"
-                android:background="@drawable/glass_rift" />
+                android:background="@drawable/menu_separator" />
             <TextView
                 android:id="@+id/resetButton"
                 android:layout_width="match_parent"
@@ -119,7 +119,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="6dp"
-                android:background="@drawable/glass_rift_variant" />
+                android:background="@drawable/menu_separator" />
             <TextView
                 android:id="@+id/resetPasswordButton"
                 android:layout_width="match_parent"

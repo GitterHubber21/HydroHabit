@@ -20,12 +20,10 @@ import androidx.core.content.getSystemService
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 import kotlinx.coroutines.*
 import androidx.activity.enableEdgeToEdge
 import android.view.GestureDetector
-import android.widget.Toast
 import androidx.core.content.edit
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
@@ -252,7 +250,7 @@ class MainActivity : ComponentActivity() {
     private suspend fun fetchTotalVolume(): Float = withContext(Dispatchers.IO) {
         try {
             val request = Request.Builder()
-                .url("https://water.coolcoder.hackclub.app/api/stats")
+                .url("https://water.coolcoder.hackclub.app/api/detailed-stats")
                 .get()
                 .build()
 
@@ -260,7 +258,7 @@ class MainActivity : ComponentActivity() {
                 if (response.isSuccessful) {
                     val body = response.body?.string()
                     if (body != null) {
-                        val total = JSONObject(body).optDouble("total_volume_ml", 0.0)
+                        val total = JSONObject(body).optDouble("today_volume_ml", 0.0)
                         total.toFloat()
                     } else 0f
                 } else {

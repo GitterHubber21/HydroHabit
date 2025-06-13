@@ -1,7 +1,9 @@
 package com.example.hydrohabit
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -15,16 +17,62 @@ import androidx.core.content.res.ResourcesCompat
 import android.view.GestureDetector
 import android.view.MotionEvent
 import kotlin.math.abs
+import androidx.core.content.edit
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
+import okhttp3.Cookie
+import okhttp3.CookieJar
+import okhttp3.HttpUrl
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.iterator
+import kotlinx.coroutines.*
 
 class InsightsActivity : AppCompatActivity() {
-    private var isBellSelected = false
     private var cellSize = 0
     private lateinit var gestureDetector: GestureDetector
+    private lateinit var encryptedPrefs: SharedPreferences
+    private val scope = CoroutineScope(Dispatchers.Main+SupervisorJob())
+
+    private val client = OkHttpClient.Builder()
+        .cookieJar(object : CookieJar {
+            override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
+                if (url.host == "water.coolcoder.hackclub.app") {
+                    for (cookie in cookies) {
+                        encryptedPrefs.edit {
+                            putString(cookie.name, cookie.value)
+                        }
+                    }
+                }
+            }
+
+            override fun loadForRequest(url: HttpUrl): List<Cookie> {
+                val cookies = mutableListOf<Cookie>()
+                val allCookies = encryptedPrefs.all
+                for ((name, value) in allCookies) {
+                    if (value is String) {
+                        cookies.add(
+                            Cookie.Builder()
+                                .name(name)
+                                .value(value)
+                                .domain(url.host)
+                                .build()
+                        )
+                    }
+                }
+                return cookies
+            }
+        })
+        .build()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_insights)
+        initializeEncryptedPrefs()
+        fetchDetailedStats()
 
         calculateCellSize()
 
@@ -115,6 +163,19 @@ class InsightsActivity : AppCompatActivity() {
                 setupCalendar()
             }
         }
+    }
+    private fun initializeEncryptedPrefs() {
+        val masterKey = MasterKey.Builder(applicationContext)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+
+        encryptedPrefs = EncryptedSharedPreferences.create(
+            applicationContext,
+            "secure_cookies",
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
     }
 
     private fun setupCalendar() {
@@ -251,4 +312,40 @@ class InsightsActivity : AppCompatActivity() {
         super.onBackPressed()
         finishWithoutAnimation()
     }
+    private fun fetchDetailedStats() {
+        scope.launch {
+            try {
+                val stats = withContext(Dispatchers.IO) {
+                    val request = Request.Builder()
+                        .url("https://water.coolcoder.hackclub.app/api/detailed-stats")
+                        .get()
+                        .build()
+
+                    client.newCall(request).execute().use { response ->
+                        if (response.isSuccessful) {
+                            val body = response.body?.string()
+                            if (body != null) {
+                                Log.d("InsightsActivity", "Server response: $body")
+                                body
+                            } else {
+                                Log.d("InsightsActivity", "Response body is null")
+                                null
+                            }
+                        } else {
+                            Log.d("InsightsActivity", "Stats request failed: ${response.code}")
+                            null
+                        }
+                    }
+                }
+
+            } catch (e: Exception) {
+                Log.e("InsightsActivity", "Stats request error", e)
+            }
+        }
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        scope.cancel()
+    }
+
 }
