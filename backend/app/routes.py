@@ -84,7 +84,7 @@ def update_user_stats(user_id):
     today_percentage = (today_volume / daily_goal_ml) * 100
 
     week_start, week_end = get_week_start_end(today)
-    week_logs = WaterLog.query.filter_by(
+    week_logs = WaterLog.query.filter(
         WaterLog.user_id == user_id,
         WaterLog.date >= week_start,
         WaterLog.date <= week_end
@@ -94,7 +94,7 @@ def update_user_stats(user_id):
     week_percentage=(week_volume/week_goal_ml)*100
 
     month_start, month_end = get_month_start_end(today)
-    month_logs = WaterLog.query.filter_by(
+    month_logs = WaterLog.query.filter(
         WaterLog.user_id == user_id,
         WaterLog.date >= month_start,
         WaterLog.date <= month_end
