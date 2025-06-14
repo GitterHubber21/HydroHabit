@@ -79,12 +79,6 @@ class SettingsActivity : AppCompatActivity() {
 
         gestureDetector = GestureDetector(this, SwipeGestureListener())
 
-        val logoutButton: TextView = findViewById(R.id.logoutButton)
-        logoutButton.setOnClickListener {
-            val intent = Intent(this@SettingsActivity, WarningPopupActivity::class.java)
-            startActivity(intent)
-            overridePendingTransition(0, 0)
-        }
     }
 
     private fun initializePrefs() {
