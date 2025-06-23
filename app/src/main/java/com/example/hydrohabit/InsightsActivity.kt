@@ -251,7 +251,6 @@ class InsightsActivity : AppCompatActivity() {
                     day == today && !completedDates.contains(day) -> {
                         setBackgroundResource(R.drawable.rounded_day_current_background)
                         setTextColor(ContextCompat.getColor(this@InsightsActivity, android.R.color.black))
-                        setTypeface(null, android.graphics.Typeface.BOLD)
                     }
                     completedDates.contains(day) && day!=today -> {
                         setTextColor(ContextCompat.getColor(this@InsightsActivity, android.R.color.white))
@@ -260,7 +259,6 @@ class InsightsActivity : AppCompatActivity() {
                     day == today && completedDates.contains(day) -> {
                         setBackgroundResource(R.drawable.rounded_completed_day_background)
                         setTextColor(ContextCompat.getColor(this@InsightsActivity, android.R.color.black))
-                        setTypeface(null, android.graphics.Typeface.BOLD)
                     }
                     else -> {
                         setTextColor(ContextCompat.getColor(this@InsightsActivity, android.R.color.white))

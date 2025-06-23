@@ -64,6 +64,8 @@ class SettingsActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_settings)
         val logoutButton: TextView = findViewById(R.id.logoutButton)
+        val resetPasswordButton: TextView = findViewById(R.id.resetPasswordButton)
+        val resetWaterButton: TextView = findViewById(R.id.resetButton)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -86,11 +88,17 @@ class SettingsActivity : AppCompatActivity() {
         logoutButton.setOnClickListener {
             showLogoutConfirmationDialog()
         }
+        resetPasswordButton.setOnClickListener {
+            showPasswordConfirmationDialog()
+        }
+        resetWaterButton.setOnClickListener {
+            showWaterConfirmationDialog()
+        }
 
     }
 
     private fun showLogoutConfirmationDialog() {
-        val dialogView = layoutInflater.inflate(R.layout.warning_floating_window, null)
+        val dialogView = layoutInflater.inflate(R.layout.logout_warning, null)
 
         val alertDialog = AlertDialog.Builder(this)
             .setView(dialogView)
@@ -107,6 +115,43 @@ class SettingsActivity : AppCompatActivity() {
             CoroutineScope(Dispatchers.Main).launch {
                 clearCookiesAndLogout()
             }
+        }
+        alertDialog.show()
+    }
+
+    private fun showPasswordConfirmationDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.password_warning, null)
+
+        val alertDialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+        alertDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+
+        dialogView.findViewById<Button>(R.id.button_no).setOnClickListener {
+            alertDialog.dismiss()
+        }
+        dialogView.findViewById<Button>(R.id.button_yes).setOnClickListener {
+            //nothing yet
+        }
+        alertDialog.show()
+    }
+    private fun showWaterConfirmationDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.water_warning, null)
+
+        val alertDialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+        alertDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+
+        dialogView.findViewById<Button>(R.id.button_no).setOnClickListener {
+            alertDialog.dismiss()
+        }
+        dialogView.findViewById<Button>(R.id.button_yes).setOnClickListener {
+            //nothing yet
         }
         alertDialog.show()
     }
