@@ -5,11 +5,9 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="24dp"
-    android:background="@android:color/transparent"
-    android:elevation="8dp"
+    android:background="@drawable/rounded_blue_square"
     android:gravity="center"
-    android:layout_gravity="center"
-    android:minWidth="280dp">
+    android:layout_gravity="center">
 
     <TextView
         android:id="@+id/logout_message"
@@ -19,6 +17,7 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:paddingBottom="16dp"
         android:gravity="center"
+        android:textColor="@color/white"
         android:textAlignment="center" />
 
     <LinearLayout
@@ -26,13 +25,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="end">
+        android:padding="5dp"
+        android:gravity="center">
 
         <Button
             android:id="@+id/button_no"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:background="@drawable/rounded_transparent_square"
             android:layout_weight="1"
+            android:textColor="@color/white"
             android:text="No" />
 
         <Space
@@ -43,6 +45,8 @@
             android:id="@+id/button_yes"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:textColor="#000000"
+            android:background="@drawable/rounded_transparent_square"
             android:layout_weight="1"
             android:text="Yes" />
     </LinearLayout>

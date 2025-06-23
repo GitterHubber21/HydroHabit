@@ -6,14 +6,17 @@ import android.os.Bundle
 import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AlertDialog
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.Cookie
 import okhttp3.CookieJar
@@ -60,6 +63,7 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_settings)
+        val logoutButton: TextView = findViewById(R.id.logoutButton)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -79,6 +83,32 @@ class SettingsActivity : AppCompatActivity() {
 
         gestureDetector = GestureDetector(this, SwipeGestureListener())
 
+        logoutButton.setOnClickListener {
+            showLogoutConfirmationDialog()
+        }
+
+    }
+
+    private fun showLogoutConfirmationDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.warning_floating_window, null)
+
+        val alertDialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+        alertDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+
+        dialogView.findViewById<Button>(R.id.button_no).setOnClickListener {
+            alertDialog.dismiss()
+        }
+        dialogView.findViewById<Button>(R.id.button_yes).setOnClickListener {
+            alertDialog.dismiss()
+            CoroutineScope(Dispatchers.Main).launch {
+                clearCookiesAndLogout()
+            }
+        }
+        alertDialog.show()
     }
 
     private fun initializePrefs() {
