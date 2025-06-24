@@ -32,6 +32,7 @@ import okhttp3.RequestBody
 import okhttp3.Response
 import java.io.IOException
 import android.widget.Toast
+import org.w3c.dom.Text
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -75,6 +76,7 @@ class SettingsActivity : AppCompatActivity() {
         val resetPasswordButton: TextView = findViewById(R.id.resetPasswordButton)
         val resetWaterButton: TextView = findViewById(R.id.resetButton)
         val profileButton: TextView = findViewById(R.id.profileButton)
+        val notificationButton: TextView = findViewById(R.id.notificationButton)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -83,7 +85,7 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         val backArrow: ImageView = findViewById(R.id.backIcon)
-        backArrow.rotation = -90f
+        backArrow.rotation = 90f
 
         backArrow.setOnClickListener {
             finishWithAnimation()
@@ -105,6 +107,12 @@ class SettingsActivity : AppCompatActivity() {
         }
         profileButton.setOnClickListener {
             showProfilePopup()
+        }
+
+        notificationButton.isSelected = false
+
+        notificationButton.setOnClickListener {
+            notificationButton.isSelected = !notificationButton.isSelected
         }
 
     }
