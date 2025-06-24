@@ -31,6 +31,8 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
 import okhttp3.Response
 import java.io.IOException
+import android.widget.Toast
+import com.example.hydrohabit.SignupActivity
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -159,6 +161,7 @@ class SettingsActivity : AppCompatActivity() {
         }
         dialogView.findViewById<TextView>(R.id.button_yes).setOnClickListener {
             resetQuantity()
+            Toast.makeText(this@SettingsActivity, "Volume successfully reset", Toast.LENGTH_SHORT).show()
             alertDialog.dismiss()
         }
         alertDialog.show()
@@ -206,11 +209,8 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun finishWithAnimation() {
-
-        val intent = Intent(this@SettingsActivity, MainActivity::class.java)
-        startActivity(intent)
+        startActivity(Intent(applicationContext, MainActivity::class.java))
         overridePendingTransition(R.anim.slide_in_from_bottom, R.anim.slide_out_to_top)
-        finish()
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
