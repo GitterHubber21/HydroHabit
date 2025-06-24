@@ -57,6 +57,8 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun attemptLogin(username: String, password: String) {
+        val usernameInput: EditText = findViewById(R.id.usernameInput)
+        val passwordInput: EditText = findViewById(R.id.passwordInput)
         val url = "https://water.coolcoder.hackclub.app/api/login"
         val jsonObject = JSONObject().apply {
             put("username", username)
@@ -80,6 +82,8 @@ class LoginActivity : AppCompatActivity() {
                         "Network error: ${e.message}",
                         Toast.LENGTH_SHORT
                     ).show()
+                    usernameInput.text.clear()
+                    passwordInput.text.clear()
                 }
             }
 
@@ -109,6 +113,8 @@ class LoginActivity : AppCompatActivity() {
                             "Invalid credentials",
                             Toast.LENGTH_SHORT
                         ).show()
+                        usernameInput.text.clear()
+                        passwordInput.text.clear()
                     }
                 }
             }

@@ -30,6 +30,8 @@ class SignupActivity : AppCompatActivity() {
 
     private fun sendSignupRequest(username: String, password: String) {
         val url = "https://water.coolcoder.hackclub.app/api/signup"
+        val usernameInput: EditText = findViewById(R.id.usernameInput)
+        val passwordInput: EditText = findViewById(R.id.passwordInput)
 
         val jsonObject = JSONObject().apply {
             put("username", username)
@@ -69,6 +71,8 @@ class SignupActivity : AppCompatActivity() {
                 else{
                     runOnUiThread {
                         Toast.makeText(this@SignupActivity, msg, Toast.LENGTH_SHORT).show()
+                        usernameInput.text.clear()
+                        passwordInput.text.clear()
                     }
                 }
 
