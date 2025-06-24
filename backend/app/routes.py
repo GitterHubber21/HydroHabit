@@ -24,9 +24,9 @@ def get_month_start_end(target_date):
 @login_required
 def log_water():
     data = request.json or {}
-    volume = float(data.get("volume_ml", 0))
-    if volume <= 0:
-        return jsonify({"error":"Positive volume required"}), 400
+    volume = float(data.get("volume_ml", 0.0))
+    if volume < 0.0:
+        return jsonify({"error":"Non negative volume required"}), 400
 
     today = date.today()
     log = WaterLog.query.filter_by(user_id=current_user.id, date=today).first()
