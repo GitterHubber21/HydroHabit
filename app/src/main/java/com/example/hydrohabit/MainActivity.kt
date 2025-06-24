@@ -43,7 +43,6 @@ class MainActivity : ComponentActivity() {
     private val AMOUNT_250 = 250
     private val AMOUNT_500 = 500
     private val AMOUNT_750 = 750
-    private var isBellSelected = false
     private var isTimedRainActive = false
     private var displayedVolume = 0f
     private val job = Job()
@@ -103,12 +102,6 @@ class MainActivity : ComponentActivity() {
                 Log.d("MainActivity", "Initial server volume = $initialVolume ml")
             }
         }
-        coroutineScope.launch {
-            while (isActive) {
-                updateQuantity(displayedVolume.toFloat())
-                delay(1000L)
-            }
-        }
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         bottomNavigationView.selectedItemId = R.id.nav_home
@@ -164,7 +157,13 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        updateQuantity(displayedVolume.toFloat())
         job.cancel()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        updateQuantity(displayedVolume.toFloat())
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {

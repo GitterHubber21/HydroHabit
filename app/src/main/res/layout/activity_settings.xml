@@ -129,7 +129,7 @@
                 android:gravity="center"
                 android:padding="10dp"
                 android:textColor="#c34031"
-                android:text="Reset password"
+                android:text="Change password"
                 android:textSize="18sp"/>
         </LinearLayout>
         <TextView

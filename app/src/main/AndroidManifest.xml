@@ -16,6 +16,10 @@
         android:theme="@style/Theme.HydroHabit"
         tools:targetApi="31">
         <activity
+            android:name=".PasswordChangeActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"/>
+        <activity
             android:name=".SplashActivity"
             android:exported="true"
             android:screenOrientation="portrait">
