@@ -32,7 +32,6 @@ import okhttp3.RequestBody
 import okhttp3.Response
 import java.io.IOException
 import android.widget.Toast
-import com.example.hydrohabit.SignupActivity
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -83,7 +82,7 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         val backArrow: ImageView = findViewById(R.id.backIcon)
-        backArrow.rotation = 90f
+        backArrow.rotation = -90f
 
         backArrow.setOnClickListener {
             finishWithAnimation()
@@ -142,7 +141,8 @@ class SettingsActivity : AppCompatActivity() {
             alertDialog.dismiss()
         }
         dialogView.findViewById<TextView>(R.id.button_yes).setOnClickListener {
-            //nothing yet
+            startActivity(Intent(applicationContext, PasswordChangeActivity::class.java))
+            overridePendingTransition(R.anim.slide_in_from_right, R.anim.slide_out_to_left)
         }
         alertDialog.show()
     }

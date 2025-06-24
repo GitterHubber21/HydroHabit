@@ -13,7 +13,7 @@
         android:id="@+id/logout_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Are you sure you want to reset the water?"
+        android:text="Are you sure you want to reset the volume?"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:paddingBottom="16dp"
         android:gravity="center"
