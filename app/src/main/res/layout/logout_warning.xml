@@ -7,7 +7,8 @@
     android:padding="24dp"
     android:background="@drawable/rounded_blue_square"
     android:gravity="center"
-    android:layout_gravity="center">
+    android:layout_gravity="center"
+    android:minWidth="300dp">
 
     <TextView
         android:id="@+id/logout_message"

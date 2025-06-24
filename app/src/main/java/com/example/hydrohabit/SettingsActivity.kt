@@ -74,6 +74,7 @@ class SettingsActivity : AppCompatActivity() {
         val logoutButton: TextView = findViewById(R.id.logoutButton)
         val resetPasswordButton: TextView = findViewById(R.id.resetPasswordButton)
         val resetWaterButton: TextView = findViewById(R.id.resetButton)
+        val profileButton: TextView = findViewById(R.id.profileButton)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -101,6 +102,9 @@ class SettingsActivity : AppCompatActivity() {
         }
         resetWaterButton.setOnClickListener {
             showWaterConfirmationDialog()
+        }
+        profileButton.setOnClickListener {
+            showProfilePopup()
         }
 
     }
@@ -165,6 +169,32 @@ class SettingsActivity : AppCompatActivity() {
             alertDialog.dismiss()
         }
         alertDialog.show()
+    }
+    private fun showProfilePopup() {
+        val dialogView = layoutInflater.inflate(R.layout.profile_popup, null)
+
+        val alertDialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+        alertDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        alertDialog.show()
+        CoroutineScope(Dispatchers.Main).launch {
+            val username = fetchUsernameFromApi()
+            val usernameTextView = dialogView.findViewById<TextView>(R.id.usernameDisplay)
+            usernameTextView.text = "Username: $username"
+        }
+
+        dialogView.findViewById<TextView>(R.id.button_cancel).setOnClickListener {
+            alertDialog.dismiss()
+        }
+
+        dialogView.findViewById<TextView>(R.id.button_logout).setOnClickListener {
+            alertDialog.dismiss()
+            CoroutineScope(Dispatchers.Main).launch {
+                clearCookiesAndLogout()
+            }
+        }
     }
 
     private fun initializePrefs() {
