@@ -41,3 +41,17 @@ def logout():
 def current_user():
     from flask_login import current_user
     return jsonify({"username": current_user.username})
+@auth_bp.route("/change_password", methods=["POST"])
+@login_required
+def change_password():
+    from flask_login import current_user
+
+    data = request.json or {}
+    new_password = data.get("new_password", "").strip()
+
+    if not new_password:
+        return jsonify({"error": "New password is required."}), 400
+    current_user.set_password(new_password)
+    db.session.commit()
+
+    return jsonify({"message":"Password changed successfully"}), 200
