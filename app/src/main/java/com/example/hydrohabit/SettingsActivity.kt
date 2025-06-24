@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -26,9 +25,17 @@ import okhttp3.Request
 import org.json.JSONObject
 import kotlin.math.abs
 import androidx.core.content.edit
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody
+import okhttp3.Response
+import java.io.IOException
 
 class SettingsActivity : AppCompatActivity() {
 
+
+    private lateinit var rainView: RainView
     private lateinit var gestureDetector: GestureDetector
     private lateinit var sharedPrefs: SharedPreferences
     private val cookieStorage = mutableMapOf<String, String>()
@@ -107,10 +114,10 @@ class SettingsActivity : AppCompatActivity() {
         alertDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
 
-        dialogView.findViewById<Button>(R.id.button_no).setOnClickListener {
+        dialogView.findViewById<TextView>(R.id.button_no).setOnClickListener {
             alertDialog.dismiss()
         }
-        dialogView.findViewById<Button>(R.id.button_yes).setOnClickListener {
+        dialogView.findViewById<TextView>(R.id.button_yes).setOnClickListener {
             alertDialog.dismiss()
             CoroutineScope(Dispatchers.Main).launch {
                 clearCookiesAndLogout()
@@ -129,10 +136,10 @@ class SettingsActivity : AppCompatActivity() {
         alertDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
 
-        dialogView.findViewById<Button>(R.id.button_no).setOnClickListener {
+        dialogView.findViewById<TextView>(R.id.button_no).setOnClickListener {
             alertDialog.dismiss()
         }
-        dialogView.findViewById<Button>(R.id.button_yes).setOnClickListener {
+        dialogView.findViewById<TextView>(R.id.button_yes).setOnClickListener {
             //nothing yet
         }
         alertDialog.show()
@@ -147,11 +154,12 @@ class SettingsActivity : AppCompatActivity() {
         alertDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
 
-        dialogView.findViewById<Button>(R.id.button_no).setOnClickListener {
+        dialogView.findViewById<TextView>(R.id.button_no).setOnClickListener {
             alertDialog.dismiss()
         }
-        dialogView.findViewById<Button>(R.id.button_yes).setOnClickListener {
-            //nothing yet
+        dialogView.findViewById<TextView>(R.id.button_yes).setOnClickListener {
+            resetQuantity()
+            alertDialog.dismiss()
         }
         alertDialog.show()
     }
@@ -198,8 +206,11 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun finishWithAnimation() {
-        finish()
+
+        val intent = Intent(this@SettingsActivity, MainActivity::class.java)
+        startActivity(intent)
         overridePendingTransition(R.anim.slide_in_from_bottom, R.anim.slide_out_to_top)
+        finish()
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -260,5 +271,21 @@ class SettingsActivity : AppCompatActivity() {
     override fun onBackPressed() {
         super.onBackPressed()
         finishWithAnimation()
+    }
+    private fun resetQuantity() {
+        val url = "https://water.coolcoder.hackclub.app/api/log"
+        val json = JSONObject().apply { put("volume_ml", 0.0) }.toString()
+        val body = RequestBody.create("application/json; charset=utf-8".toMediaTypeOrNull(), json)
+
+        val request = Request.Builder().url(url).post(body).build()
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {}
+            override fun onResponse(call: Call, response: Response) {
+                val serverReply = response.body?.use { it.string() } ?: "Empty response"
+                Log.d("server_response", serverReply)
+            }
+        })
+
+
     }
 }
