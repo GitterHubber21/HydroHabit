@@ -25,11 +25,8 @@ import kotlinx.coroutines.*
 import androidx.activity.enableEdgeToEdge
 import android.view.GestureDetector
 import androidx.core.content.edit
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKey
 import org.json.JSONObject
 import kotlin.math.abs
-
 
 class MainActivity : ComponentActivity() {
 
@@ -51,14 +48,15 @@ class MainActivity : ComponentActivity() {
     private var displayedVolume = 0f
     private val job = Job()
     private val coroutineScope = CoroutineScope(Dispatchers.Default + job)
-    private lateinit var encryptedPrefs: SharedPreferences
+
+    private lateinit var sharedPrefs: SharedPreferences
 
     private val client = OkHttpClient.Builder()
         .cookieJar(object : CookieJar {
             override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
                 if (url.host == "water.coolcoder.hackclub.app") {
                     for (cookie in cookies) {
-                        encryptedPrefs.edit {
+                        sharedPrefs.edit {
                             putString(cookie.name, cookie.value)
                         }
                     }
@@ -67,7 +65,7 @@ class MainActivity : ComponentActivity() {
 
             override fun loadForRequest(url: HttpUrl): List<Cookie> {
                 val cookies = mutableListOf<Cookie>()
-                val allCookies = encryptedPrefs.all
+                val allCookies = sharedPrefs.all
                 for ((name, value) in allCookies) {
                     if (value is String) {
                         cookies.add(
@@ -88,32 +86,27 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
         setContentView(R.layout.activity_main)
-        val masterKey = MasterKey.Builder(applicationContext)
-            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-            .build()
 
-        encryptedPrefs = EncryptedSharedPreferences.create(
-            applicationContext,
-            "secure_cookies",
-            masterKey,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
+        sharedPrefs = getSharedPreferences("secure_cookies", MODE_PRIVATE)
+
         initViews()
         setupRainView()
         setupButtons()
 
         coroutineScope.launch {
             val initialVolume = fetchTotalVolume()
-
             withContext(Dispatchers.Main) {
                 displayedVolume = initialVolume
                 waterVolumeText.text = String.format("%.1f ml", displayedVolume)
                 rainView.addWaterDirectly(initialVolume)
-
                 Log.d("MainActivity", "Initial server volume = $initialVolume ml")
+            }
+        }
+        coroutineScope.launch {
+            while (isActive) {
+                updateQuantity(displayedVolume.toFloat())
+                delay(1000L)
             }
         }
 
@@ -123,7 +116,6 @@ class MainActivity : ComponentActivity() {
         val settingsIcon: ImageView = findViewById(R.id.settingsIcon)
         rainView = findViewById(R.id.rainView)
         waterVolumeText = findViewById(R.id.waterVolume)
-
 
         rainView.onVolumeChanged = { dropletVolume ->
             runOnUiThread {
@@ -136,19 +128,14 @@ class MainActivity : ComponentActivity() {
             Log.d("RainVolume", "Displayed volume: $displayedVolume")
         }
 
-        coroutineScope.launch {
-            while (isActive) {
-                updateQuantity(displayedVolume.toFloat())
-                delay(1000L)
-            }
-        }
+
+
         rainView.onTimedRainStateChanged = { isActive ->
             runOnUiThread {
                 isTimedRainActive = isActive
                 updateButtonStates()
             }
         }
-
 
         settingsIcon.setOnClickListener {
             startActivity(Intent(applicationContext, SettingsActivity::class.java))
@@ -173,12 +160,13 @@ class MainActivity : ComponentActivity() {
         }
 
         gestureDetector = GestureDetector(this, SwipeGestureListener())
-
     }
+
     override fun onDestroy() {
         super.onDestroy()
         job.cancel()
     }
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
         return gestureDetector.onTouchEvent(event) || super.onTouchEvent(event)
     }
@@ -192,61 +180,49 @@ class MainActivity : ComponentActivity() {
         add500Button = findViewById(R.id.add500Button)
         add750Button = findViewById(R.id.add750Button)
     }
-    private inner class SwipeGestureListener : GestureDetector.SimpleOnGestureListener() {
 
+    private inner class SwipeGestureListener : GestureDetector.SimpleOnGestureListener() {
         private val swipeThreshold = 100
         private val swipeVelocityThreshold = 100
 
         override fun onFling(
-            e1: MotionEvent?,
-            e2: MotionEvent,
-            velocityX: Float,
-            velocityY: Float
+            e1: MotionEvent?, e2: MotionEvent,
+            velocityX: Float, velocityY: Float
         ): Boolean {
             if (e1 == null) return false
-
             val diffY = e2.y - e1.y
             val diffX = e2.x - e1.x
 
             if (abs(diffY) > abs(diffX)) {
-
                 if (diffY > swipeThreshold && abs(velocityY) > swipeVelocityThreshold) {
                     finishWithAnimation()
                     return true
                 }
             }
-
             return false
         }
     }
+
     private fun finishWithAnimation() {
         startActivity(Intent(applicationContext, SettingsActivity::class.java))
         overridePendingTransition(R.anim.slide_in_from_top, R.anim.slide_out_to_bottom)
     }
+
     private fun updateQuantity(volume: Float) {
         val url = "https://water.coolcoder.hackclub.app/api/log"
         val json = JSONObject().apply { put("volume_ml", volume) }.toString()
+        val body = RequestBody.create("application/json; charset=utf-8".toMediaTypeOrNull(), json)
 
-        val body = RequestBody.create(
-            "application/json; charset=utf-8".toMediaTypeOrNull(), json
-        )
-
-        val request = Request.Builder()
-            .url(url)
-            .post(body)
-            .build()
-
+        val request = Request.Builder().url(url).post(body).build()
         client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                //pass
-            }
-
+            override fun onFailure(call: Call, e: IOException) {}
             override fun onResponse(call: Call, response: Response) {
                 val serverReply = response.body?.use { it.string() } ?: "Empty response"
                 Log.d("server_response", serverReply)
             }
         })
     }
+
     private suspend fun fetchTotalVolume(): Float = withContext(Dispatchers.IO) {
         try {
             val request = Request.Builder()
@@ -272,21 +248,11 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-
     private fun setupRainView() {
-        val otherElements = listOf(
-            appTitle,
-            fillButton,
-            add250Button,
-            add500Button,
-            add750Button
-        )
-
+        val otherElements = listOf(appTitle, fillButton, add250Button, add500Button, add750Button)
         rainView.post {
             rainView.registerGlassContainer(glassContainer)
-            otherElements.forEach { element ->
-                rainView.registerUIElement(element)
-            }
+            otherElements.forEach { rainView.registerUIElement(it) }
         }
     }
 
@@ -294,72 +260,33 @@ class MainActivity : ComponentActivity() {
     @SuppressLint("ClickableViewAccessibility")
     private fun setupButtons() {
         val vibrator = getSystemService<Vibrator>()
-
-        setupPressable(
-            fillButton,
-            vibrator,
-            pressedDrawableRes = R.drawable.pressed_button_circle,
+        setupPressable(fillButton, vibrator, R.drawable.pressed_button_circle,
             onPress = {
-                if (!isTimedRainActive) {
-                    rainView.startRain()
-                }
+                if (!isTimedRainActive) rainView.startRain()
             },
             onRelease = {
-                if (!isTimedRainActive) {
-                    rainView.stopRain()
-                }
+                if (!isTimedRainActive) rainView.stopRain()
             }
         )
-
-        setupPressable(
-            add250Button,
-            vibrator,
-            pressedDrawableRes = R.drawable.rounded_transparent_square,
-            onPress = {
-                if (!isTimedRainActive) {
-                    displayedVolume += AMOUNT_250
-                    if (displayedVolume > 2000f) displayedVolume = 2000f
-                    waterVolumeText.text = String.format("%.1f ml", displayedVolume)
-                    rainView.addWaterDirectly(AMOUNT_250.toFloat())
-                }
-            },
-            onRelease = {
-            }
-        )
-
-        setupPressable(
-            add500Button,
-            vibrator,
-            pressedDrawableRes = R.drawable.rounded_transparent_square,
-            onPress = {
-                if (!isTimedRainActive) {
-                    displayedVolume += AMOUNT_500
-                    if (displayedVolume > 2000f) displayedVolume = 2000f
-                    waterVolumeText.text = String.format("%.1f ml", displayedVolume)
-                    rainView.addWaterDirectly(AMOUNT_500.toFloat())
-                }
-            },
-            onRelease = {
-            }
-        )
-
-        setupPressable(
-            add750Button,
-            vibrator,
-            pressedDrawableRes = R.drawable.rounded_transparent_square,
-            onPress = {
-                if (!isTimedRainActive) {
-                    displayedVolume += AMOUNT_750
-                    if (displayedVolume > 2000f) displayedVolume = 2000f
-                    waterVolumeText.text = String.format("%.1f ml", displayedVolume)
-                    rainView.addWaterDirectly(AMOUNT_750.toFloat())
-                }
-            },
-            onRelease = {
-            }
-        )
-
+        setupVolumeButton(add250Button, AMOUNT_250)
+        setupVolumeButton(add500Button, AMOUNT_500)
+        setupVolumeButton(add750Button, AMOUNT_750)
         updateButtonStates()
+    }
+
+    private fun setupVolumeButton(button: Button, amount: Int) {
+        val vibrator = getSystemService<Vibrator>()
+        setupPressable(button, vibrator, R.drawable.rounded_transparent_square,
+            onPress = {
+                if (!isTimedRainActive) {
+                    displayedVolume += amount
+                    if (displayedVolume > 2000f) displayedVolume = 2000f
+                    waterVolumeText.text = String.format("%.1f ml", displayedVolume)
+                    rainView.addWaterDirectly(amount.toFloat())
+                }
+            },
+            onRelease = {}
+        )
     }
 
     private fun updateButtonStates() {
@@ -402,19 +329,21 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
     override fun onResume() {
         super.onResume()
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         bottomNavigationView.selectedItemId = R.id.nav_home
     }
-    private fun finishWithoutAnimation(){
+
+    private fun finishWithoutAnimation() {
         finish()
         overridePendingTransition(0, 0)
     }
-    @Deprecated("This method has been deprecated in favor of using the\n      {@link OnBackPressedDispatcher} via {@link #getOnBackPressedDispatcher()}.\n      The OnBackPressedDispatcher controls how back button events are dispatched\n      to one or more {@link OnBackPressedCallback} objects.")
+
+    @Deprecated("Use OnBackPressedDispatcher instead.")
     override fun onBackPressed() {
         super.onBackPressed()
         finishWithoutAnimation()
     }
-
 }

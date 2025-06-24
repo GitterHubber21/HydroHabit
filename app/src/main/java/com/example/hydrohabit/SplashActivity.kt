@@ -9,14 +9,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.graphics.drawable.DrawableCompat
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKey
 import okhttp3.*
 import java.io.IOException
 
 class SplashActivity : AppCompatActivity() {
 
-    private lateinit var encryptedPrefs: SharedPreferences
+    private lateinit var sharedPrefs: SharedPreferences
     private val cookieStorage = mutableMapOf<String, String>()
 
     private val client = OkHttpClient.Builder()
@@ -41,32 +39,23 @@ class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
-        val progressBar: ProgressBar=findViewById(R.id.progressIndicator)
 
+        val progressBar: ProgressBar = findViewById(R.id.progressIndicator)
         val drawable = DrawableCompat.wrap(progressBar.indeterminateDrawable)
         DrawableCompat.setTint(drawable, getColor(android.R.color.white))
         progressBar.indeterminateDrawable = drawable
-        initializeEncryptedPrefs()
+
+        initializePrefs()
         initializeCookies()
         checkAuthenticationStatus()
     }
 
-    private fun initializeEncryptedPrefs() {
-        val masterKey = MasterKey.Builder(applicationContext)
-            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-            .build()
-
-        encryptedPrefs = EncryptedSharedPreferences.create(
-            applicationContext,
-            "secure_cookies",
-            masterKey,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
+    private fun initializePrefs() {
+        sharedPrefs = getSharedPreferences("secure_cookies", MODE_PRIVATE)
     }
 
     private fun initializeCookies() {
-        encryptedPrefs.all.forEach { (k, v) ->
+        sharedPrefs.all.forEach { (k, v) ->
             if (v is String) cookieStorage[k] = v
         }
     }
@@ -121,8 +110,14 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun clearStoredSession() {
-        encryptedPrefs.edit { clear() }
+        sharedPrefs.all.keys.forEach { key ->
+            if (!key.startsWith("__androidx_security_crypto_encrypted_prefs__")) {
+                sharedPrefs.edit { remove(key) }
+            }
+        }
+
         cookieStorage.clear()
+
         getSharedPreferences("app_prefs", MODE_PRIVATE)
             .edit { putBoolean("login_completed", false) }
     }

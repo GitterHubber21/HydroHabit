@@ -36,7 +36,7 @@ import com.google.android.material.progressindicator.CircularProgressIndicator
 class InsightsActivity : AppCompatActivity() {
     private var cellSize = 0
     private lateinit var gestureDetector: GestureDetector
-    private lateinit var encryptedPrefs: SharedPreferences
+    private lateinit var sharedPrefs: SharedPreferences
     private val scope = CoroutineScope(Dispatchers.Main+SupervisorJob())
     private var completedDates = mutableSetOf<Int>()
 
@@ -45,7 +45,7 @@ class InsightsActivity : AppCompatActivity() {
             override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
                 if (url.host == "water.coolcoder.hackclub.app") {
                     for (cookie in cookies) {
-                        encryptedPrefs.edit {
+                        sharedPrefs.edit {
                             putString(cookie.name, cookie.value)
                         }
                     }
@@ -54,7 +54,7 @@ class InsightsActivity : AppCompatActivity() {
 
             override fun loadForRequest(url: HttpUrl): List<Cookie> {
                 val cookies = mutableListOf<Cookie>()
-                val allCookies = encryptedPrefs.all
+                val allCookies = sharedPrefs.all
                 for ((name, value) in allCookies) {
                     if (value is String) {
                         cookies.add(
@@ -75,7 +75,7 @@ class InsightsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_insights)
-        initializeEncryptedPrefs()
+        initializeSharedPrefs()
         fetchDetailedStats()
 
         calculateCellSize()
@@ -168,19 +168,10 @@ class InsightsActivity : AppCompatActivity() {
             }
         }
     }
-    private fun initializeEncryptedPrefs() {
-        val masterKey = MasterKey.Builder(applicationContext)
-            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-            .build()
-
-        encryptedPrefs = EncryptedSharedPreferences.create(
-            applicationContext,
-            "secure_cookies",
-            masterKey,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
+    private fun initializeSharedPrefs() {
+        sharedPrefs = getSharedPreferences("secure_cookies", MODE_PRIVATE)
     }
+
 
     private fun setupCalendar() {
         val calendarGrid = findViewById<GridLayout>(R.id.calendarGrid)
@@ -260,7 +251,6 @@ class InsightsActivity : AppCompatActivity() {
                     day == today && !completedDates.contains(day) -> {
                         setBackgroundResource(R.drawable.rounded_day_current_background)
                         setTextColor(ContextCompat.getColor(this@InsightsActivity, android.R.color.black))
-                        setTypeface(null, android.graphics.Typeface.BOLD)
                     }
                     completedDates.contains(day) && day!=today -> {
                         setTextColor(ContextCompat.getColor(this@InsightsActivity, android.R.color.white))
@@ -269,7 +259,6 @@ class InsightsActivity : AppCompatActivity() {
                     day == today && completedDates.contains(day) -> {
                         setBackgroundResource(R.drawable.rounded_completed_day_background)
                         setTextColor(ContextCompat.getColor(this@InsightsActivity, android.R.color.black))
-                        setTypeface(null, android.graphics.Typeface.BOLD)
                     }
                     else -> {
                         setTextColor(ContextCompat.getColor(this@InsightsActivity, android.R.color.white))

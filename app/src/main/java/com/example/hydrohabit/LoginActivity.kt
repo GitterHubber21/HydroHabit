@@ -15,19 +15,17 @@ import androidx.core.content.edit
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import java.io.IOException
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKey
 import org.json.JSONObject
 
 class LoginActivity : AppCompatActivity() {
-    private lateinit var encryptedPrefs: SharedPreferences
+    private lateinit var cookiePrefs: SharedPreferences
 
     private val client = OkHttpClient.Builder()
         .cookieJar(object : CookieJar {
             override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
                 if (url.host == "water.coolcoder.hackclub.app") {
                     for (cookie in cookies) {
-                        encryptedPrefs.edit {
+                        cookiePrefs.edit {
                             putString(cookie.name, cookie.value)
                         }
                     }
@@ -36,7 +34,7 @@ class LoginActivity : AppCompatActivity() {
 
             override fun loadForRequest(url: HttpUrl): List<Cookie> {
                 val cookies = mutableListOf<Cookie>()
-                val allCookies = encryptedPrefs.all
+                val allCookies = cookiePrefs.all
                 for ((name, value) in allCookies) {
                     if (value is String) {
                         cookies.add(
@@ -123,17 +121,7 @@ class LoginActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_login)
 
-        val masterKey = MasterKey.Builder(applicationContext)
-            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-            .build()
-
-        encryptedPrefs = EncryptedSharedPreferences.create(
-            applicationContext,
-            "secure_cookies",
-            masterKey,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
+        cookiePrefs = getSharedPreferences("secure_cookies", MODE_PRIVATE)
 
         val loginButton: Button = findViewById(R.id.loginButton)
         val signupText: TextView = findViewById(R.id.signupText)

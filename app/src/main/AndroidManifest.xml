@@ -28,7 +28,7 @@
         <activity
             android:name=".SettingsActivity"
             android:exported="false"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".SignupActivity"
             android:exported="false"
@@ -53,8 +53,7 @@
             android:name=".MainActivity"
             android:exported="true"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.HydroHabit"/>
-
+            android:theme="@style/Theme.HydroHabit" />
     </application>
 
 </manifest>
