@@ -1,4 +1,6 @@
 from datetime import date
+
+from sqlalchemy.orm import relationship
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from app import db, login_manager
@@ -8,8 +10,12 @@ class User(UserMixin, db.Model):
 
     id=db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(128), nullable=False)
-    water_logs = db.relationship("WaterLog", backref="user", lazy=True)
+    water_logs = relationship("WaterLog", cascade="all, delete-orphan", backref="user", lazy=True)
+    water_stats = relationship("WaterStats", cascade="all, delete-orphan", backref="user", lazy=True)
     password_hash = db.Column(db.String(128), nullable=False)
+
+
+
 
     def set_password(self, password: str):
         self.password_hash = generate_password_hash(password)

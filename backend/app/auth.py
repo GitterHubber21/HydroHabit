@@ -55,3 +55,12 @@ def change_password():
     db.session.commit()
 
     return jsonify({"message":"Password changed successfully"}), 200
+@auth_bp.route("/delete_account", methods=["DELETE"])
+@login_required
+def delete_account():
+    from flask_login import current_user
+
+    db.session.delete(current_user)
+    db.session.commit()
+    logout_user()
+    return jsonify({"message": "Account deleted successfully"}), 200
