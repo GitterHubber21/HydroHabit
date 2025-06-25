@@ -126,9 +126,16 @@ class SettingsActivity : AppCompatActivity() {
             sharedPrefs.edit {
                 putBoolean("notifications_enabled", newState)
             }
+            if (newState) {
+                NotificationScheduler.scheduleNextNotification(this)
+                Toast.makeText(this, "Reminders enabled.", Toast.LENGTH_SHORT).show()
+            } else {
+                NotificationScheduler.cancelNotifications(this)
+                Toast.makeText(this, "Reminders disabled.", Toast.LENGTH_SHORT).show()
+            }
+
             val vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
             vibrator.vibrate(VibrationEffect.createOneShot(25, VibrationEffect.DEFAULT_AMPLITUDE))
-
         }
 
     }

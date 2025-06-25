@@ -92,6 +92,7 @@ class MainActivity : ComponentActivity() {
         initViews()
         setupRainView()
         setupButtons()
+        initializeNotifications()
 
         coroutineScope.launch {
             val initialVolume = fetchTotalVolume()
@@ -344,5 +345,13 @@ class MainActivity : ComponentActivity() {
     override fun onBackPressed() {
         super.onBackPressed()
         finishWithoutAnimation()
+    }
+    private fun initializeNotifications() {
+        val sharedPrefs = getSharedPreferences("secure_cookies", MODE_PRIVATE)
+        val isNotificationsEnabled = sharedPrefs.getBoolean("notifications_enabled", false)
+
+        if (isNotificationsEnabled) {
+            NotificationScheduler.scheduleNextNotification(this)
+        }
     }
 }
