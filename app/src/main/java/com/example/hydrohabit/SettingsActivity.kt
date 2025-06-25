@@ -32,6 +32,7 @@ import okhttp3.RequestBody
 import okhttp3.Response
 import java.io.IOException
 import android.widget.Toast
+import org.w3c.dom.Text
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -74,6 +75,8 @@ class SettingsActivity : AppCompatActivity() {
         val logoutButton: TextView = findViewById(R.id.logoutButton)
         val resetPasswordButton: TextView = findViewById(R.id.resetPasswordButton)
         val resetWaterButton: TextView = findViewById(R.id.resetButton)
+        val profileButton: TextView = findViewById(R.id.profileButton)
+        val notificationButton: TextView = findViewById(R.id.notificationButton)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -82,7 +85,7 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         val backArrow: ImageView = findViewById(R.id.backIcon)
-        backArrow.rotation = -90f
+        backArrow.rotation = 90f
 
         backArrow.setOnClickListener {
             finishWithAnimation()
@@ -101,6 +104,15 @@ class SettingsActivity : AppCompatActivity() {
         }
         resetWaterButton.setOnClickListener {
             showWaterConfirmationDialog()
+        }
+        profileButton.setOnClickListener {
+            showProfilePopup()
+        }
+
+        notificationButton.isSelected = false
+
+        notificationButton.setOnClickListener {
+            notificationButton.isSelected = !notificationButton.isSelected
         }
 
     }
@@ -165,6 +177,32 @@ class SettingsActivity : AppCompatActivity() {
             alertDialog.dismiss()
         }
         alertDialog.show()
+    }
+    private fun showProfilePopup() {
+        val dialogView = layoutInflater.inflate(R.layout.profile_popup, null)
+
+        val alertDialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+        alertDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        alertDialog.show()
+        CoroutineScope(Dispatchers.Main).launch {
+            val username = fetchUsernameFromApi()
+            val usernameTextView = dialogView.findViewById<TextView>(R.id.usernameDisplay)
+            usernameTextView.text = "Username: $username"
+        }
+
+        dialogView.findViewById<TextView>(R.id.button_cancel).setOnClickListener {
+            alertDialog.dismiss()
+        }
+
+        dialogView.findViewById<TextView>(R.id.button_logout).setOnClickListener {
+            alertDialog.dismiss()
+            CoroutineScope(Dispatchers.Main).launch {
+                clearCookiesAndLogout()
+            }
+        }
     }
 
     private fun initializePrefs() {

@@ -66,8 +66,9 @@
                 android:focusable="true"
                 android:gravity="center"
                 android:padding="10dp"
+                android:background="@drawable/notifications_button_selector"
                 android:textColor="@color/white"
-                android:text="Notification"
+                android:text="Notifications"
                 android:textSize="18sp"/>
 
             <View

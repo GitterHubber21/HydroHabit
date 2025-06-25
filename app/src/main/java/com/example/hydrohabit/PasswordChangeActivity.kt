@@ -2,8 +2,10 @@ package com.example.hydrohabit
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Rect
 import android.os.Bundle
+import android.util.Log
 import android.view.MotionEvent
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
@@ -11,10 +13,61 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.core.content.edit
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.Cookie
+import okhttp3.CookieJar
+import okhttp3.HttpUrl
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
+import okhttp3.Response
+import org.json.JSONObject
+import java.io.IOException
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.iterator
+import android.widget.Button
+import android.widget.Toast
+import com.example.hydrohabit.SignupActivity
+
 
 class PasswordChangeActivity : AppCompatActivity() {
+
+    private lateinit var sharedPrefs: SharedPreferences
+
+    private val client = OkHttpClient.Builder()
+        .cookieJar(object : CookieJar {
+            override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
+                if (url.host == "water.coolcoder.hackclub.app") {
+                    for (cookie in cookies) {
+                        sharedPrefs.edit {
+                            putString(cookie.name, cookie.value)
+                        }
+                    }
+                }
+            }
+
+            override fun loadForRequest(url: HttpUrl): List<Cookie> {
+                val cookies = mutableListOf<Cookie>()
+                val allCookies = sharedPrefs.all
+                for ((name, value) in allCookies) {
+                    if (value is String) {
+                        cookies.add(
+                            Cookie.Builder()
+                                .name(name)
+                                .value(value)
+                                .domain(url.host)
+                                .build()
+                        )
+                    }
+                }
+                return cookies
+            }
+        })
+        .build()
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -24,6 +77,11 @@ class PasswordChangeActivity : AppCompatActivity() {
         setContentView(R.layout.activity_password_reset)
         val backArrow: ImageView = findViewById(R.id.backIcon)
         val rootLayout = findViewById<RelativeLayout>(R.id.relativeLayout_password_reset)
+        val newPasswordEditText = findViewById<EditText>(R.id.passwordInput)
+        val confirmPasswordEditText = findViewById<EditText>(R.id.passwordInputAgain)
+        val changePasswordButton = findViewById<Button>(R.id.changeButton)
+
+        sharedPrefs = getSharedPreferences("secure_cookies", MODE_PRIVATE)
 
         backArrow.setOnClickListener {
             startActivity(Intent(applicationContext, SettingsActivity::class.java))
@@ -46,6 +104,18 @@ class PasswordChangeActivity : AppCompatActivity() {
             }
             false
         }
+        changePasswordButton.setOnClickListener {
+            val newPassword = newPasswordEditText.text.toString()
+            val confirmPassword = confirmPasswordEditText.text.toString()
+
+            if (newPassword == confirmPassword) {
+                changePassword(newPassword)
+            } else {
+                Toast.makeText(this, "The two passwords do not match.", Toast.LENGTH_SHORT).show()
+                newPasswordEditText.text.clear()
+                confirmPasswordEditText.text.clear()
+            }
+        }
 
     }
 
@@ -62,5 +132,34 @@ class PasswordChangeActivity : AppCompatActivity() {
     private fun forceHideKeyboard(){
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(window.decorView.windowToken, 0)
+    }
+    private fun changePassword(newPassword: String) {
+        val newPasswordEditText = findViewById<EditText>(R.id.passwordInput)
+        val confirmPasswordEditText = findViewById<EditText>(R.id.passwordInputAgain)
+
+        val url = "https://water.coolcoder.hackclub.app/api/change_password"
+        val json = JSONObject().apply { put("new_password", newPassword) }.toString()
+        val body = RequestBody.create("application/json; charset=utf-8".toMediaTypeOrNull(), json)
+
+        val request = Request.Builder().url(url).post(body).build()
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                runOnUiThread {
+                    newPasswordEditText.text.clear()
+                    confirmPasswordEditText.text.clear()
+                    Toast.makeText(this@PasswordChangeActivity, "Network error: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                runOnUiThread {
+                    Toast.makeText(this@PasswordChangeActivity, "Password changed successfully.", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(applicationContext, SettingsActivity::class.java))
+                    overridePendingTransition(R.anim.slide_in_from_left, R.anim.slide_out_to_right)
+                    finish()
+                }
+            }
+        })
+
     }
 }
