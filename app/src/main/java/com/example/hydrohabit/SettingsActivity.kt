@@ -171,6 +171,7 @@ class SettingsActivity : AppCompatActivity() {
         dialogView.findViewById<TextView>(R.id.button_yes).setOnClickListener {
             startActivity(Intent(applicationContext, PasswordChangeActivity::class.java))
             overridePendingTransition(R.anim.slide_in_from_right, R.anim.slide_out_to_left)
+            alertDialog.dismiss()
         }
         alertDialog.show()
     }
@@ -234,8 +235,9 @@ class SettingsActivity : AppCompatActivity() {
             alertDialog.dismiss()
         }
         dialogView.findViewById<TextView>(R.id.button_yes).setOnClickListener {
+            startActivity(Intent(applicationContext, DeleteAccountActivity::class.java))
+            overridePendingTransition(R.anim.slide_in_from_right, R.anim.slide_out_to_left)
             alertDialog.dismiss()
-            deleteAccountAndLogout()
         }
         alertDialog.show()
     }
@@ -362,36 +364,6 @@ class SettingsActivity : AppCompatActivity() {
 
 
     }
-    private fun deleteAccountAndLogout() {
-        val url = "https://water.coolcoder.hackclub.app/api/delete_account"
-        val request = Request.Builder()
-            .url(url)
-            .delete()
-            .build()
 
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                Log.e("DeleteAccount", "Failed to delete account", e)
-                runOnUiThread {
-                    Toast.makeText(this@SettingsActivity, "Failed to delete account", Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                if (response.isSuccessful) {
-                    runOnUiThread {
-                        Toast.makeText(this@SettingsActivity, "Account deleted successfully", Toast.LENGTH_SHORT).show()
-                        CoroutineScope(Dispatchers.Main).launch {
-                            clearCookiesAndLogout()
-                        }
-                    }
-                } else {
-                    runOnUiThread {
-                        Toast.makeText(this@SettingsActivity, "Error deleting account", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-        })
-    }
 
 }
