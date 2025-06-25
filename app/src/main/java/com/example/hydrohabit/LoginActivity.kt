@@ -96,7 +96,7 @@ class LoginActivity : AppCompatActivity() {
                         }
                         Toast.makeText(
                             this@LoginActivity,
-                            "Login successful",
+                            "Login successful!",
                             Toast.LENGTH_SHORT
                         ).show()
                         startActivity(
@@ -110,7 +110,7 @@ class LoginActivity : AppCompatActivity() {
                     } else {
                         Toast.makeText(
                             this@LoginActivity,
-                            "Invalid credentials",
+                            "Invalid credentials.",
                             Toast.LENGTH_SHORT
                         ).show()
                         usernameInput.text.clear()
@@ -139,7 +139,7 @@ class LoginActivity : AppCompatActivity() {
             val username = usernameInput.text.toString().trim()
             val password = passwordInput.text.toString().trim()
             if (username.isBlank() || password.isBlank()) {
-                Toast.makeText(this, "Enter both username and password", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Enter both username and password.", Toast.LENGTH_SHORT).show()
             } else {
                 attemptLogin(username, password)
             }
