@@ -351,7 +351,7 @@ class MainActivity : ComponentActivity() {
         val isNotificationsEnabled = sharedPrefs.getBoolean("notifications_enabled", false)
 
         if (isNotificationsEnabled) {
-            NotificationScheduler.scheduleNextNotification(this)
+            NotificationScheduler.scheduleNotifications(this)
         }
     }
 }

@@ -33,7 +33,7 @@ class NotificationReceiver : BroadcastReceiver() {
             sendNotification(context)
         }
 
-        NotificationScheduler.scheduleNextNotification(context)
+        NotificationScheduler.scheduleNotifications(context)
     }
 
     private fun sendNotification(context: Context) {

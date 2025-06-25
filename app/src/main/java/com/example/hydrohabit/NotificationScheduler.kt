@@ -6,13 +6,24 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import java.util.*
+import androidx.core.content.edit
 
 object NotificationScheduler {
 
     private const val REQUEST_CODE = 1001
     private const val TWO_HOURS_IN_MILLIS = 2 * 60 * 60 * 1000L
+    private const val PREFS_KEY_NEXT_NOTIFICATION = "next_notification_time"
 
-    fun scheduleNextNotification(context: Context) {
+    fun scheduleNotifications(context: Context) {
+        val sharedPrefs = context.getSharedPreferences("secure_cookies", Context.MODE_PRIVATE)
+        val savedNextNotificationTime = sharedPrefs.getLong(PREFS_KEY_NEXT_NOTIFICATION, 0L)
+        val currentTime = System.currentTimeMillis()
+
+
+        if (savedNextNotificationTime > currentTime) {
+            return
+        }
+
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, NotificationReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(
@@ -22,18 +33,24 @@ object NotificationScheduler {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+
         alarmManager.cancel(pendingIntent)
 
+
         val nextNotificationTime = getNextNotificationTime()
+
+
+        sharedPrefs.edit { putLong(PREFS_KEY_NEXT_NOTIFICATION, nextNotificationTime) }
+
         alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,
             nextNotificationTime,
             pendingIntent
         )
-
     }
 
     fun cancelNotifications(context: Context) {
+        val sharedPrefs = context.getSharedPreferences("secure_cookies", Context.MODE_PRIVATE)
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, NotificationReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(
@@ -44,6 +61,36 @@ object NotificationScheduler {
         )
 
         alarmManager.cancel(pendingIntent)
+
+
+        sharedPrefs.edit { remove(PREFS_KEY_NEXT_NOTIFICATION) }
+    }
+
+    fun forceScheduleNotifications(context: Context) {
+        val sharedPrefs = context.getSharedPreferences("secure_cookies", Context.MODE_PRIVATE)
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(context, NotificationReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            REQUEST_CODE,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+
+        alarmManager.cancel(pendingIntent)
+
+
+        val nextNotificationTime = getNextNotificationTime()
+
+
+        sharedPrefs.edit { putLong(PREFS_KEY_NEXT_NOTIFICATION, nextNotificationTime) }
+
+        alarmManager.setExactAndAllowWhileIdle(
+            AlarmManager.RTC_WAKEUP,
+            nextNotificationTime,
+            pendingIntent
+        )
     }
 
     private fun getNextNotificationTime(): Long {
@@ -84,5 +131,4 @@ object NotificationScheduler {
 
         return twoHoursLater
     }
-
 }
