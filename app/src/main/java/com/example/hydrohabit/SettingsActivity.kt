@@ -80,6 +80,7 @@ class SettingsActivity : AppCompatActivity() {
         val resetWaterButton: TextView = findViewById(R.id.resetButton)
         val profileButton: TextView = findViewById(R.id.profileButton)
         val notificationButton: TextView = findViewById(R.id.notificationButton)
+        val deleteAccountButton: TextView = findViewById(R.id.deleteAccountButton)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -110,6 +111,9 @@ class SettingsActivity : AppCompatActivity() {
         }
         profileButton.setOnClickListener {
             showProfilePopup()
+        }
+        deleteAccountButton.setOnClickListener {
+            showDeleteConfirmationDialog()
         }
 
         val isNotificationsEnabled = sharedPrefs.getBoolean("notifications_enabled", false)
@@ -216,6 +220,26 @@ class SettingsActivity : AppCompatActivity() {
             }
         }
     }
+    private fun showDeleteConfirmationDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.delete_warning, null)
+
+        val alertDialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+        alertDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+
+        dialogView.findViewById<TextView>(R.id.button_no).setOnClickListener {
+            alertDialog.dismiss()
+        }
+        dialogView.findViewById<TextView>(R.id.button_yes).setOnClickListener {
+            alertDialog.dismiss()
+            deleteAccountAndLogout()
+        }
+        alertDialog.show()
+    }
+
 
     private fun initializePrefs() {
         sharedPrefs = getSharedPreferences("secure_cookies", MODE_PRIVATE)
@@ -338,4 +362,36 @@ class SettingsActivity : AppCompatActivity() {
 
 
     }
+    private fun deleteAccountAndLogout() {
+        val url = "https://water.coolcoder.hackclub.app/api/delete_account"
+        val request = Request.Builder()
+            .url(url)
+            .delete()
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("DeleteAccount", "Failed to delete account", e)
+                runOnUiThread {
+                    Toast.makeText(this@SettingsActivity, "Failed to delete account", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                if (response.isSuccessful) {
+                    runOnUiThread {
+                        Toast.makeText(this@SettingsActivity, "Account deleted successfully", Toast.LENGTH_SHORT).show()
+                        CoroutineScope(Dispatchers.Main).launch {
+                            clearCookiesAndLogout()
+                        }
+                    }
+                } else {
+                    runOnUiThread {
+                        Toast.makeText(this@SettingsActivity, "Error deleting account", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        })
+    }
+
 }
