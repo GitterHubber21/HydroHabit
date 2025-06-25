@@ -32,7 +32,10 @@ import okhttp3.RequestBody
 import okhttp3.Response
 import java.io.IOException
 import android.widget.Toast
-import org.w3c.dom.Text
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.Build
+import android.content.Context
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -109,10 +112,19 @@ class SettingsActivity : AppCompatActivity() {
             showProfilePopup()
         }
 
-        notificationButton.isSelected = false
+        val isNotificationsEnabled = sharedPrefs.getBoolean("notifications_enabled", false)
+        notificationButton.isSelected = isNotificationsEnabled
 
         notificationButton.setOnClickListener {
-            notificationButton.isSelected = !notificationButton.isSelected
+            val newState = !notificationButton.isSelected
+            notificationButton.isSelected = newState
+
+            sharedPrefs.edit {
+                putBoolean("notifications_enabled", newState)
+            }
+            val vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
+            vibrator.vibrate(VibrationEffect.createOneShot(25, VibrationEffect.DEFAULT_AMPLITUDE))
+
         }
 
     }
