@@ -293,8 +293,25 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun finishWithAnimation() {
-        startActivity(Intent(applicationContext, MainActivity::class.java))
-        overridePendingTransition(R.anim.slide_in_from_bottom, R.anim.slide_out_to_top)
+        val callerActivity = intent.getStringExtra("caller_activity")
+
+        try {
+            val activityClass = Class.forName("com.example.hydrohabit.$callerActivity")
+            val intent = Intent(this, activityClass)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_from_bottom, R.anim.slide_out_to_top)
+            finish()
+
+        }catch (e: ClassNotFoundException) {
+            Log.e("startError", "$e")
+            val intent = Intent(this, MainActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_from_bottom, R.anim.slide_out_to_top)
+            finish()
+
+        }
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -345,13 +362,6 @@ class SettingsActivity : AppCompatActivity() {
             finish()
         }
     }
-
-    @Deprecated(
-        "This method has been deprecated in favor of using the\n      " +
-                "{@link OnBackPressedDispatcher} via {@link #getOnBackPressedDispatcher()}.\n      " +
-                "The OnBackPressedDispatcher controls how back button events are dispatched\n      " +
-                "to one or more {@link OnBackPressedCallback} objects."
-    )
     override fun onBackPressed() {
         super.onBackPressed()
         finishWithAnimation()

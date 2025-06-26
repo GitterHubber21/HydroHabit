@@ -204,7 +204,10 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun finishWithAnimation() {
-        startActivity(Intent(applicationContext, SettingsActivity::class.java))
+        val settingsIntent = Intent(applicationContext, SettingsActivity::class.java).apply {
+            putExtra("caller_activity", "MainActivity")
+        }
+        startActivity(settingsIntent)
         overridePendingTransition(R.anim.slide_in_from_top, R.anim.slide_out_to_bottom)
     }
 
