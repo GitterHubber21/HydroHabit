@@ -38,6 +38,99 @@
         android:background="?attr/selectableItemBackgroundBorderless"
         android:elevation="4dp"
         android:layout_alignParentEnd="true" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:gravity="center_horizontal"
+        android:layout_below="@+id/settingsIcon"
+        android:layout_above="@+id/bottomNavigationView">
+
+        <TextView
+            android:id="@+id/dailyTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Daily"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:textColor="#3b86d6"
+            android:gravity="center"
+            android:layout_marginBottom="16dp" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/challengeGrid"
+            android:layout_width="300dp"
+            android:layout_height="300dp">
+
+            <TextView
+                android:id="@+id/square1"
+                android:layout_width="130dp"
+                android:layout_height="130dp"
+                android:text="Challenge 1"
+                android:gravity="center"
+                android:background="@drawable/rounded_transparent_square"
+                android:textColor="@android:color/white"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/square2"
+                android:layout_width="130dp"
+                android:layout_height="130dp"
+                android:text="Challenge 2"
+                android:gravity="center"
+                android:background="@drawable/rounded_transparent_square"
+                android:textColor="@android:color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/square3"
+                android:layout_width="130dp"
+                android:layout_height="130dp"
+                android:text="Challenge 3"
+                android:gravity="center"
+                android:background="@drawable/rounded_transparent_square"
+                android:textColor="@android:color/white"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <TextView
+                android:id="@+id/square4"
+                android:layout_width="130dp"
+                android:layout_height="130dp"
+                android:text="Challenge 4"
+                android:gravity="center"
+                android:background="@drawable/rounded_transparent_square"
+                android:textColor="@android:color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/monthlyTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Monthly"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:textColor="#3b86d6"
+            android:gravity="center"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:id="@+id/monthlyChallengeDisplay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Monthly Challenge"
+            android:gravity="center"
+            android:background="@drawable/rounded_transparent_square_challenge"
+            android:textColor="@android:color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+    </LinearLayout>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigationView"
