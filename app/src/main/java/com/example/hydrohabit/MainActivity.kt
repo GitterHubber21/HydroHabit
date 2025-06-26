@@ -92,6 +92,7 @@ class MainActivity : ComponentActivity() {
         initViews()
         setupRainView()
         setupButtons()
+        initializeNotifications()
 
         coroutineScope.launch {
             val initialVolume = fetchTotalVolume()
@@ -203,7 +204,10 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun finishWithAnimation() {
-        startActivity(Intent(applicationContext, SettingsActivity::class.java))
+        val settingsIntent = Intent(applicationContext, SettingsActivity::class.java).apply {
+            putExtra("caller_activity", "MainActivity")
+        }
+        startActivity(settingsIntent)
         overridePendingTransition(R.anim.slide_in_from_top, R.anim.slide_out_to_bottom)
     }
 
@@ -344,5 +348,13 @@ class MainActivity : ComponentActivity() {
     override fun onBackPressed() {
         super.onBackPressed()
         finishWithoutAnimation()
+    }
+    private fun initializeNotifications() {
+        val sharedPrefs = getSharedPreferences("secure_cookies", MODE_PRIVATE)
+        val isNotificationsEnabled = sharedPrefs.getBoolean("notifications_enabled", false)
+
+        if (isNotificationsEnabled) {
+            NotificationScheduler.scheduleNotifications(this)
+        }
     }
 }

@@ -39,8 +39,7 @@ class ChallengesActivity : AppCompatActivity() {
         val settingsIcon: ImageView = findViewById(R.id.settingsIcon)
 
         settingsIcon.setOnClickListener {
-            startActivity(Intent(applicationContext, SettingsActivity::class.java))
-            overridePendingTransition(R.anim.slide_in_from_top, R.anim.slide_out_to_bottom)
+            finishWithAnimation()
         }
         gestureDetector= GestureDetector(this, SwipeGestureListener())
     }
@@ -73,7 +72,10 @@ class ChallengesActivity : AppCompatActivity() {
 
     }
     private fun finishWithAnimation() {
-        startActivity(Intent(applicationContext, SettingsActivity::class.java))
+        val settingsIntent = Intent(applicationContext, SettingsActivity::class.java).apply {
+            putExtra("caller_activity", "ChallengesActivity")
+        }
+        startActivity(settingsIntent)
         overridePendingTransition(R.anim.slide_in_from_top, R.anim.slide_out_to_bottom)
     }
     override fun onTouchEvent(event: MotionEvent): Boolean {

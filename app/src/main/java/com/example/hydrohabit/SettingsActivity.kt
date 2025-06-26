@@ -32,7 +32,10 @@ import okhttp3.RequestBody
 import okhttp3.Response
 import java.io.IOException
 import android.widget.Toast
-import org.w3c.dom.Text
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.Build
+import android.content.Context
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -77,6 +80,7 @@ class SettingsActivity : AppCompatActivity() {
         val resetWaterButton: TextView = findViewById(R.id.resetButton)
         val profileButton: TextView = findViewById(R.id.profileButton)
         val notificationButton: TextView = findViewById(R.id.notificationButton)
+        val deleteAccountButton: TextView = findViewById(R.id.deleteAccountButton)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -108,11 +112,31 @@ class SettingsActivity : AppCompatActivity() {
         profileButton.setOnClickListener {
             showProfilePopup()
         }
+        deleteAccountButton.setOnClickListener {
+            showDeleteConfirmationDialog()
+        }
 
-        notificationButton.isSelected = false
+        val isNotificationsEnabled = sharedPrefs.getBoolean("notifications_enabled", false)
+        notificationButton.isSelected = isNotificationsEnabled
 
         notificationButton.setOnClickListener {
-            notificationButton.isSelected = !notificationButton.isSelected
+            val newState = !notificationButton.isSelected
+            notificationButton.isSelected = newState
+
+            sharedPrefs.edit {
+                putBoolean("notifications_enabled", newState)
+            }
+
+            if (newState) {
+                NotificationScheduler.forceScheduleNotifications(this)
+                Toast.makeText(this, "Reminders enabled", Toast.LENGTH_SHORT).show()
+            } else {
+                NotificationScheduler.cancelNotifications(this)
+                Toast.makeText(this, "Reminders disabled", Toast.LENGTH_SHORT).show()
+            }
+
+            val vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
+            vibrator.vibrate(VibrationEffect.createOneShot(25, VibrationEffect.DEFAULT_AMPLITUDE))
         }
 
     }
@@ -155,6 +179,7 @@ class SettingsActivity : AppCompatActivity() {
         dialogView.findViewById<TextView>(R.id.button_yes).setOnClickListener {
             startActivity(Intent(applicationContext, PasswordChangeActivity::class.java))
             overridePendingTransition(R.anim.slide_in_from_right, R.anim.slide_out_to_left)
+            alertDialog.dismiss()
         }
         alertDialog.show()
     }
@@ -204,6 +229,27 @@ class SettingsActivity : AppCompatActivity() {
             }
         }
     }
+    private fun showDeleteConfirmationDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.delete_warning, null)
+
+        val alertDialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+        alertDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+
+        dialogView.findViewById<TextView>(R.id.button_no).setOnClickListener {
+            alertDialog.dismiss()
+        }
+        dialogView.findViewById<TextView>(R.id.button_yes).setOnClickListener {
+            startActivity(Intent(applicationContext, DeleteAccountActivity::class.java))
+            overridePendingTransition(R.anim.slide_in_from_right, R.anim.slide_out_to_left)
+            alertDialog.dismiss()
+        }
+        alertDialog.show()
+    }
+
 
     private fun initializePrefs() {
         sharedPrefs = getSharedPreferences("secure_cookies", MODE_PRIVATE)
@@ -247,8 +293,25 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun finishWithAnimation() {
-        startActivity(Intent(applicationContext, MainActivity::class.java))
-        overridePendingTransition(R.anim.slide_in_from_bottom, R.anim.slide_out_to_top)
+        val callerActivity = intent.getStringExtra("caller_activity")
+
+        try {
+            val activityClass = Class.forName("com.example.hydrohabit.$callerActivity")
+            val intent = Intent(this, activityClass)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_from_bottom, R.anim.slide_out_to_top)
+            finish()
+
+        }catch (e: ClassNotFoundException) {
+            Log.e("startError", "$e")
+            val intent = Intent(this, MainActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_from_bottom, R.anim.slide_out_to_top)
+            finish()
+
+        }
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -299,13 +362,6 @@ class SettingsActivity : AppCompatActivity() {
             finish()
         }
     }
-
-    @Deprecated(
-        "This method has been deprecated in favor of using the\n      " +
-                "{@link OnBackPressedDispatcher} via {@link #getOnBackPressedDispatcher()}.\n      " +
-                "The OnBackPressedDispatcher controls how back button events are dispatched\n      " +
-                "to one or more {@link OnBackPressedCallback} objects."
-    )
     override fun onBackPressed() {
         super.onBackPressed()
         finishWithAnimation()
@@ -326,4 +382,6 @@ class SettingsActivity : AppCompatActivity() {
 
 
     }
+
+
 }

@@ -36,7 +36,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:orientation="vertical"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="40dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp">
         <TextView
@@ -76,6 +76,22 @@
                 android:layout_height="6dp"
                 android:background="@drawable/menu_separator" />
             <TextView
+                android:id="@+id/profileButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:padding="10dp"
+                android:textColor="@color/white"
+                android:text="Profile"
+                android:textSize="18sp" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="6dp"
+                android:background="@drawable/menu_separator" />
+
+            <TextView
                 android:id="@+id/resetButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -107,21 +123,6 @@
             android:background="@drawable/rounded_transparent_square"
             android:layout_marginEnd="16dp">
             <TextView
-                android:id="@+id/profileButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:padding="10dp"
-                android:textColor="@color/white"
-                android:text="Profile"
-                android:textSize="18sp" />
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="6dp"
-                android:background="@drawable/menu_separator" />
-            <TextView
                 android:id="@+id/resetPasswordButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -131,6 +132,22 @@
                 android:padding="10dp"
                 android:textColor="#c34031"
                 android:text="Change password"
+                android:textSize="18sp"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="6dp"
+                android:background="@drawable/menu_separator" />
+
+            <TextView
+                android:id="@+id/deleteAccountButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:padding="10dp"
+                android:textColor="#c34031"
+                android:text="Delete account"
                 android:textSize="18sp"/>
         </LinearLayout>
         <TextView

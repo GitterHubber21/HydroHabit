@@ -1,30 +1,9 @@
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="15dp"
-    android:height="15dp"
-    android:viewportWidth="100"
-    android:viewportHeight="100">
-
-
-    <path
-        android:fillColor="#ffffff"
-        android:pathData="M50,10 A40,40 0 1,1 49.9,10 Z" />
-
-
-    <path
-        android:fillColor="#3b86d6"
-        android:pathData="M50,20 A30,30 0 1,1 49.9,20 Z" />
-
-
-    <path
-        android:fillColor="#ffffff"
-        android:pathData="M50,30 A20,20 0 1,1 49.9,30 Z" />
-
-
-    <path
-        android:fillColor="#3b86d6"
-        android:pathData="M50,42 A8,8 0 1,1 49.9,42 Z" />
-
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:height="48dp" android:viewportHeight="24" android:viewportWidth="24" android:width="48dp">
+      
+    <path android:fillColor="#00000000" android:pathData="M16,8V5L19,2L20,4L22,5L19,8H16ZM16,8L12,12M22,12C22,17.523 17.523,22 12,22C6.477,22 2,17.523 2,12C2,6.477 6.477,2 12,2M17,12C17,14.761 14.761,17 12,17C9.239,17 7,14.761 7,12C7,9.239 9.239,7 12,7" android:strokeColor="#FFFFFF" android:strokeLineCap="round" android:strokeLineJoin="round" android:strokeWidth="2"/>
+    
 </vector>
 
 
-
+    <!--Source:https://www.svgrepo.com/svg/471968/target-04-->
+    <!--Add link to the repo-->

@@ -55,28 +55,24 @@ class SignupActivity : AppCompatActivity() {
             }
 
             override fun onResponse(call: Call, response: Response) {
-                val msg = if (response.isSuccessful) {
-                    "Signup successful!"
+                val msg = when {
+                    response.isSuccessful -> "Signup successful!"
+                    response.code == 400 -> "Enter both username and password."
+                    response.code == 409 -> "Username already exists."
+                    else -> "Signup failed. Please try again."
+                }
 
-                } else {
-                    "Signup failed: ${response.code}"
-                }
-                if(response.isSuccessful) {
-                    runOnUiThread {
-                        Toast.makeText(this@SignupActivity, msg, Toast.LENGTH_SHORT).show()
-                    }
-                    startActivity(Intent(applicationContext, LoginActivity::class.java))
-                    overridePendingTransition(R.anim.slide_in_from_left, R.anim.slide_out_to_right)
-                }
-                else{
-                    runOnUiThread {
-                        Toast.makeText(this@SignupActivity, msg, Toast.LENGTH_SHORT).show()
+                runOnUiThread {
+                    Toast.makeText(this@SignupActivity, msg, Toast.LENGTH_SHORT).show()
+
+                    if (response.isSuccessful) {
+                        startActivity(Intent(applicationContext, LoginActivity::class.java))
+                        overridePendingTransition(R.anim.slide_in_from_left, R.anim.slide_out_to_right)
+                    } else {
                         usernameInput.text.clear()
                         passwordInput.text.clear()
                     }
                 }
-
-
             }
         })
     }
@@ -120,8 +116,18 @@ class SignupActivity : AppCompatActivity() {
             if (username.isNotEmpty() && password.isNotEmpty()) {
                 sendSignupRequest(username, password)
             } else {
-                Toast.makeText(this, "Please enter both fields", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Please enter both fields.", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+    @Deprecated("This method has been deprecated in favor of using the\n      " +
+            "{@link OnBackPressedDispatcher} via {@link #getOnBackPressedDispatcher()}.\n     " +
+            " The OnBackPressedDispatcher controls how back button events are dispatched\n      " +
+            "to one or more {@link OnBackPressedCallback} objects.")
+    override fun onBackPressed() {
+        super.onBackPressed()
+        startActivity(Intent(applicationContext, LoginActivity::class.java))
+        overridePendingTransition(R.anim.slide_in_from_left, R.anim.slide_out_to_right)
+        finish()
     }
 }

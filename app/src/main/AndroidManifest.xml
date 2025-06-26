@@ -4,6 +4,10 @@
 
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:allowBackup="true"
@@ -16,9 +20,13 @@
         android:theme="@style/Theme.HydroHabit"
         tools:targetApi="31">
         <activity
+            android:name=".DeleteAccountActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".PasswordChangeActivity"
             android:exported="false"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".SplashActivity"
             android:exported="true"
@@ -58,6 +66,10 @@
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.HydroHabit" />
+        <receiver
+            android:name=".NotificationReceiver"
+            android:enabled="true"
+            android:exported="false" />
     </application>
 
 </manifest>
