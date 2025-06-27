@@ -8,6 +8,9 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import android.view.GestureDetector
 import android.view.MotionEvent
+import android.widget.TextView
+import android.view.animation.OvershootInterpolator
+import android.view.animation.DecelerateInterpolator
 import kotlin.math.abs
 
 class ChallengesActivity : AppCompatActivity() {
@@ -42,6 +45,7 @@ class ChallengesActivity : AppCompatActivity() {
             finishWithAnimation()
         }
         gestureDetector= GestureDetector(this, SwipeGestureListener())
+        animateCardDealing()
     }
     private inner class SwipeGestureListener : GestureDetector.SimpleOnGestureListener() {
 
@@ -95,5 +99,90 @@ class ChallengesActivity : AppCompatActivity() {
     override fun onBackPressed() {
         super.onBackPressed()
         finishWithoutAnimation()
+    }
+    private fun animateCardDealing(){
+
+        val square1 = findViewById<TextView>(R.id.square1)
+        val square2 = findViewById<TextView>(R.id.square2)
+        val square3 = findViewById<TextView>(R.id.square3)
+        val square4 = findViewById<TextView>(R.id.square4)
+        val dailyTitle = findViewById<TextView>(R.id.dailyTitle)
+        val monthlyTitle = findViewById<TextView>(R.id.monthlyTitle)
+        val monthlyChallenge = findViewById<TextView>(R.id.monthlyChallengeDisplay)
+
+        val animationDuration = 600L
+        val dealingDelay = 200L
+
+        square4.postDelayed({
+            square4.animate()
+                .alpha(1f)
+                .translationX(0f)
+                .translationY(0f)
+                .rotation(0f)
+                .scaleX(1f)
+                .scaleY(1f)
+                .setDuration(animationDuration)
+                .start()
+        }, dealingDelay)
+        square2.postDelayed({
+            square2.animate()
+                .alpha(1f)
+                .translationX(0f)
+                .translationY(0f)
+                .rotation(0f)
+                .scaleX(1f)
+                .scaleY(1f)
+                .setDuration(animationDuration)
+                .start()
+        }, dealingDelay*2)
+        square1.postDelayed({
+            square1.animate()
+                .alpha(1f)
+                .translationX(0f)
+                .translationY(0f)
+                .rotation(0f)
+                .scaleX(1f)
+                .scaleY(1f)
+                .setDuration(animationDuration)
+                .start()
+        }, dealingDelay*3)
+        square3.postDelayed({
+            square3.animate()
+                .alpha(1f)
+                .translationX(0f)
+                .translationY(0f)
+                .rotation(0f)
+                .scaleX(1f)
+                .scaleY(1f)
+                .setDuration(animationDuration)
+                .start()
+        }, dealingDelay*4)
+
+        val finalDelay = dealingDelay*5
+        monthlyTitle.postDelayed({
+            monthlyTitle.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(400)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
+        }, finalDelay)
+        dailyTitle.postDelayed({
+            dailyTitle.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(400)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
+        }, finalDelay)
+
+        monthlyChallenge.postDelayed({
+            monthlyChallenge.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(400)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
+        }, finalDelay + 200)
     }
 }

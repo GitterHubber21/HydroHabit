@@ -38,6 +38,7 @@
         android:background="?attr/selectableItemBackgroundBorderless"
         android:elevation="4dp"
         android:layout_alignParentEnd="true" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -56,12 +57,15 @@
             android:textStyle="bold"
             android:textColor="#3b86d6"
             android:gravity="center"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"
+            android:alpha="0"
+            android:translationY="20dp" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/challengeGrid"
             android:layout_width="300dp"
             android:layout_height="300dp">
+
 
             <TextView
                 android:id="@+id/square1"
@@ -73,6 +77,12 @@
                 android:textColor="@android:color/white"
                 android:clickable="true"
                 android:focusable="true"
+                android:alpha="0"
+                android:translationX="-100dp"
+                android:translationY="-400dp"
+                android:rotation="15"
+                android:scaleX="0.3"
+                android:scaleY="0.3"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
 
@@ -86,6 +96,12 @@
                 android:focusable="true"
                 android:background="@drawable/rounded_transparent_square"
                 android:textColor="@android:color/white"
+                android:alpha="0"
+                android:translationX="-100dp"
+                android:translationY="-400dp"
+                android:rotation="-10"
+                android:scaleX="0.3"
+                android:scaleY="0.3"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
 
@@ -99,6 +115,12 @@
                 android:focusable="true"
                 android:background="@drawable/rounded_transparent_square"
                 android:textColor="@android:color/white"
+                android:alpha="0"
+                android:translationX="-100dp"
+                android:translationY="-400dp"
+                android:rotation="8"
+                android:scaleX="0.3"
+                android:scaleY="0.3"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 
@@ -112,10 +134,17 @@
                 android:focusable="true"
                 android:background="@drawable/rounded_transparent_square"
                 android:textColor="@android:color/white"
+                android:alpha="0"
+                android:translationX="-100dp"
+                android:translationY="-400dp"
+                android:rotation="-12"
+                android:scaleX="0.3"
+                android:scaleY="0.3"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
         <TextView
             android:id="@+id/monthlyTitle"
             android:layout_width="match_parent"
@@ -126,7 +155,9 @@
             android:textColor="#3b86d6"
             android:gravity="center"
             android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"
+            android:alpha="0"
+            android:translationY="20dp" />
 
         <TextView
             android:id="@+id/monthlyChallengeDisplay"
@@ -138,6 +169,8 @@
             android:textColor="@android:color/white"
             android:focusable="true"
             android:clickable="true"
+            android:alpha="0"
+            android:translationY="20dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
     </LinearLayout>
