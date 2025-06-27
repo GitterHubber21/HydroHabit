@@ -14,18 +14,31 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.widget.FrameLayout
 import com.google.android.material.progressindicator.CircularProgressIndicator
+import android.content.SharedPreferences
+import java.util.Locale
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.math.abs
 
 class ChallengesActivity : AppCompatActivity() {
-    private var isBellSelected = false
     private lateinit var gestureDetector: GestureDetector
     private lateinit var cards: List<FrameLayout>
     private val isFlipped = BooleanArray(4)
-    private val frontTexts = arrayOf("Challenge 1", "Challenge 2", "Challenge 3", "Challenge 4")
+    private val dailyChallenges = arrayOf("Drink 1 liter of water today.",
+                                        "Reach 2.5 liters by the end of the day.",
+                                        "Hit 1.5 liters before 6 PM.",
+                                        "Complete your daily hydration goal.",
+                                        "Drink 500 mL every 3 hours.",
+                                        "Double your usual water intake today.",
+                                        "Drink 750 mL before lunch.",
+                                        "Fill your bottle three times today.")
+    private lateinit var sharedPreferences: SharedPreferences
+    private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        sharedPreferences = getSharedPreferences("challenges_prefs", MODE_PRIVATE)
         setContentView(R.layout.activity_challenges)
 
         initializeViews()
@@ -70,14 +83,26 @@ class ChallengesActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-        for (i in cards.indices) {
+        val frontIds = listOf(
+            R.id.card_front,
+            R.id.card_front,
+            R.id.card_front,
+            R.id.card_front
+        )
+        val todaysChallenges = getTodaysChallenges()
+
+        for(i in cards.indices) {
             cards[i].setOnClickListener { flipCard(cards[i], i) }
-            val front = cards[i].findViewById<TextView>(R.id.card_front)
+            val front = cards[i].findViewById<TextView>(frontIds[i])
             val back = cards[i].findViewById<FrameLayout>(R.id.card_back)
+
+            front.text = todaysChallenges[i]
             front.alpha = 1f
             back.alpha = 0f
         }
+
     }
+
 
     private fun flipCard(card: FrameLayout, index: Int) {
         val front = card.findViewById<TextView>(R.id.card_front)
@@ -213,5 +238,36 @@ class ChallengesActivity : AppCompatActivity() {
                 .setInterpolator(DecelerateInterpolator())
                 .start()
         }, finalDelay + 200)
+    }
+    private fun getTodaysChallenges(): List<String> {
+        val today = dateFormat.format(Date())
+        val savedDate = sharedPreferences.getString("challenge_date", "")
+
+        return if (savedDate == today) {
+            (0..3).map{i ->
+                sharedPreferences.getString("challenge_$i", dailyChallenges[0]) ?: dailyChallenges[0]
+            }
+        }else{
+            val usedIndices = mutableSetOf<Int>()
+            val newChallenges = mutableListOf<String>()
+
+            repeat(4) {
+                var challengeIndex: Int
+                do{
+                    challengeIndex = dailyChallenges.indices.random()
+                }while(challengeIndex in usedIndices)
+
+                usedIndices.add(challengeIndex)
+                newChallenges.add(dailyChallenges[challengeIndex])
+            }
+            with(sharedPreferences.edit()){
+                putString("challenge_date", today)
+                newChallenges.forEachIndexed { index, challenge ->
+                    putString("challenge_$index", challenge)
+                }
+                apply()
+            }
+            newChallenges
+        }
     }
 }

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/goal_change_popup"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@drawable/rounded_blue_square"
+    android:gravity="center"
+    android:layout_gravity="center"
+    android:minWidth="300dp">
+
+    <TextView
+        android:id="@+id/goal_logout_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Are you sure you want to log out?"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:paddingBottom="16dp"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:textAlignment="center" />
+
+    <LinearLayout
+        android:id="@+id/button_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="5dp"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/button_no"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Cancel"
+            android:textColor="@color/white"
+            android:textAlignment="center"
+            android:gravity="center"
+            android:background="@drawable/rounded_popup_square_no"
+            android:padding="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <Space
+            android:layout_width="16dp"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/button_yes"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Set"
+            android:textColor="#FFFFFF"
+            android:textAlignment="center"
+            android:gravity="center"
+            android:background="@drawable/rounded_popup_square_yes"
+            android:padding="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+    </LinearLayout>
+</LinearLayout>

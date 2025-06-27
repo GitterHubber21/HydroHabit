@@ -36,7 +36,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:orientation="vertical"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="25dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp">
         <TextView
@@ -90,6 +90,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="6dp"
                 android:background="@drawable/menu_separator" />
+            <TextView
+                android:id = "@+id/changeGoalButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:padding="10dp"
+                android:textColor="#FFFFFF"
+                android:text="Change goal"
+                android:textSize="18sp"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="6dp"
+                android:background="@drawable/menu_separator" />
 
             <TextView
                 android:id="@+id/resetButton"
@@ -102,6 +117,7 @@
                 android:textColor="#c34031"
                 android:text="Reset water in glass"
                 android:textSize="18sp" />
+
         </LinearLayout>
         <TextView
             android:id="@+id/titleSecurity"
