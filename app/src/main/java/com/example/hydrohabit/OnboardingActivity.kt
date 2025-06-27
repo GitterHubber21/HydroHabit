@@ -10,6 +10,7 @@ import androidx.core.content.edit
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.os.Handler
 import android.os.Looper
+import org.w3c.dom.Text
 
 class OnboardingActivity : AppCompatActivity() {
 
@@ -19,7 +20,7 @@ class OnboardingActivity : AppCompatActivity() {
         setContentView(R.layout.activity_onboarding)
 
         val sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE)
-        val goButton: Button = findViewById(R.id.goButton)
+        val goButton: TextView = findViewById(R.id.goButton)
         val welcomeText: TextView = findViewById(R.id.welcomeText)
 
 
@@ -66,7 +67,7 @@ class OnboardingActivity : AppCompatActivity() {
             .start()
     }
 
-    private fun animateGoButton(goButton: Button) {
+    private fun animateGoButton(goButton: TextView) {
         Handler(Looper.getMainLooper()).postDelayed({
             goButton.scaleX = 0f
             goButton.scaleY = 0f
@@ -85,7 +86,7 @@ class OnboardingActivity : AppCompatActivity() {
         }, 1500)
     }
 
-    private fun startPulsingAnimation(button: Button) {
+    private fun startPulsingAnimation(button: TextView) {
         val pulseAnimation = android.view.animation.ScaleAnimation(
             1f, 1.05f,
             1f, 1.05f,

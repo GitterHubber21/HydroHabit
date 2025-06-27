@@ -129,7 +129,7 @@ class LoginActivity : AppCompatActivity() {
 
         cookiePrefs = getSharedPreferences("secure_cookies", MODE_PRIVATE)
 
-        val loginButton: Button = findViewById(R.id.loginButton)
+        val loginButton: TextView = findViewById(R.id.loginButton)
         val signupText: TextView = findViewById(R.id.signupText)
         val usernameInput: EditText = findViewById(R.id.usernameInput)
         val passwordInput: EditText = findViewById(R.id.passwordInput)

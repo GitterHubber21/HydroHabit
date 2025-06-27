@@ -20,14 +20,17 @@
             android:layout_marginBottom="80dp" />
 
 
-        <Button
+        <TextView
             android:id="@+id/goButton"
-            android:layout_width="150dp"
+            android:layout_width="180dp"
             android:layout_height="60dp"
             android:text="Get Started!"
-            android:textSize="15sp"
+            android:textSize="28sp"
+            android:gravity="center"
             android:textColor="#FFFFFF"
-            android:background="@drawable/rounded_transparent_square"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="@drawable/rounded_transparent_square_challenge"
             android:layout_below="@id/welcomeText"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp" />

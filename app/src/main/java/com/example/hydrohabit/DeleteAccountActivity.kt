@@ -26,12 +26,15 @@ import java.io.IOException
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.iterator
-import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody
+import org.json.JSONObject
 
 
 class DeleteAccountActivity : AppCompatActivity() {
@@ -75,7 +78,7 @@ class DeleteAccountActivity : AppCompatActivity() {
         val rootLayout = findViewById<RelativeLayout>(R.id.relativeLayout_account_delete)
         val passwordEditText = findViewById<EditText>(R.id.passwordInput)
         val confirmPasswordEditText = findViewById<EditText>(R.id.passwordInputAgain)
-        val changePasswordButton = findViewById<Button>(R.id.enterButton)
+        val deleteAccountButton = findViewById<TextView>(R.id.enterButton)
 
 
 
@@ -102,16 +105,18 @@ class DeleteAccountActivity : AppCompatActivity() {
             }
             false
         }
-        changePasswordButton.setOnClickListener {
-            val newPassword = passwordEditText.text.toString()
+        deleteAccountButton.setOnClickListener {
+            val password = passwordEditText.text.toString()
             val confirmPassword = confirmPasswordEditText.text.toString()
 
-            if (newPassword == confirmPassword) {
-                deleteAccountAndLogout()
-            } else {
+            if (password == confirmPassword&&!password.isEmpty()&&!confirmPassword.isEmpty()) {
+                deleteAccountAndLogout(password)
+            }
+            if(password!=confirmPassword){
                 Toast.makeText(this, "The two passwords do not match.", Toast.LENGTH_SHORT).show()
-                passwordEditText.text.clear()
-                confirmPasswordEditText.text.clear()
+            }
+            if(password.isEmpty()||confirmPassword.isEmpty()){
+                Toast.makeText(this, "Both passwords are required.", Toast.LENGTH_SHORT).show()
             }
         }
         initializeCookies()
@@ -133,34 +138,49 @@ class DeleteAccountActivity : AppCompatActivity() {
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(window.decorView.windowToken, 0)
     }
-    private fun deleteAccountAndLogout() {
+    private fun deleteAccountAndLogout(password: String) {
+        val passwordEditText = findViewById<EditText>(R.id.passwordInput)
+        val confirmPasswordEditText = findViewById<EditText>(R.id.passwordInputAgain)
         val url = "https://water.coolcoder.hackclub.app/api/delete_account"
-        val request = Request.Builder()
-            .url(url)
-            .delete()
-            .build()
+        val json = JSONObject().apply {
+            put("password", password)
+        }.toString()
+        val body = RequestBody.create("application/json; charset=utf-8".toMediaTypeOrNull(), json)
+
+        val request = Request.Builder().url(url).post(body).build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 Log.e("DeleteAccount", "Failed to delete account", e)
                 runOnUiThread {
-                    Toast.makeText(this@DeleteAccountActivity, "Failed to delete account", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@DeleteAccountActivity, "Failed to delete account.", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
-                if (response.isSuccessful) {
-                    runOnUiThread {
-                        Toast.makeText(this@DeleteAccountActivity, "Account deleted successfully", Toast.LENGTH_SHORT).show()
-                        CoroutineScope(Dispatchers.Main).launch {
-                            clearCookiesAndLogout()
+
+                runOnUiThread {
+                        when(response.code){
+                        200 ->{
+                            Toast.makeText(this@DeleteAccountActivity, "Account deleted successfully.", Toast.LENGTH_SHORT).show()
+                            CoroutineScope(Dispatchers.Main).launch {
+                                clearCookiesAndLogout()
+                            }
                         }
+                        401 ->{
+                            passwordEditText.text.clear()
+                            confirmPasswordEditText.text.clear()
+                            Toast.makeText(this@DeleteAccountActivity, "Password is incorrect.", Toast.LENGTH_SHORT).show()
+                        }else ->{
+
+                                Toast.makeText(this@DeleteAccountActivity, "Error deleting account", Toast.LENGTH_SHORT).show()
+                                Log.e("server_response", "$response")
+                                passwordEditText.text.clear()
+                                confirmPasswordEditText.text.clear()
                     }
-                } else {
-                    runOnUiThread {
-                        Toast.makeText(this@DeleteAccountActivity, "Error deleting account", Toast.LENGTH_SHORT).show()
-                        Log.e("server_response", "")
-                    }
+
+                }
+
                 }
             }
         })

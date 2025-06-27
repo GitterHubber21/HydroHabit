@@ -29,6 +29,7 @@ import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.iterator
 import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 
 
@@ -77,7 +78,7 @@ class PasswordChangeActivity : AppCompatActivity() {
         val rootLayout = findViewById<RelativeLayout>(R.id.relativeLayout_password_reset)
         val oldPasswordEditText = findViewById<EditText>(R.id.oldPasswordInput)
         val newPasswordEditText = findViewById<EditText>(R.id.newPasswordInput)
-        val changePasswordButton = findViewById<Button>(R.id.changeButton)
+        val changePasswordButton = findViewById<TextView>(R.id.changeButton)
 
         sharedPrefs = getSharedPreferences("secure_cookies", MODE_PRIVATE)
 

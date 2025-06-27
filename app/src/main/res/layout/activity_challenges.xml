@@ -71,6 +71,8 @@
                 android:gravity="center"
                 android:background="@drawable/rounded_transparent_square"
                 android:textColor="@android:color/white"
+                android:clickable="true"
+                android:focusable="true"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
 
@@ -80,6 +82,8 @@
                 android:layout_height="130dp"
                 android:text="Challenge 2"
                 android:gravity="center"
+                android:clickable="true"
+                android:focusable="true"
                 android:background="@drawable/rounded_transparent_square"
                 android:textColor="@android:color/white"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -91,6 +95,8 @@
                 android:layout_height="130dp"
                 android:text="Challenge 3"
                 android:gravity="center"
+                android:clickable="true"
+                android:focusable="true"
                 android:background="@drawable/rounded_transparent_square"
                 android:textColor="@android:color/white"
                 app:layout_constraintTop_toTopOf="parent"
@@ -102,6 +108,8 @@
                 android:layout_height="130dp"
                 android:text="Challenge 4"
                 android:gravity="center"
+                android:clickable="true"
+                android:focusable="true"
                 android:background="@drawable/rounded_transparent_square"
                 android:textColor="@android:color/white"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -128,6 +136,8 @@
             android:gravity="center"
             android:background="@drawable/rounded_transparent_square_challenge"
             android:textColor="@android:color/white"
+            android:focusable="true"
+            android:clickable="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
     </LinearLayout>

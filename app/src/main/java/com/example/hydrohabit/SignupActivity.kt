@@ -1,16 +1,15 @@
 package com.example.hydrohabit
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.inputmethod.InputMethodManager
-import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.RelativeLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -84,7 +83,7 @@ class SignupActivity : AppCompatActivity() {
         setContentView(R.layout.activity_signup)
 
         val backArrow: ImageView = findViewById(R.id.backIcon)
-        val loginButton: Button = findViewById(R.id.loginButton)
+        val signupButton: TextView = findViewById(R.id.signupButton)
         val usernameInput: EditText = findViewById(R.id.usernameInput)
         val passwordInput: EditText = findViewById(R.id.passwordInput)
         val rootLayout = findViewById<RelativeLayout>(R.id.relativeLayout_signup)
@@ -110,7 +109,7 @@ class SignupActivity : AppCompatActivity() {
             false
         }
 
-        loginButton.setOnClickListener {
+        signupButton.setOnClickListener {
             val username = usernameInput.text.toString().trim()
             val password = passwordInput.text.toString().trim()
             if (username.isNotEmpty() && password.isNotEmpty()) {
