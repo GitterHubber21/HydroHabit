@@ -177,10 +177,8 @@ class DeleteAccountActivity : AppCompatActivity() {
                                 Log.e("server_response", "$response")
                                 passwordEditText.text.clear()
                                 confirmPasswordEditText.text.clear()
+                        }
                     }
-
-                }
-
                 }
             }
         })

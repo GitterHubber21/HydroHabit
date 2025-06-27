@@ -1,16 +1,8 @@
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="15dp"
-    android:height="15dp"
-    android:viewportWidth="100"
-    android:viewportHeight="100">
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:height="48dp" android:viewportHeight="24" android:viewportWidth="22" android:width="48dp">
 
-
-    <path
-        android:strokeColor="#ffffff"
-        android:strokeWidth="8"
-        android:fillColor="#3b86d6"
-        android:pathData="M50,10 A40,40 0 1,1 49.9,10 Z" />
-
+    <path android:fillColor="#00000000" android:pathData="M5,21V3.9C5,3.9 5.875,3 8.5,3C11.125,3 12.875,4.8 15.5,4.8C18.125,4.8 19,3.9 19,3.9V14.7C19,14.7 18.125,15.6 15.5,15.6C12.875,15.6 11.125,13.8 8.5,13.8C5.875,13.8 5,14.7 5,14.7" android:strokeColor="#FFFFFF" android:strokeLineCap="round" android:strokeLineJoin="round" android:strokeWidth="2"/>
 
 </vector>
 
+    <!--Source:https://www.svgrepo.com/svg/532527/flag-->
+    <!--Add link to the repo-->
