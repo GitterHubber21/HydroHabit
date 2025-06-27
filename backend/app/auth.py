@@ -59,10 +59,16 @@ def change_password():
     db.session.commit()
 
     return jsonify({"message": "Password changed successfully"}), 200
-@auth_bp.route("/delete_account", methods=["DELETE"])
+@auth_bp.route("/delete_account", methods=["POST"])
 @login_required
 def delete_account():
     from flask_login import current_user
+
+    data = request.json or {}
+    password = data.get("password", "").strip()
+
+    if not current_user.check_password(password):
+        return jsonify({"error": "Password is incorrect."}), 401
 
     db.session.delete(current_user)
     db.session.commit()
