@@ -1,5 +1,7 @@
 package com.example.hydrohabit
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.SharedPreferences
@@ -27,6 +29,10 @@ import android.view.GestureDetector
 import androidx.core.content.edit
 import org.json.JSONObject
 import kotlin.math.abs
+import android.animation.ObjectAnimator
+import android.animation.AnimatorSet
+import android.view.animation.AccelerateDecelerateInterpolator
+import androidx.compose.animation.core.Animation
 
 class MainActivity : ComponentActivity() {
 
@@ -94,13 +100,15 @@ class MainActivity : ComponentActivity() {
         setupButtons()
         initializeNotifications()
 
-        coroutineScope.launch {
-            val initialVolume = fetchTotalVolume()
-            withContext(Dispatchers.Main) {
-                displayedVolume = initialVolume
-                waterVolumeText.text = String.format("%.1f ml", displayedVolume)
-                rainView.addWaterDirectly(initialVolume)
-                Log.d("MainActivity", "Initial server volume = $initialVolume ml")
+        animateGlassContainer {
+            coroutineScope.launch {
+                val initialVolume = fetchTotalVolume()
+                withContext(Dispatchers.Main) {
+                    displayedVolume = initialVolume
+                    waterVolumeText.text = String.format("%.1f ml", displayedVolume)
+                    rainView.addWaterDirectly(initialVolume)
+                    Log.d("MainActivity", "Initial server volume = $initialVolume ml")
+                }
             }
         }
 
@@ -356,5 +364,29 @@ class MainActivity : ComponentActivity() {
         if (isNotificationsEnabled) {
             NotificationScheduler.scheduleNotifications(this)
         }
+    }
+    private fun animateGlassContainer(onAnimationComplete: () -> Unit){
+        val moveUp = ObjectAnimator.ofFloat(glassContainer, "translationY", 0f, -30f).apply {
+            duration = 400
+            interpolator = AccelerateDecelerateInterpolator()
+        }
+        val moveDown = ObjectAnimator.ofFloat(glassContainer, "translationY", -30f, 15f).apply {
+            duration = 300
+            interpolator = AccelerateDecelerateInterpolator()
+        }
+        val settle = ObjectAnimator.ofFloat(glassContainer, "translationY", 15f, 0f).apply {
+            duration = 200
+            interpolator = AccelerateDecelerateInterpolator()
+        }
+        val animatorSet = AnimatorSet().apply {
+            playSequentially(moveUp, moveDown, settle)
+            addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    onAnimationComplete()
+                }
+            })
+        }
+
+        animatorSet.start()
     }
 }
