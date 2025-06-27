@@ -62,21 +62,16 @@
             android:translationY="20dp" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/challengeGrid"
+            android:id="@+id/cardContainer"
             android:layout_width="300dp"
-            android:layout_height="300dp">
+            android:layout_height="300dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="16dp">
 
-
-            <TextView
-                android:id="@+id/square1"
-                android:layout_width="130dp"
-                android:layout_height="130dp"
-                android:text="Challenge 1"
-                android:gravity="center"
-                android:background="@drawable/rounded_transparent_square"
-                android:textColor="@android:color/white"
-                android:clickable="true"
-                android:focusable="true"
+            <FrameLayout
+                android:id="@+id/card1_container"
+                android:layout_width="140dp"
+                android:layout_height="140dp"
                 android:alpha="0"
                 android:translationX="-100dp"
                 android:translationY="-400dp"
@@ -84,64 +79,66 @@
                 android:scaleX="0.3"
                 android:scaleY="0.3"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintStart_toStartOf="parent">
 
-            <TextView
-                android:id="@+id/square2"
-                android:layout_width="130dp"
-                android:layout_height="130dp"
-                android:text="Challenge 2"
-                android:gravity="center"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="@drawable/rounded_transparent_square"
-                android:textColor="@android:color/white"
+                <include
+                    android:id="@+id/card1"
+                    layout="@layout/flip_card" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/card2_container"
+                android:layout_width="140dp"
+                android:layout_height="140dp"
                 android:alpha="0"
                 android:translationX="-100dp"
                 android:translationY="-400dp"
-                android:rotation="-10"
-                android:scaleX="0.3"
-                android:scaleY="0.3"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
-
-            <TextView
-                android:id="@+id/square3"
-                android:layout_width="130dp"
-                android:layout_height="130dp"
-                android:text="Challenge 3"
-                android:gravity="center"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="@drawable/rounded_transparent_square"
-                android:textColor="@android:color/white"
-                android:alpha="0"
-                android:translationX="-100dp"
-                android:translationY="-400dp"
-                android:rotation="8"
+                android:rotation="15"
                 android:scaleX="0.3"
                 android:scaleY="0.3"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintEnd_toEndOf="parent">
 
-            <TextView
-                android:id="@+id/square4"
-                android:layout_width="130dp"
-                android:layout_height="130dp"
-                android:text="Challenge 4"
-                android:gravity="center"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="@drawable/rounded_transparent_square"
-                android:textColor="@android:color/white"
+                <include
+                    android:id="@+id/card2"
+                    layout="@layout/flip_card" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/card3_container"
+                android:layout_width="140dp"
+                android:layout_height="140dp"
                 android:alpha="0"
                 android:translationX="-100dp"
                 android:translationY="-400dp"
-                android:rotation="-12"
+                android:rotation="15"
                 android:scaleX="0.3"
                 android:scaleY="0.3"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintStart_toStartOf="parent">
+
+                <include
+                    android:id="@+id/card3"
+                    layout="@layout/flip_card" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/card4_container"
+                android:layout_width="140dp"
+                android:layout_height="140dp"
+                android:alpha="0"
+                android:translationX="-100dp"
+                android:translationY="-400dp"
+                android:rotation="15"
+                android:scaleX="0.3"
+                android:scaleY="0.3"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <include
+                    android:id="@+id/card4"
+                    layout="@layout/flip_card" />
+            </FrameLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

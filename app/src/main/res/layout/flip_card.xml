@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/card_container"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    android:background="@drawable/rounded_transparent_square">
+
+    <TextView
+        android:id="@+id/card_front"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:gravity="center"
+        android:text="Challenge 1"
+        android:textSize="18sp"
+        android:textColor="#FFFFFF"
+        android:elevation="4dp" />
+
+    <FrameLayout
+        android:id="@+id/card_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/progress_indicator"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:indicatorColor="#3b86d6"
+            android:gravity="center"
+            app:trackColor="#7fb3d5"
+            app:trackThickness="8dp"
+            app:indicatorSize="80dp"
+            />
+
+        <TextView
+            android:id="@+id/progress_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="60%"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:textSize="20sp" />
+    </FrameLayout>
+
+</FrameLayout>

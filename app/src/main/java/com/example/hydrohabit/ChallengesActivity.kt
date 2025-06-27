@@ -9,18 +9,30 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.widget.TextView
-import android.view.animation.OvershootInterpolator
 import android.view.animation.DecelerateInterpolator
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.widget.FrameLayout
+import com.google.android.material.progressindicator.CircularProgressIndicator
 import kotlin.math.abs
 
 class ChallengesActivity : AppCompatActivity() {
     private var isBellSelected = false
     private lateinit var gestureDetector: GestureDetector
+    private lateinit var cards: List<FrameLayout>
+    private val isFlipped = BooleanArray(4)
+    private val frontTexts = arrayOf("Challenge 1", "Challenge 2", "Challenge 3", "Challenge 4")
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_challenges)
+
+        initializeViews()
+        setupClickListeners()
+
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+
         bottomNavigationView.selectedItemId = R.id.nav_challenges
         bottomNavigationView.itemIconTintList = null
         bottomNavigationView.setOnItemSelectedListener { item ->
@@ -39,42 +51,86 @@ class ChallengesActivity : AppCompatActivity() {
                 else -> false
             }
         }
-        val settingsIcon: ImageView = findViewById(R.id.settingsIcon)
 
+        val settingsIcon: ImageView = findViewById(R.id.settingsIcon)
         settingsIcon.setOnClickListener {
             finishWithAnimation()
         }
-        gestureDetector= GestureDetector(this, SwipeGestureListener())
+        gestureDetector = GestureDetector(this, SwipeGestureListener())
         animateCardDealing()
     }
-    private inner class SwipeGestureListener : GestureDetector.SimpleOnGestureListener() {
 
+    private fun initializeViews() {
+        cards = listOf(
+            findViewById(R.id.card1),
+            findViewById(R.id.card2),
+            findViewById(R.id.card3),
+            findViewById(R.id.card4)
+        )
+    }
+
+    private fun setupClickListeners() {
+        for (i in cards.indices) {
+            cards[i].setOnClickListener { flipCard(cards[i], i) }
+            val front = cards[i].findViewById<TextView>(R.id.card_front)
+            val back = cards[i].findViewById<FrameLayout>(R.id.card_back)
+            front.alpha = 1f
+            back.alpha = 0f
+        }
+    }
+
+    private fun flipCard(card: FrameLayout, index: Int) {
+        val front = card.findViewById<TextView>(R.id.card_front)
+        val back = card.findViewById<FrameLayout>(R.id.card_back)
+
+        card.isClickable = false
+
+        card.animate()
+            .scaleX(0f)
+            .setDuration(150)
+            .setListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    isFlipped[index] = !isFlipped[index]
+                    if (isFlipped[index]) {
+                        front.alpha = 0f
+                        back.alpha = 1f
+                    } else {
+                        front.alpha = 1f
+                        back.alpha = 0f
+                    }
+
+                    card.animate()
+                        .scaleX(1f)
+                        .setDuration(150)
+                        .setListener(object : AnimatorListenerAdapter() {
+                            override fun onAnimationEnd(animation: Animator) {
+                                card.isClickable = true
+                            }
+                        })
+                }
+            })
+    }
+
+    private inner class SwipeGestureListener : GestureDetector.SimpleOnGestureListener() {
         private val swipeThreshold = 100
         private val swipeVelocityThreshold = 100
 
-        override fun onFling(
-            e1: MotionEvent?,
-            e2: MotionEvent,
-            velocityX: Float,
-            velocityY: Float
-        ): Boolean {
+        override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
             if (e1 == null) return false
 
             val diffY = e2.y - e1.y
             val diffX = e2.x - e1.x
 
             if (abs(diffY) > abs(diffX)) {
-
                 if (diffY > swipeThreshold && abs(velocityY) > swipeVelocityThreshold) {
                     finishWithAnimation()
                     return true
                 }
             }
-
             return false
         }
-
     }
+
     private fun finishWithAnimation() {
         val settingsIntent = Intent(applicationContext, SettingsActivity::class.java).apply {
             putExtra("caller_activity", "ChallengesActivity")
@@ -82,6 +138,7 @@ class ChallengesActivity : AppCompatActivity() {
         startActivity(settingsIntent)
         overridePendingTransition(R.anim.slide_in_from_top, R.anim.slide_out_to_bottom)
     }
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
         return gestureDetector.onTouchEvent(event) || super.onTouchEvent(event)
     }
@@ -91,74 +148,45 @@ class ChallengesActivity : AppCompatActivity() {
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         bottomNavigationView.selectedItemId = R.id.nav_challenges
     }
-    private fun finishWithoutAnimation(){
+
+    private fun finishWithoutAnimation() {
         finish()
         overridePendingTransition(0, 0)
     }
-    @Deprecated("This method has been deprecated in favor of using the\n      {@link OnBackPressedDispatcher} via {@link #getOnBackPressedDispatcher()}.\n      The OnBackPressedDispatcher controls how back button events are dispatched\n      to one or more {@link OnBackPressedCallback} objects.")
+
+    @Deprecated("Use OnBackPressedDispatcher instead.")
     override fun onBackPressed() {
         super.onBackPressed()
         finishWithoutAnimation()
     }
-    private fun animateCardDealing(){
 
-        val square1 = findViewById<TextView>(R.id.square1)
-        val square2 = findViewById<TextView>(R.id.square2)
-        val square3 = findViewById<TextView>(R.id.square3)
-        val square4 = findViewById<TextView>(R.id.square4)
+    private fun animateCardDealing() {
+        val square1 = findViewById<FrameLayout>(R.id.card1_container)
+        val square2 = findViewById<FrameLayout>(R.id.card2_container)
+        val square3 = findViewById<FrameLayout>(R.id.card3_container)
+        val square4 = findViewById<FrameLayout>(R.id.card4_container)
         val dailyTitle = findViewById<TextView>(R.id.dailyTitle)
         val monthlyTitle = findViewById<TextView>(R.id.monthlyTitle)
         val monthlyChallenge = findViewById<TextView>(R.id.monthlyChallengeDisplay)
 
-        val animationDuration = 600L
+        val animationDuration = 300L
         val dealingDelay = 200L
 
-        square4.postDelayed({
-            square4.animate()
-                .alpha(1f)
-                .translationX(0f)
-                .translationY(0f)
-                .rotation(0f)
-                .scaleX(1f)
-                .scaleY(1f)
-                .setDuration(animationDuration)
-                .start()
-        }, dealingDelay)
-        square2.postDelayed({
-            square2.animate()
-                .alpha(1f)
-                .translationX(0f)
-                .translationY(0f)
-                .rotation(0f)
-                .scaleX(1f)
-                .scaleY(1f)
-                .setDuration(animationDuration)
-                .start()
-        }, dealingDelay*2)
-        square1.postDelayed({
-            square1.animate()
-                .alpha(1f)
-                .translationX(0f)
-                .translationY(0f)
-                .rotation(0f)
-                .scaleX(1f)
-                .scaleY(1f)
-                .setDuration(animationDuration)
-                .start()
-        }, dealingDelay*3)
-        square3.postDelayed({
-            square3.animate()
-                .alpha(1f)
-                .translationX(0f)
-                .translationY(0f)
-                .rotation(0f)
-                .scaleX(1f)
-                .scaleY(1f)
-                .setDuration(animationDuration)
-                .start()
-        }, dealingDelay*4)
+        listOf(square4, square3, square1, square2).forEachIndexed { i, square ->
+            square.postDelayed({
+                square.animate()
+                    .alpha(1f)
+                    .translationX(0f)
+                    .translationY(0f)
+                    .rotation(0f)
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(animationDuration)
+                    .start()
+            }, dealingDelay * (i + 1))
+        }
 
-        val finalDelay = dealingDelay*5
+        val finalDelay = dealingDelay * 5
         monthlyTitle.postDelayed({
             monthlyTitle.animate()
                 .alpha(1f)
@@ -167,6 +195,7 @@ class ChallengesActivity : AppCompatActivity() {
                 .setInterpolator(DecelerateInterpolator())
                 .start()
         }, finalDelay)
+
         dailyTitle.postDelayed({
             dailyTitle.animate()
                 .alpha(1f)
