@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Rect
 import android.os.Bundle
-import android.util.Log
 import android.view.MotionEvent
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
@@ -31,7 +30,6 @@ import kotlin.collections.component2
 import kotlin.collections.iterator
 import android.widget.Button
 import android.widget.Toast
-import com.example.hydrohabit.SignupActivity
 
 
 class PasswordChangeActivity : AppCompatActivity() {
@@ -77,8 +75,8 @@ class PasswordChangeActivity : AppCompatActivity() {
         setContentView(R.layout.activity_password_reset)
         val backArrow: ImageView = findViewById(R.id.backIcon)
         val rootLayout = findViewById<RelativeLayout>(R.id.relativeLayout_password_reset)
-        val newPasswordEditText = findViewById<EditText>(R.id.passwordInput)
-        val confirmPasswordEditText = findViewById<EditText>(R.id.passwordInputAgain)
+        val oldPasswordEditText = findViewById<EditText>(R.id.oldPasswordInput)
+        val newPasswordEditText = findViewById<EditText>(R.id.newPasswordInput)
         val changePasswordButton = findViewById<Button>(R.id.changeButton)
 
         sharedPrefs = getSharedPreferences("secure_cookies", MODE_PRIVATE)
@@ -105,16 +103,14 @@ class PasswordChangeActivity : AppCompatActivity() {
             false
         }
         changePasswordButton.setOnClickListener {
+            val oldPassword = oldPasswordEditText.text.toString()
             val newPassword = newPasswordEditText.text.toString()
-            val confirmPassword = confirmPasswordEditText.text.toString()
-
-            if (newPassword == confirmPassword) {
-                changePassword(newPassword)
-            } else {
-                Toast.makeText(this, "The two passwords do not match.", Toast.LENGTH_SHORT).show()
-                newPasswordEditText.text.clear()
-                confirmPasswordEditText.text.clear()
+            if(!oldPassword.isEmpty()&&!newPassword.isEmpty())
+                changePassword(oldPassword, newPassword)
+            else{
+                Toast.makeText(this@PasswordChangeActivity, "Both old and new passwords are required.", Toast.LENGTH_SHORT).show()
             }
+
         }
 
     }
@@ -133,33 +129,56 @@ class PasswordChangeActivity : AppCompatActivity() {
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(window.decorView.windowToken, 0)
     }
-    private fun changePassword(newPassword: String) {
-        val newPasswordEditText = findViewById<EditText>(R.id.passwordInput)
-        val confirmPasswordEditText = findViewById<EditText>(R.id.passwordInputAgain)
+    private fun changePassword(oldPassword: String, newPassword: String) {
+        val oldPasswordEditText = findViewById<EditText>(R.id.oldPasswordInput)
+        val newPasswordEditText = findViewById<EditText>(R.id.newPasswordInput)
 
         val url = "https://water.coolcoder.hackclub.app/api/change_password"
-        val json = JSONObject().apply { put("new_password", newPassword) }.toString()
+        val json = JSONObject().apply {
+            put("old_password", oldPassword)
+            put("new_password", newPassword)
+        }.toString()
         val body = RequestBody.create("application/json; charset=utf-8".toMediaTypeOrNull(), json)
 
         val request = Request.Builder().url(url).post(body).build()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
+                    oldPasswordEditText.text.clear()
                     newPasswordEditText.text.clear()
-                    confirmPasswordEditText.text.clear()
                     Toast.makeText(this@PasswordChangeActivity, "Network error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
+                val responseBody = response.body?.string()
                 runOnUiThread {
-                    Toast.makeText(this@PasswordChangeActivity, "Password changed successfully.", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(applicationContext, SettingsActivity::class.java))
-                    overridePendingTransition(R.anim.slide_in_from_left, R.anim.slide_out_to_right)
-                    finish()
+                    when (response.code) {
+                        200 -> {
+                            oldPasswordEditText.text.clear()
+                            newPasswordEditText.text.clear()
+                            Toast.makeText(this@PasswordChangeActivity, "Password changed successfully.", Toast.LENGTH_SHORT).show()
+                            startActivity(Intent(applicationContext, SettingsActivity::class.java))
+                            overridePendingTransition(R.anim.slide_in_from_left, R.anim.slide_out_to_right)
+                            finish()
+                        }
+                        401 -> {
+                            oldPasswordEditText.text.clear()
+                            Toast.makeText(this@PasswordChangeActivity, "Current password is incorrect.", Toast.LENGTH_SHORT).show()
+                            oldPasswordEditText.setText("")
+                        }
+                        else -> {
+                            try {
+                                val jsonResponse = JSONObject(responseBody ?: "{}")
+                                val errorMessage = jsonResponse.optString("error", "An error occurred")
+                                Toast.makeText(this@PasswordChangeActivity, errorMessage, Toast.LENGTH_SHORT).show()
+                            } catch (e: Exception) {
+                                Toast.makeText(this@PasswordChangeActivity, "An unexpected error occurred", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
                 }
             }
         })
-
     }
 }
