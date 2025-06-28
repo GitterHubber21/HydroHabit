@@ -81,6 +81,7 @@ class SettingsActivity : AppCompatActivity() {
         val profileButton: TextView = findViewById(R.id.profileButton)
         val notificationButton: TextView = findViewById(R.id.notificationButton)
         val deleteAccountButton: TextView = findViewById(R.id.deleteAccountButton)
+        val changeGoalButton: TextView = findViewById(R.id.changeGoalButton)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -114,6 +115,9 @@ class SettingsActivity : AppCompatActivity() {
         }
         deleteAccountButton.setOnClickListener {
             showDeleteConfirmationDialog()
+        }
+        changeGoalButton.setOnClickListener {
+            showGoalChangePopup()
         }
 
         val isNotificationsEnabled = sharedPrefs.getBoolean("notifications_enabled", false)
@@ -248,6 +252,20 @@ class SettingsActivity : AppCompatActivity() {
             alertDialog.dismiss()
         }
         alertDialog.show()
+    }
+    private fun showGoalChangePopup() {
+        val dialogView = layoutInflater.inflate(R.layout.goal_change_popup, null)
+
+        val alertDialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+        alertDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        alertDialog.show()
+
+        dialogView.findViewById<TextView>(R.id.button_cancel).setOnClickListener {
+            alertDialog.dismiss()
+        }
     }
 
 

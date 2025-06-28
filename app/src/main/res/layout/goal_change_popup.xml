@@ -14,12 +14,50 @@
         android:id="@+id/goal_logout_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Are you sure you want to log out?"
+        android:text="What is your next goal?"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:paddingBottom="16dp"
         android:gravity="center"
         android:textColor="@color/white"
         android:textAlignment="center" />
+    <LinearLayout
+        android:id="@+id/input_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="12dp"
+        android:padding="5dp">
+
+        <EditText
+            android:id="@+id/goal_input"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:hint="Enter goal"
+            android:textColor="@color/white"
+            android:layout_weight="1"
+            android:textColorHint="#AAFFFFFF"
+            android:background="@android:color/transparent"
+            />
+        <Space
+            android:layout_width="16dp"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/ml_display"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="ml"
+            android:textColor="#FFFFFF"
+            android:textAlignment="textStart"
+            android:background="@android:color/transparent"
+            android:clickable="true"
+            android:focusable="true"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+    </LinearLayout>
+
 
     <LinearLayout
         android:id="@+id/button_layout"
@@ -30,7 +68,7 @@
         android:gravity="center">
 
         <TextView
-            android:id="@+id/button_no"
+            android:id="@+id/button_cancel"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -49,7 +87,7 @@
             android:layout_height="wrap_content" />
 
         <TextView
-            android:id="@+id/button_yes"
+            android:id="@+id/button_set"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -57,7 +95,7 @@
             android:textColor="#FFFFFF"
             android:textAlignment="center"
             android:gravity="center"
-            android:background="@drawable/rounded_popup_square_yes"
+            android:background="@drawable/rounded_popup_square_set"
             android:padding="12dp"
             android:clickable="true"
             android:focusable="true"
