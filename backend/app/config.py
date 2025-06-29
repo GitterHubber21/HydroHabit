@@ -10,4 +10,4 @@ class Config:
         f"sqlite:///{BASE_DIR / 'watertracker.db'}"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    DAILY_GOAL_ML = int(os.getenv("DAILY_GOAL_ML", 2000))
+    DAILY_GOAL_ML = float(os.getenv("DAILY_GOAL_ML", 3000.0))

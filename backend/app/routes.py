@@ -72,12 +72,33 @@ def detailed_stats():
         "month_volume_ml": stats.month_volume_ml,
         "days_in_current_month": stats.days_in_current_month,
         "month_goal_completed_dates": goal_completed_dates,
-        "calculated_date": str(stats.calculated_date)
+        "calculated_date": str(stats.calculated_date),
+        "daily_goal": stats.daily_goal
     })
+@main_bp.route("/set-daily-goal", methods=["POST"])
+@login_required
+def set_daily_goal():
+    data = request.json or {}
+    try:
+        new_goal = float(data.get("goal"), 0.0)
+        if new_goal <= 0:
+            return jsonify({"error":"Positive goal required."}), 400
+    except(TypeError, ValueError):
+        return jsonify({"error":"Invalid goal value."}), 400
+
+    current_user.daily_goal_ml = new_goal
+    db.session.commit()
+
+    update_user_stats(current_user.id)
+    return jsonify({"message":"Daily goal updated successfully.", "new_goal":new_goal})
+
+
 
 def update_user_stats(user_id):
+    from app.models import User
+    user = User.query.get(user_id)
+    daily_goal_ml = user.daily_goal_ml if user and user.daily_goal_ml else 3000.0
     today=date.today()
-    daily_goal_ml=2000.0
 
     today_log=WaterLog.query.filter_by(user_id=user_id, date=today).first()
     today_volume=float(today_log.volume_ml) if today_log else 0
@@ -90,7 +111,7 @@ def update_user_stats(user_id):
         WaterLog.date <= week_end
     ).all()
     week_volume = float(sum(log.volume_ml for log in week_logs))
-    week_goal_ml = 14000.0
+    week_goal_ml = daily_goal_ml * 7
     week_percentage=(week_volume/week_goal_ml)*100
 
     month_start, month_end = get_month_start_end(today)
@@ -126,10 +147,12 @@ def update_user_stats(user_id):
     stats.week_volume_ml = week_volume
     stats.month_volume_ml = month_volume
     stats.days_in_current_month = days_in_month
+    stats.daily_goal = daily_goal_ml
 
     db.session.add(stats)
     db.session.commit()
 
     return stats
+
 
 
