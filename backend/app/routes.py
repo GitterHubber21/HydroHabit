@@ -77,6 +77,7 @@ def detailed_stats():
 @main_bp.route("daily-goal", methods=["POST", "GET"])
 @login_required
 def daily_goal():
+    goal = WaterStats.query.filter_by(user_id=current_user.id, calculated_date=today).first()
     if request.method == "POST":
         data = request.json or {}
         new_goal = data.get("daily_volume_goal")
@@ -88,25 +89,26 @@ def daily_goal():
             return jsonify({"error":"Invalid volume value"}), 400
 
         today = date.today()
-        stats = WaterStats.query.filter_by(user_id=current_user.id, calculated_date=today).first()
-        if not stats:
-            stats = WaterStats(user_id=current_user.id, calculated_date=today)
-        stats.daily_goal_ml = new_goal
-        db.session.add(stats)
+
+        if not goal:
+            goal = WaterStats(user_id=current_user.id, calculated_date=today)
+        goal.daily_goal_ml = new_goal
+        db.session.add(goal)
         db.session.commit()
 
         return jsonify("daily_volume_goal", new_goal), 200
     else:
-        if current_user.daily_goal_ml is not None:
-            private_daily_goal = current_user.daily_goal_ml
+        if goal.daily_goal_ml is not None:
+            private_daily_goal = goal.daily_goal_ml
         else:
             private_daily_goal = current_app.config.get("DAILY_GOAL_ML", 3000.0)
         db.session.commit()
         return jsonify({"daily_volume_goal": private_daily_goal}), 200
 
 def update_user_stats(user_id):
+    goal = WaterStats.query.filter_by(user_id=current_user.id, calculated_date=today).first()
     today=date.today()
-    daily_goal_ml=current_user.daily_goal_ml
+    daily_goal_ml=goal.daily_goal_ml
 
     today_log=WaterLog.query.filter_by(user_id=user_id, date=today).first()
     today_volume=float(today_log.volume_ml) if today_log else 0
