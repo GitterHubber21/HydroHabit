@@ -99,7 +99,7 @@ def daily_goal():
 
 def update_user_stats(user_id):
     today=date.today()
-    daily_goal_ml=2000.0
+    daily_goal_ml=current_user.daily_goal_ml
 
     today_log=WaterLog.query.filter_by(user_id=user_id, date=today).first()
     today_volume=float(today_log.volume_ml) if today_log else 0
@@ -112,7 +112,7 @@ def update_user_stats(user_id):
         WaterLog.date <= week_end
     ).all()
     week_volume = float(sum(log.volume_ml for log in week_logs))
-    week_goal_ml = 14000.0
+    week_goal_ml = daily_goal_ml*7
     week_percentage=(week_volume/week_goal_ml)*100
 
     month_start, month_end = get_month_start_end(today)
