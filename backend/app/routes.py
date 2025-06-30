@@ -35,7 +35,7 @@ def log_water():
 
     log.volume_ml = volume
     private_daily_goal = current_app.config["DAILY_GOAL_ML"]
-    log.goal_met = log.volume_ml >= daily_goal
+    log.goal_met = log.volume_ml >= private_daily_goal
 
     db.session.add(log)
     db.session.commit()
