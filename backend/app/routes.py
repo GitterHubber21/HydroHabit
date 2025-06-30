@@ -87,16 +87,20 @@ def daily_goal():
         except(TypeError, ValueError):
             return jsonify({"error":"Invalid volume value"}), 400
 
-        current_user.daily_goal_ml = new_goal
-        db.session.add(current_user)
+        today = date.today()
+        stats = WaterStats.query.filter_by(user_id=current_user.id, calculated_date=today).first()
+        if not stats:
+            stats = WaterStats(user_id=current_user.id, calculated_date=today)
+        stats.daily_goal_ml = new_goal
+        db.session.add(stats)
         db.session.commit()
+
         return jsonify("daily_volume_goal", new_goal), 200
     else:
         if current_user.daily_goal_ml is not None:
             private_daily_goal = current_user.daily_goal_ml
         else:
             private_daily_goal = current_app.config.get("DAILY_GOAL_ML", 3000.0)
-        db.session.add(current_user)
         db.session.commit()
         return jsonify({"daily_volume_goal": private_daily_goal}), 200
 

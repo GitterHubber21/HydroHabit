@@ -1,5 +1,7 @@
 from datetime import date
+from email.policy import default
 
+from flask import Flask
 from sqlalchemy.orm import relationship
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
@@ -13,7 +15,6 @@ class User(UserMixin, db.Model):
     water_logs = relationship("WaterLog", cascade="all, delete-orphan", backref="user", lazy=True)
     water_stats = relationship("WaterStats", cascade="all, delete-orphan", backref="user", lazy=True)
     password_hash = db.Column(db.String(128), nullable=False)
-    daily_goal_ml = db.Column(db.Float, default=3000.0, nullable=False)
 
 
 
@@ -59,6 +60,8 @@ class WaterStats(db.Model):
     month_volume_ml = db.Column(db.Float, default=0.0, nullable=False)
 
     days_in_current_month = db.Column(db.Integer, default=0, nullable=False)
+
+    daily_goal_ml = db.Column(db.Float, default=3000.0, nullable=False)
 
 @login_manager.user_loader
 def load_user(user_id):
