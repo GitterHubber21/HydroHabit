@@ -88,6 +88,7 @@ def daily_goal():
             return jsonify({"error":"Invalid volume value"}), 400
 
         current_user.daily_goal_ml = new_goal
+        db.session.add(current_user)
         db.session.commit()
         return jsonify("daily_volume_goal", new_goal), 200
     else:
