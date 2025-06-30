@@ -10,6 +10,7 @@ class User(UserMixin, db.Model):
 
     id=db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(128), nullable=False)
+    daily_goal_ml = db.Column(db.Float, default=3000.0, nullable=False)
     water_logs = relationship("WaterLog", cascade="all, delete-orphan", backref="user", lazy=True)
     water_stats = relationship("WaterStats", cascade="all, delete-orphan", backref="user", lazy=True)
     password_hash = db.Column(db.String(128), nullable=False)

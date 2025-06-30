@@ -74,6 +74,28 @@ def detailed_stats():
         "month_goal_completed_dates": goal_completed_dates,
         "calculated_date": str(stats.calculated_date)
     })
+@main_bp.route("daily-goal", methods=["POST", "GET"])
+@login_required
+def daily_goal():
+    if request.method == "POST":
+        data = request.json or {}
+        new_goal = data.get("daily_volume_goal")
+        try:
+            new_goal = float(new_goal)
+            if new_goal <=0:
+                return jsonify({"error":"Positive volume required."}), 400
+        except(TypeError, ValueError):
+            return jsonify({"error":"Invalid volume value"}), 400
+
+        current_user.daily_goal_ml = new_goal
+        db.session.commit()
+        return jsonify("daily_volume_goal", new_goal), 200
+    else:
+        if current_user.daily_goal_ml is not None:
+            private_daily_goal = current_user.daily_goal_ml
+        else:
+            private_daily_goal = current_app.config.get("DAILY_GOAL_ML", 3000.0)
+        return jsonify({"daily_volume_goal": private_daily_goal}), 200
 
 def update_user_stats(user_id):
     today=date.today()
