@@ -3,7 +3,7 @@ import json
 from datetime import date, timedelta
 from flask import Blueprint, request, jsonify, current_app
 from flask_login import login_required, current_user
-from app.models import WaterLog, WaterStats, User
+from app.models import WaterLog, WaterStats
 from app import db
 
 main_bp = Blueprint("main", __name__, url_prefix="/api")
@@ -87,13 +87,8 @@ def daily_goal():
         except(TypeError, ValueError):
             return jsonify({"error":"Invalid volume value"}), 400
 
-        goal = User.query.filter_by(user_id=current_user.id).first()
-        if not goal:
-            goal = WaterLog(user_id=current_user.id, daily_goal_ml=3000.0)
-
-        goal.daily_goal_ml = new_goal
-
-        db.session.add(goal)
+        current_user.daily_goal_ml = new_goal
+        db.session.add(current_user)
         db.session.commit()
         return jsonify("daily_volume_goal", new_goal), 200
     else:
@@ -101,6 +96,8 @@ def daily_goal():
             private_daily_goal = current_user.daily_goal_ml
         else:
             private_daily_goal = current_app.config.get("DAILY_GOAL_ML", 3000.0)
+        db.session.add(current_user)
+        db.session.commit()
         return jsonify({"daily_volume_goal": private_daily_goal}), 200
 
 def update_user_stats(user_id):
