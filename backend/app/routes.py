@@ -34,7 +34,7 @@ def log_water():
         log = WaterLog(user_id=current_user.id, date=today, volume_ml=0)
 
     log.volume_ml = volume
-    daily_goal = current_app.config["DAILY_GOAL_ML"]
+    private_daily_goal = current_app.config["DAILY_GOAL_ML"]
     log.goal_met = log.volume_ml >= daily_goal
 
     db.session.add(log)
@@ -45,7 +45,7 @@ def log_water():
         "date": str(log.date),
         "volume_ml": log.volume_ml,
         "goal_met": log.goal_met,
-        "daily_goal_ml": daily_goal
+        "daily_goal_ml": private_daily_goal
     })
 
 @main_bp.route("/detailed-stats", methods=["GET"])
