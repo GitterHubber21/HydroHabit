@@ -106,8 +106,8 @@ def daily_goal():
         return jsonify({"daily_volume_goal": private_daily_goal}), 200
 
 def update_user_stats(user_id):
-    goal = WaterStats.query.filter_by(user_id=current_user.id, calculated_date=today).first()
     today=date.today()
+    goal = WaterStats.query.filter_by(user_id=current_user.id, calculated_date=today).first()
     daily_goal_ml=goal.daily_goal_ml
 
     today_log=WaterLog.query.filter_by(user_id=user_id, date=today).first()
