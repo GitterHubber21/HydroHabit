@@ -77,6 +77,7 @@ def detailed_stats():
 @main_bp.route("daily-goal", methods=["POST", "GET"])
 @login_required
 def daily_goal():
+    today = date.today()
     goal = WaterStats.query.filter_by(user_id=current_user.id, calculated_date=today).first()
     if request.method == "POST":
         data = request.json or {}
@@ -87,8 +88,6 @@ def daily_goal():
                 return jsonify({"error":"Positive volume required."}), 400
         except(TypeError, ValueError):
             return jsonify({"error":"Invalid volume value"}), 400
-
-        today = date.today()
 
         if not goal:
             goal = WaterStats(user_id=current_user.id, calculated_date=today)
