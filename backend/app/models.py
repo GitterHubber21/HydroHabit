@@ -32,6 +32,7 @@ class WaterLog(db.Model):
     volume_ml = db.Column(db.Integer, default=0, nullable=False)
     goal_met = db.Column(db.Boolean, default=False, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    daily_goal_ml = db.Column(db.Float, nullable=True)
 
 
 class WaterStats(db.Model):
@@ -58,8 +59,6 @@ class WaterStats(db.Model):
     month_volume_ml = db.Column(db.Float, default=0.0, nullable=False)
 
     days_in_current_month = db.Column(db.Integer, default=0, nullable=False)
-
-    daily_goal_ml = db.Column(db.Float, default=3000.0, nullable=False)
 
 @login_manager.user_loader
 def load_user(user_id):

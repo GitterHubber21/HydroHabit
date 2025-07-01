@@ -78,7 +78,7 @@ def detailed_stats():
 @login_required
 def daily_goal():
     today = date.today()
-    goal = WaterStats.query.filter_by(user_id=current_user.id, calculated_date=today).first()
+    today_log=WaterLog.query.filter_by(user_id=current_user.id, date=today).first()
     if request.method == "POST":
         data = request.json or {}
         new_goal = data.get("daily_volume_goal")
@@ -89,27 +89,34 @@ def daily_goal():
         except(TypeError, ValueError):
             return jsonify({"error":"Invalid volume value"}), 400
 
-        if not goal:
-            goal = WaterStats(user_id=current_user.id, calculated_date=today)
-        goal.daily_goal_ml = new_goal
-        db.session.add(goal)
+        if not today_log and today_log.daily_goal_ml is None:
+            today_log = WaterLog(user_id=current_user.id, calculated_date=today)
+        today_log.daily_goal_ml = new_goal
+        db.session.add(today_log)
         db.session.commit()
 
         return jsonify("daily_volume_goal", new_goal), 200
     else:
-        if goal.daily_goal_ml is not None:
-            private_daily_goal = goal.daily_goal_ml
+        if today_log.daily_goal_ml is not None:
+            private_daily_goal = today_log.daily_goal_ml
         else:
-            private_daily_goal = current_app.config.get("DAILY_GOAL_ML", 3000.0)
+            today_log.daily_goal_ml = current_app.config.get("DAILY_GOAL_ML", 3000.0)
+            private_daily_goal = today_log.daily_goal_ml
+        db.session.add(today_log)
         db.session.commit()
         return jsonify({"daily_volume_goal": private_daily_goal}), 200
 
 def update_user_stats(user_id):
     today=date.today()
-    goal = WaterStats.query.filter_by(user_id=current_user.id, calculated_date=today).first()
-    daily_goal_ml=goal.daily_goal_ml
 
     today_log=WaterLog.query.filter_by(user_id=user_id, date=today).first()
+    if today_log and today_log.daily_goal_ml is not None:
+        daily_goal_ml = today_log.daily_goal_ml
+    else:
+        daily_goal_ml = 3000.0
+        today_log.daily_goal_ml = daily_goal_ml
+        db.session.add(today_log)
+        db.session.commit()
     today_volume=float(today_log.volume_ml) if today_log else 0
     today_percentage = (today_volume / daily_goal_ml) * 100
 
