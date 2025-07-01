@@ -54,6 +54,7 @@ class MainActivity : ComponentActivity() {
     private var displayedVolume = 0f
     private var dailyGoal = 3000f
     private var isVolumeInitialized = false
+    private var isAnimationActive = false
 
     private val job = Job()
     private val coroutineScope = CoroutineScope(Dispatchers.Default + job)
@@ -113,6 +114,8 @@ class MainActivity : ComponentActivity() {
                     rainView.addWaterDirectly(initialVolume)
                     isVolumeInitialized = true
                     Log.d("server_response", "Initial server volume = $initialVolume ml")
+                    isAnimationActive = false
+                    updateButtonStates()
                 }
             }
         }
@@ -133,15 +136,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
             Log.d("RainVolume", "Displayed volume: $displayedVolume")
-        }
-
-
-
-        rainView.onTimedRainStateChanged = { isActive ->
-            runOnUiThread {
-                isTimedRainActive = isActive
-                updateButtonStates()
-            }
         }
 
         settingsIcon.setOnClickListener {
@@ -314,16 +308,16 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun updateButtonStates() {
-        val alpha = if (isTimedRainActive) 0.5f else 1.0f
+        val alpha = if (isAnimationActive) 0.5f else 1.0f
         fillButton.alpha = alpha
         add250Button.alpha = alpha
         add500Button.alpha = alpha
         add750Button.alpha = alpha
 
-        fillButton.isEnabled = !isTimedRainActive
-        add250Button.isEnabled = !isTimedRainActive
-        add500Button.isEnabled = !isTimedRainActive
-        add750Button.isEnabled = !isTimedRainActive
+        fillButton.isEnabled = !isAnimationActive
+        add250Button.isEnabled = !isAnimationActive
+        add500Button.isEnabled = !isAnimationActive
+        add750Button.isEnabled = !isAnimationActive
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -399,7 +393,8 @@ class MainActivity : ComponentActivity() {
                 }
             })
         }
-
+        isAnimationActive = true
+        updateButtonStates()
         animatorSet.start()
     }
 
