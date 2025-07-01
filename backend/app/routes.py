@@ -30,10 +30,13 @@ def log_water():
 
     today = date.today()
     log = WaterLog.query.filter_by(user_id=current_user.id, date=today).first()
+    stats = WaterStats.query.filter_by(user_id=current_user.id).first()
+
     if not log:
         log = WaterLog(user_id=current_user.id, date=today, volume_ml=0)
 
     log.volume_ml = volume
+    stats.today_volume_ml = volume
     private_daily_goal = log.daily_goal_ml
     log.goal_met = log.volume_ml >= private_daily_goal
 
