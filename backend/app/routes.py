@@ -34,7 +34,7 @@ def log_water():
         log = WaterLog(user_id=current_user.id, date=today, volume_ml=0)
 
     log.volume_ml = volume
-    private_daily_goal = current_app.config["DAILY_GOAL_ML"]
+    private_daily_goal = log.daily_goal_ml
     log.goal_met = log.volume_ml >= private_daily_goal
 
     db.session.add(log)
@@ -90,7 +90,7 @@ def daily_goal():
             return jsonify({"error":"Invalid volume value"}), 400
 
         if not today_log and today_log.daily_goal_ml is None:
-            today_log = WaterLog(user_id=current_user.id, calculated_date=today)
+            today_log = WaterLog(user_id=current_user.id, date=today)
         today_log.daily_goal_ml = new_goal
         db.session.add(today_log)
         db.session.commit()
