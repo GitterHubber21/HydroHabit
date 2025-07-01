@@ -49,6 +49,8 @@
         android:padding="10dp"
         android:layout_marginBottom="10dp"
         android:gravity="center"
+        android:translationY="20dp"
+        android:alpha="0"
         android:background="@drawable/rounded_transparent_square"
         android:layout_centerHorizontal="true">
 
@@ -187,6 +189,8 @@
         android:textColor="#FFFFFF"
         android:textStyle="bold"
         android:textSize="30sp"
+        android:translationY="20dp"
+        android:alpha="0"
         android:layout_below="@id/progressRow"
         android:layout_marginTop="20dp"
         android:layout_centerHorizontal="true"/>
@@ -202,6 +206,8 @@
         android:layout_alignEnd="@id/progressRow"
         android:alignmentMode="alignBounds"
         android:useDefaultMargins="true"
+        android:translationY="20dp"
+        android:alpha="0"
         android:layout_above="@id/bottomNavigationView">
     </GridLayout>
 

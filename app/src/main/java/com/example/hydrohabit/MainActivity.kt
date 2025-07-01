@@ -32,6 +32,9 @@ import kotlin.math.abs
 import android.animation.ObjectAnimator
 import android.animation.AnimatorSet
 import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.DecelerateInterpolator
+import android.widget.GridLayout
+import android.widget.LinearLayout
 import androidx.compose.animation.core.Animation
 
 class MainActivity : ComponentActivity() {
@@ -105,7 +108,7 @@ class MainActivity : ComponentActivity() {
         setupButtons()
         initializeNotifications()
 
-        animateGlassContainer {
+        animateLayoutElements {
             coroutineScope.launch {
                 val initialVolume = fetchTotalVolume()
                 withContext(Dispatchers.Main) {
@@ -288,7 +291,6 @@ class MainActivity : ComponentActivity() {
         setupVolumeButton(add250Button, AMOUNT_250)
         setupVolumeButton(add500Button, AMOUNT_500)
         setupVolumeButton(add750Button, AMOUNT_750)
-        updateButtonStates()
     }
 
     private fun setupVolumeButton(button: Button, amount: Int) {
@@ -372,30 +374,56 @@ class MainActivity : ComponentActivity() {
             NotificationScheduler.scheduleNotifications(this)
         }
     }
-    private fun animateGlassContainer(onAnimationComplete: () -> Unit){
-        val moveUp = ObjectAnimator.ofFloat(glassContainer, "translationY", 0f, -30f).apply {
-            duration = 400
-            interpolator = AccelerateDecelerateInterpolator()
-        }
-        val moveDown = ObjectAnimator.ofFloat(glassContainer, "translationY", -30f, 15f).apply {
-            duration = 300
-            interpolator = AccelerateDecelerateInterpolator()
-        }
-        val settle = ObjectAnimator.ofFloat(glassContainer, "translationY", 15f, 0f).apply {
-            duration = 200
-            interpolator = AccelerateDecelerateInterpolator()
-        }
-        val animatorSet = AnimatorSet().apply {
-            playSequentially(moveUp, moveDown, settle)
-            addListener(object : AnimatorListenerAdapter() {
+    private fun animateLayoutElements(onAnimationComplete: () -> Unit) {
+        isAnimationActive = true
+        updateButtonStates()
+
+        val glassContainer = findViewById<FrameLayout>(R.id.glassContainer)
+        val waterVolume = findViewById<TextView>(R.id.waterVolume)
+        val circleButton = findViewById<Button>(R.id.fillButton)
+        val quickAddContainer = findViewById<LinearLayout>(R.id.quickAddContainer)
+
+        glassContainer.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setDuration(400)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+
+
+        waterVolume.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setDuration(400)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+        circleButton.alpha = 0f
+        circleButton.animate()
+            .alpha(0.5f)
+            .translationY(0f)
+            .setStartDelay(400)
+            .setDuration(400)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+
+        quickAddContainer.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setStartDelay(400)
+            .setDuration(400)
+            .setInterpolator(DecelerateInterpolator())
+            .setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     onAnimationComplete()
                 }
+
+                @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+                override fun onAnimationEnd(animation: Animator, isReverse: Boolean) {
+                    onAnimationComplete()
+                }
             })
-        }
-        isAnimationActive = true
-        updateButtonStates()
-        animatorSet.start()
+            .start()
     }
+
 
 }

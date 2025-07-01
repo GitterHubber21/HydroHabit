@@ -16,6 +16,8 @@ import java.util.*
 import androidx.core.content.res.ResourcesCompat
 import android.view.GestureDetector
 import android.view.MotionEvent
+import android.view.animation.DecelerateInterpolator
+import android.widget.LinearLayout
 import kotlin.math.abs
 import androidx.core.content.edit
 import androidx.security.crypto.EncryptedSharedPreferences
@@ -79,6 +81,7 @@ class InsightsActivity : AppCompatActivity() {
         fetchDetailedStats()
 
         calculateCellSize()
+        animateLayoutElements()
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         bottomNavigationView.selectedItemId = R.id.nav_insights
@@ -456,6 +459,38 @@ class InsightsActivity : AppCompatActivity() {
         } catch (e: Exception) {
             Log.e("InsightsActivity", "Error parsing completed dates", e)
         }
+    }
+    private fun animateLayoutElements(){
+        val progressRow = findViewById<LinearLayout>(R.id.progressRow)
+        val monthTitle = findViewById<TextView>(R.id.monthTitle)
+        val calendar = findViewById<GridLayout>(R.id.calendarGrid)
+
+        progressRow.postDelayed({
+            progressRow.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(400)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
+        }, 0L)
+
+        monthTitle.postDelayed({
+            monthTitle.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(400)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
+        }, 0L)
+
+        calendar.postDelayed({
+            calendar.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(400)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
+        },  200L)
     }
 
 }
