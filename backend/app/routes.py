@@ -34,13 +34,8 @@ def log_water():
         log = WaterLog(user_id=current_user.id, date=today, volume_ml=0)
 
     log.volume_ml = volume
-    private_daily_goal = 0
-    if not log.daily_goal_ml or log.daily_goal_ml is None:
-        private_daily_goal = 3000.0
-        log.goal_met = log.volume_ml >= private_daily_goal
-    else:
-        private_daily_goal = log.daily_goal_ml
-        log.goal_met = log.volume_ml >= private_daily_goal
+    private_daily_goal = log.daily_goal_ml
+    log.goal_met = log.volume_ml >= private_daily_goal
 
     db.session.add(log)
     db.session.commit()
@@ -173,5 +168,4 @@ def update_user_stats(user_id):
     db.session.commit()
 
     return stats
-
 
