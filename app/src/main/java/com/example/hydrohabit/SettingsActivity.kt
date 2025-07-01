@@ -34,8 +34,9 @@ import java.io.IOException
 import android.widget.Toast
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.os.Build
-import android.content.Context
+import android.widget.EditText
+import kotlinx.coroutines.coroutineScope
+import okhttp3.internal.cache.DiskLruCache
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -266,6 +267,16 @@ class SettingsActivity : AppCompatActivity() {
         dialogView.findViewById<TextView>(R.id.button_cancel).setOnClickListener {
             alertDialog.dismiss()
         }
+        dialogView.findViewById<TextView>(R.id.button_set).setOnClickListener {
+            val goalInputArea = dialogView.findViewById<EditText>(R.id.goal_input)
+            val newGoal = goalInputArea.text.toString().trim()
+            if(!newGoal.isEmpty()) {
+                postDailyGoal(newGoal.toFloat())
+                alertDialog.dismiss()
+            }else {
+                alertDialog.dismiss()
+            }
+        }
     }
 
 
@@ -397,9 +408,41 @@ class SettingsActivity : AppCompatActivity() {
                 Log.d("server_response", serverReply)
             }
         })
-
-
     }
+    private fun postDailyGoal(newGoal: Float) {
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val url = "https://water.coolcoder.hackclub.app/api/daily-goal"
+            try {
+                val json = JSONObject().apply {
+                    put("daily_volume_goal", newGoal)
+                }.toString()
+                val body = RequestBody.create("application/json; charset=utf-8".toMediaTypeOrNull(), json)
+
+                val request = Request.Builder()
+                    .url(url)
+                    .post(body)
+                    .build()
+
+                client.newCall(request).execute().use { response ->
+                    if (response.isSuccessful) {
+                        Log.d("server_response", "Successfully posted daily goal = $newGoal ml")
+                        runOnUiThread {
+                            Toast.makeText(this@SettingsActivity,"Goal updated successfully", Toast.LENGTH_SHORT).show()
+                            sharedPrefs.edit{putFloat("daily_volume_goal", newGoal)}
+                        }
+                    } else {
+                        Log.w("server_response", "POST daily_goal failed: ${response.code}")
+                        Toast.makeText(this@SettingsActivity,"Goal update failed, ${response.code}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("server_response", "Error posting goal", e)
+                Toast.makeText(this@SettingsActivity,"Error during goal update", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
 
 
 }

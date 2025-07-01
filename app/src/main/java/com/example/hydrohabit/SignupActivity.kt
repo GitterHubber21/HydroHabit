@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
+import android.util.Log
 import android.view.MotionEvent
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
@@ -58,8 +59,10 @@ class SignupActivity : AppCompatActivity() {
                     response.isSuccessful -> "Signup successful!"
                     response.code == 400 -> "Enter both username and password."
                     response.code == 409 -> "Username already exists."
-                    else -> "Signup failed. Please try again."
+                    else -> "Signup failed. Please try again.$response"
+
                 }
+                Log.d("server_response", "$response")
 
                 runOnUiThread {
                     Toast.makeText(this@SignupActivity, msg, Toast.LENGTH_SHORT).show()

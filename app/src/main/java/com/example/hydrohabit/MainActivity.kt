@@ -39,6 +39,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var rainView: RainView
     private lateinit var appTitle: TextView
     private lateinit var glassContainer: FrameLayout
+
     private lateinit var fillButton: Button
     private lateinit var add250Button: Button
     private lateinit var add500Button: Button
@@ -51,6 +52,9 @@ class MainActivity : ComponentActivity() {
     private val AMOUNT_750 = 750
     private var isTimedRainActive = false
     private var displayedVolume = 0f
+    private var dailyGoal = 3000f
+    private var isVolumeInitialized = false
+
     private val job = Job()
     private val coroutineScope = CoroutineScope(Dispatchers.Default + job)
 
@@ -107,7 +111,8 @@ class MainActivity : ComponentActivity() {
                     displayedVolume = initialVolume
                     waterVolumeText.text = String.format("%.1f ml", displayedVolume)
                     rainView.addWaterDirectly(initialVolume)
-                    Log.d("MainActivity", "Initial server volume = $initialVolume ml")
+                    isVolumeInitialized = true
+                    Log.d("server_response", "Initial server volume = $initialVolume ml")
                 }
             }
         }
@@ -118,12 +123,12 @@ class MainActivity : ComponentActivity() {
         val settingsIcon: ImageView = findViewById(R.id.settingsIcon)
         rainView = findViewById(R.id.rainView)
         waterVolumeText = findViewById(R.id.waterVolume)
-
+        dailyGoal = sharedPrefs.getFloat("daily_volume_goal", 3000f)
         rainView.onVolumeChanged = { dropletVolume ->
             runOnUiThread {
                 if (!isTimedRainActive) {
                     displayedVolume += dropletVolume
-                    if (displayedVolume > 2000f) displayedVolume = 2000f
+                    if (displayedVolume > dailyGoal) displayedVolume = dailyGoal
                     waterVolumeText.text = String.format("%.1f ml", displayedVolume)
                 }
             }
@@ -164,16 +169,23 @@ class MainActivity : ComponentActivity() {
         gestureDetector = GestureDetector(this, SwipeGestureListener())
     }
 
+    override fun onPause() {
+        super.onPause()
+        if (isVolumeInitialized) {
+            updateQuantity(displayedVolume)
+        }
+        isVolumeInitialized = false
+    }
+
     override fun onDestroy() {
         super.onDestroy()
-        updateQuantity(displayedVolume.toFloat())
+        if (isVolumeInitialized) {
+            updateQuantity(displayedVolume)
+        }
+        isVolumeInitialized = false
         job.cancel()
     }
 
-    override fun onPause() {
-        super.onPause()
-        updateQuantity(displayedVolume.toFloat())
-    }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         return gestureDetector.onTouchEvent(event) || super.onTouchEvent(event)
@@ -229,7 +241,7 @@ class MainActivity : ComponentActivity() {
             override fun onFailure(call: Call, e: IOException) {}
             override fun onResponse(call: Call, response: Response) {
                 val serverReply = response.body?.use { it.string() } ?: "Empty response"
-                Log.d("server_response", serverReply)
+                Log.d("server_response", "$serverReply, line 233 Main")
             }
         })
     }
@@ -287,11 +299,12 @@ class MainActivity : ComponentActivity() {
 
     private fun setupVolumeButton(button: Button, amount: Int) {
         val vibrator = getSystemService<Vibrator>()
+        val dailyGoal = sharedPrefs.getFloat("daily_volume_goal", 3000f)
         setupPressable(button, vibrator, R.drawable.rounded_transparent_square,
             onPress = {
                 if (!isTimedRainActive) {
                     displayedVolume += amount
-                    if (displayedVolume > 2000f) displayedVolume = 2000f
+                    if (displayedVolume > dailyGoal) displayedVolume = dailyGoal
                     waterVolumeText.text = String.format("%.1f ml", displayedVolume)
                     rainView.addWaterDirectly(amount.toFloat())
                 }
@@ -327,7 +340,7 @@ class MainActivity : ComponentActivity() {
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     v.setBackgroundResource(pressedDrawableRes)
-                    vibrator?.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
+                    vibrator?.vibrate(VibrationEffect.createOneShot(25, VibrationEffect.DEFAULT_AMPLITUDE))
                     onPress?.invoke()
                     true
                 }
@@ -389,4 +402,5 @@ class MainActivity : ComponentActivity() {
 
         animatorSet.start()
     }
+
 }

@@ -70,7 +70,7 @@ class RainView @JvmOverloads constructor(
     private var glassContainerView: View? = null
     private var glassContainerRect: RectF? = null
     private var isRaining = false
-    private val glassVolumeMl = 2000f
+    private var glassVolumeMl = 3000f
     private var currentVolumeMl = 0f
     private var waterLevelRatio = 0f
     private var isTimedRain = false
@@ -103,13 +103,20 @@ class RainView @JvmOverloads constructor(
     )
 
     init {
+
         setLayerType(LAYER_TYPE_HARDWARE, null)
+        loadGlassVolume()
         initializeWaterSurface()
     }
 
     private fun initializeWaterSurface() {
         waterSurfacePoints.clear()
     }
+    private fun loadGlassVolume(){
+        val sharedPrefs = context.getSharedPreferences("secure_cookies", Context.MODE_PRIVATE)
+        glassVolumeMl = sharedPrefs.getFloat("daily_volume_goal", 3000f)
+    }
+
 
     private fun updateWaterSurfacePoints() {
         val glassRect = glassContainerRect ?: return
