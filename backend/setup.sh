@@ -7,8 +7,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 export FLASK_APP=run.py
 flask db upgrade || (
-  flask db init && flask db migrate -m "init" && flask db upgrade
+  flask db init && flask db migrate -m "init" && flask db upgrade && echo "Migration is finished."
 )
-echo "Migration is finished"
 gunicorn -b ":$PORT" run:app
 echo "Backend is running on PORT: $PORT"
