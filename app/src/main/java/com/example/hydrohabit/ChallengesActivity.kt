@@ -94,35 +94,38 @@ class ChallengesActivity : AppCompatActivity() {
         )
         val todaysChallenges = getTodaysChallenges()
 
-        for(i in cards.indices) {
+        for (i in cards.indices) {
             val card = cards[i]
             val challengeText = todaysChallenges[i]
+            val challengeType = dailyChallenges[challengeText] ?: 1
 
             card.setOnClickListener { flipCard(card, i) }
+
             val front = card.findViewById<TextView>(frontIds[i])
-            if(dailyChallenges[challengeText]==1){
-                val back = card.findViewById<FrameLayout>(R.id.card_back_circle)
-            }
-            if(dailyChallenges[challengeText]==2){
-                val back = card.findViewById<FrameLayout>(R.id.card_back_text)
-            }
-            if(dailyChallenges[challengeText]==3){
-                val back = card.findViewById<FrameLayout>(R.id.card_back_check)
+            val backCircle = card.findViewById<FrameLayout>(R.id.card_back_circle)
+            val backText = card.findViewById<FrameLayout>(R.id.card_back_text)
+            val backCheck = card.findViewById<FrameLayout>(R.id.card_back_check)
+
+            val back = when (challengeType) {
+                1 -> backCircle
+                2 -> backText
+                3 -> backCheck
+                else -> backCircle
             }
 
             front.text = challengeText
             front.alpha = 1f
+            back.alpha = 0f
 
-
-
+            card.setTag(R.layout.activity_challenges, back)
         }
-
     }
+
 
 
     private fun flipCard(card: FrameLayout, index: Int) {
         val front = card.findViewById<TextView>(R.id.card_front)
-        val back = card.findViewById<FrameLayout>(R.id.card_back)
+        val back = card.getTag(R.layout.activity_challenges) as FrameLayout
 
         card.isClickable = false
 
@@ -151,6 +154,8 @@ class ChallengesActivity : AppCompatActivity() {
                 }
             })
     }
+
+
 
     private inner class SwipeGestureListener : GestureDetector.SimpleOnGestureListener() {
         private val swipeThreshold = 100
