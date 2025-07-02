@@ -69,10 +69,14 @@
                     android:id="@+id/progressDay"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:layout_gravity="center"
                     app:indicatorColor="#3b86d6"
                     app:trackColor="#7fb3d5"
                     app:trackThickness="8dp"
-                    app:indicatorSize="80dp" />
+                    app:indicatorSize="80dp"
+                    app:indicatorDirectionCircular="clockwise"
+                    app:indicatorInset="0dp"
+                    app:trackCornerRadius="4dp"/>
 
                 <TextView
                     android:id="@+id/dayPercent"
@@ -111,10 +115,14 @@
                     android:id="@+id/progressWeek"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:layout_gravity="center"
                     app:indicatorColor="#3b86d6"
                     app:trackColor="#7fb3d5"
                     app:trackThickness="8dp"
-                    app:indicatorSize="80dp" />
+                    app:indicatorSize="80dp"
+                    app:indicatorDirectionCircular="clockwise"
+                    app:indicatorInset="0dp"
+                    app:trackCornerRadius="4dp"/>
 
                 <TextView
                     android:id="@+id/weekPercent"
@@ -153,10 +161,14 @@
                     android:id="@+id/progressMonth"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:layout_gravity="center"
                     app:indicatorColor="#3b86d6"
                     app:trackColor="#7fb3d5"
                     app:trackThickness="8dp"
-                    app:indicatorSize="80dp" />
+                    app:indicatorSize="80dp"
+                    app:indicatorDirectionCircular="clockwise"
+                    app:indicatorInset="0dp"
+                    app:trackCornerRadius="4dp"/>
 
                 <TextView
                     android:id="@+id/monthPercent"

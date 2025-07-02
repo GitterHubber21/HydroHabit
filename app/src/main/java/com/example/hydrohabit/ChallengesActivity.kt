@@ -24,14 +24,17 @@ class ChallengesActivity : AppCompatActivity() {
     private lateinit var gestureDetector: GestureDetector
     private lateinit var cards: List<FrameLayout>
     private val isFlipped = BooleanArray(4)
-    private val dailyChallenges = arrayOf("Drink 1 liter of water today.",
-                                        "Reach 2.5 liters by the end of the day.",
-                                        "Hit 1.5 liters before 6 PM.",
-                                        "Complete your daily hydration goal.",
-                                        "Drink 500 mL every 3 hours.",
-                                        "Double your usual water intake today.",
-                                        "Drink 750 mL before lunch.",
-                                        "Fill your bottle three times today.")
+    private val dailyChallenges = mapOf("Drink 1 liter of water today." to 1,
+                                        "Reach 2.5 liters by the end of the day." to 1,
+                                        "Hit 1.5 liters before 6 PM." to 1,
+                                        "Complete your daily hydration goal." to 3,
+                                        "Drink 500 mL every 3 hours." to 2,
+                                        "Double your usual water intake today." to 3,
+                                        "Drink 750 mL before lunch." to 1,
+                                        "Fill your bottle three times today." to 2)
+    //1 means circularProgressIndicator measurement
+    //2 means X times out of X times measurement
+    //3 means checked or not measurement
     private lateinit var sharedPreferences: SharedPreferences
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
@@ -92,13 +95,26 @@ class ChallengesActivity : AppCompatActivity() {
         val todaysChallenges = getTodaysChallenges()
 
         for(i in cards.indices) {
-            cards[i].setOnClickListener { flipCard(cards[i], i) }
-            val front = cards[i].findViewById<TextView>(frontIds[i])
-            val back = cards[i].findViewById<FrameLayout>(R.id.card_back)
+            val card = cards[i]
+            val challengeText = todaysChallenges[i]
 
-            front.text = todaysChallenges[i]
+            card.setOnClickListener { flipCard(card, i) }
+            val front = card.findViewById<TextView>(frontIds[i])
+            if(dailyChallenges[challengeText]==1){
+                val back = card.findViewById<FrameLayout>(R.id.card_back_circle)
+            }
+            if(dailyChallenges[challengeText]==2){
+                val back = card.findViewById<FrameLayout>(R.id.card_back_text)
+            }
+            if(dailyChallenges[challengeText]==3){
+                val back = card.findViewById<FrameLayout>(R.id.card_back_check)
+            }
+
+            front.text = challengeText
             front.alpha = 1f
-            back.alpha = 0f
+
+
+
         }
 
     }
@@ -244,23 +260,24 @@ class ChallengesActivity : AppCompatActivity() {
         val savedDate = sharedPreferences.getString("challenge_date", "")
 
         return if (savedDate == today) {
-            (0..3).map{i ->
-                sharedPreferences.getString("challenge_$i", dailyChallenges[0]) ?: dailyChallenges[0]
+            (0..3).map { i ->
+                sharedPreferences.getString("challenge_$i", dailyChallenges.keys.first()) ?: dailyChallenges.keys.first()
             }
-        }else{
+        } else {
             val usedIndices = mutableSetOf<Int>()
             val newChallenges = mutableListOf<String>()
+            val challengeList = dailyChallenges.keys.toList()
 
             repeat(4) {
                 var challengeIndex: Int
-                do{
-                    challengeIndex = dailyChallenges.indices.random()
-                }while(challengeIndex in usedIndices)
+                do {
+                    challengeIndex = challengeList.indices.random()
+                } while (challengeIndex in usedIndices)
 
                 usedIndices.add(challengeIndex)
-                newChallenges.add(dailyChallenges[challengeIndex])
+                newChallenges.add(challengeList[challengeIndex])
             }
-            with(sharedPreferences.edit()){
+            with(sharedPreferences.edit()) {
                 putString("challenge_date", today)
                 newChallenges.forEachIndexed { index, challenge ->
                     putString("challenge_$index", challenge)
@@ -270,4 +287,5 @@ class ChallengesActivity : AppCompatActivity() {
             newChallenges
         }
     }
+
 }

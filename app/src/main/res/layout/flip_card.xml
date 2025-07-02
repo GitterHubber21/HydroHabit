@@ -18,28 +18,74 @@
         android:elevation="4dp" />
 
     <FrameLayout
-        android:id="@+id/card_back"
+        android:id="@+id/card_back_check"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        >
+
+        <TextView
+            android:id="@+id/progress_text_not_yet_completed"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="Not yet completed"
+            android:alpha="0"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:textSize="20sp" />
+
+        <ImageView
+            android:id="@+id/check_icon"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:src="@drawable/ic_check"
+            android:alpha="0"
+            />
+    </FrameLayout>
+    <FrameLayout
+        android:id="@+id/card_back_circle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center">
 
         <com.google.android.material.progressindicator.CircularProgressIndicator
-            android:id="@+id/progress_indicator"
+            android:id="@+id/circle_progress_indicator"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:indicatorColor="#3b86d6"
             android:gravity="center"
             app:trackColor="#7fb3d5"
+            android:alpha="0"
             app:trackThickness="8dp"
             app:indicatorSize="80dp"
             />
 
         <TextView
-            android:id="@+id/progress_text"
+            android:id="@+id/progress_text_percent"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
             android:text="60%"
+            android:textColor="#FFFFFF"
+            android:alpha="0"
+            android:textStyle="bold"
+            android:textSize="20sp" />
+    </FrameLayout>
+    <FrameLayout
+        android:id="@+id/card_back_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+
+        <TextView
+            android:id="@+id/progress_text_quantity"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="X/X"
+            android:alpha="0"
             android:textColor="#FFFFFF"
             android:textStyle="bold"
             android:textSize="20sp" />
