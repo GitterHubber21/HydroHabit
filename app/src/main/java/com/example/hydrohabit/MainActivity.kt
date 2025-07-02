@@ -32,6 +32,9 @@ import kotlin.math.abs
 import android.animation.ObjectAnimator
 import android.animation.AnimatorSet
 import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.DecelerateInterpolator
+import android.widget.GridLayout
+import android.widget.LinearLayout
 import androidx.compose.animation.core.Animation
 
 class MainActivity : ComponentActivity() {
@@ -39,6 +42,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var rainView: RainView
     private lateinit var appTitle: TextView
     private lateinit var glassContainer: FrameLayout
+
     private lateinit var fillButton: Button
     private lateinit var add250Button: Button
     private lateinit var add500Button: Button
@@ -51,6 +55,10 @@ class MainActivity : ComponentActivity() {
     private val AMOUNT_750 = 750
     private var isTimedRainActive = false
     private var displayedVolume = 0f
+    private var dailyGoal = 3000f
+    private var isVolumeInitialized = false
+    private var isAnimationActive = false
+
     private val job = Job()
     private val coroutineScope = CoroutineScope(Dispatchers.Default + job)
 
@@ -100,14 +108,17 @@ class MainActivity : ComponentActivity() {
         setupButtons()
         initializeNotifications()
 
-        animateGlassContainer {
+        animateLayoutElements {
             coroutineScope.launch {
                 val initialVolume = fetchTotalVolume()
                 withContext(Dispatchers.Main) {
                     displayedVolume = initialVolume
                     waterVolumeText.text = String.format("%.1f ml", displayedVolume)
                     rainView.addWaterDirectly(initialVolume)
-                    Log.d("MainActivity", "Initial server volume = $initialVolume ml")
+                    isVolumeInitialized = true
+                    Log.d("server_response", "Initial server volume = $initialVolume ml")
+                    isAnimationActive = false
+                    updateButtonStates()
                 }
             }
         }
@@ -118,25 +129,16 @@ class MainActivity : ComponentActivity() {
         val settingsIcon: ImageView = findViewById(R.id.settingsIcon)
         rainView = findViewById(R.id.rainView)
         waterVolumeText = findViewById(R.id.waterVolume)
-
+        dailyGoal = sharedPrefs.getFloat("daily_volume_goal", 3000f)
         rainView.onVolumeChanged = { dropletVolume ->
             runOnUiThread {
                 if (!isTimedRainActive) {
                     displayedVolume += dropletVolume
-                    if (displayedVolume > 2000f) displayedVolume = 2000f
+                    if (displayedVolume > dailyGoal) displayedVolume = dailyGoal
                     waterVolumeText.text = String.format("%.1f ml", displayedVolume)
                 }
             }
             Log.d("RainVolume", "Displayed volume: $displayedVolume")
-        }
-
-
-
-        rainView.onTimedRainStateChanged = { isActive ->
-            runOnUiThread {
-                isTimedRainActive = isActive
-                updateButtonStates()
-            }
         }
 
         settingsIcon.setOnClickListener {
@@ -164,16 +166,23 @@ class MainActivity : ComponentActivity() {
         gestureDetector = GestureDetector(this, SwipeGestureListener())
     }
 
+    override fun onPause() {
+        super.onPause()
+        if (isVolumeInitialized) {
+            updateQuantity(displayedVolume)
+        }
+        isVolumeInitialized = false
+    }
+
     override fun onDestroy() {
         super.onDestroy()
-        updateQuantity(displayedVolume.toFloat())
+        if (isVolumeInitialized) {
+            updateQuantity(displayedVolume)
+        }
+        isVolumeInitialized = false
         job.cancel()
     }
 
-    override fun onPause() {
-        super.onPause()
-        updateQuantity(displayedVolume.toFloat())
-    }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         return gestureDetector.onTouchEvent(event) || super.onTouchEvent(event)
@@ -229,7 +238,7 @@ class MainActivity : ComponentActivity() {
             override fun onFailure(call: Call, e: IOException) {}
             override fun onResponse(call: Call, response: Response) {
                 val serverReply = response.body?.use { it.string() } ?: "Empty response"
-                Log.d("server_response", serverReply)
+                Log.d("server_response", "$serverReply, line 233 Main")
             }
         })
     }
@@ -282,16 +291,16 @@ class MainActivity : ComponentActivity() {
         setupVolumeButton(add250Button, AMOUNT_250)
         setupVolumeButton(add500Button, AMOUNT_500)
         setupVolumeButton(add750Button, AMOUNT_750)
-        updateButtonStates()
     }
 
     private fun setupVolumeButton(button: Button, amount: Int) {
         val vibrator = getSystemService<Vibrator>()
+        val dailyGoal = sharedPrefs.getFloat("daily_volume_goal", 3000f)
         setupPressable(button, vibrator, R.drawable.rounded_transparent_square,
             onPress = {
                 if (!isTimedRainActive) {
                     displayedVolume += amount
-                    if (displayedVolume > 2000f) displayedVolume = 2000f
+                    if (displayedVolume > dailyGoal) displayedVolume = dailyGoal
                     waterVolumeText.text = String.format("%.1f ml", displayedVolume)
                     rainView.addWaterDirectly(amount.toFloat())
                 }
@@ -301,16 +310,16 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun updateButtonStates() {
-        val alpha = if (isTimedRainActive) 0.5f else 1.0f
+        val alpha = if (isAnimationActive) 0.5f else 1.0f
         fillButton.alpha = alpha
         add250Button.alpha = alpha
         add500Button.alpha = alpha
         add750Button.alpha = alpha
 
-        fillButton.isEnabled = !isTimedRainActive
-        add250Button.isEnabled = !isTimedRainActive
-        add500Button.isEnabled = !isTimedRainActive
-        add750Button.isEnabled = !isTimedRainActive
+        fillButton.isEnabled = !isAnimationActive
+        add250Button.isEnabled = !isAnimationActive
+        add500Button.isEnabled = !isAnimationActive
+        add750Button.isEnabled = !isAnimationActive
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -327,7 +336,7 @@ class MainActivity : ComponentActivity() {
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     v.setBackgroundResource(pressedDrawableRes)
-                    vibrator?.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
+                    vibrator?.vibrate(VibrationEffect.createOneShot(25, VibrationEffect.DEFAULT_AMPLITUDE))
                     onPress?.invoke()
                     true
                 }
@@ -365,28 +374,56 @@ class MainActivity : ComponentActivity() {
             NotificationScheduler.scheduleNotifications(this)
         }
     }
-    private fun animateGlassContainer(onAnimationComplete: () -> Unit){
-        val moveUp = ObjectAnimator.ofFloat(glassContainer, "translationY", 0f, -30f).apply {
-            duration = 400
-            interpolator = AccelerateDecelerateInterpolator()
-        }
-        val moveDown = ObjectAnimator.ofFloat(glassContainer, "translationY", -30f, 15f).apply {
-            duration = 300
-            interpolator = AccelerateDecelerateInterpolator()
-        }
-        val settle = ObjectAnimator.ofFloat(glassContainer, "translationY", 15f, 0f).apply {
-            duration = 200
-            interpolator = AccelerateDecelerateInterpolator()
-        }
-        val animatorSet = AnimatorSet().apply {
-            playSequentially(moveUp, moveDown, settle)
-            addListener(object : AnimatorListenerAdapter() {
+    private fun animateLayoutElements(onAnimationComplete: () -> Unit) {
+        isAnimationActive = true
+        updateButtonStates()
+
+        val glassContainer = findViewById<FrameLayout>(R.id.glassContainer)
+        val waterVolume = findViewById<TextView>(R.id.waterVolume)
+        val circleButton = findViewById<Button>(R.id.fillButton)
+        val quickAddContainer = findViewById<LinearLayout>(R.id.quickAddContainer)
+
+        glassContainer.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setDuration(400)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+
+
+        waterVolume.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setDuration(400)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+        circleButton.alpha = 0f
+        circleButton.animate()
+            .alpha(0.5f)
+            .translationY(0f)
+            .setStartDelay(400)
+            .setDuration(400)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+
+        quickAddContainer.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setStartDelay(400)
+            .setDuration(400)
+            .setInterpolator(DecelerateInterpolator())
+            .setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     onAnimationComplete()
                 }
-            })
-        }
 
-        animatorSet.start()
+                @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+                override fun onAnimationEnd(animation: Animator, isReverse: Boolean) {
+                    onAnimationComplete()
+                }
+            })
+            .start()
     }
+
+
 }
