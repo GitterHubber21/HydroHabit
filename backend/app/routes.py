@@ -11,14 +11,17 @@ main_bp = Blueprint("main", __name__, url_prefix="/api")
 def get_week_start_end(target_date):
     days_since_monday = target_date.weekday()
     week_start = target_date - timedelta(days=days_since_monday)
-    week_end=week_start + timedelta(days=6)
+    week_end = week_start + timedelta(days=6)
     return week_start, week_end
+
 def get_month_start_end(target_date):
     month_start = target_date.replace(day=1)
-    next_month = month_start.replace(month=month_start.month + 1) if month_start.month < 12 else month_start.replace(year=month_start.year + 1, month=1)
+    if month_start.month < 12:
+        next_month = month_start.replace(month=month_start.month + 1)
+    else:
+        next_month = month_start.replace(year=month_start.year + 1, month=1)
     month_end = next_month - timedelta(days=1)
     return month_start, month_end
-
 
 @main_bp.route("/log", methods=["POST"])
 @login_required
@@ -26,15 +29,15 @@ def log_water():
     data = request.json or {}
     volume = float(data.get("volume_ml", 0.0))
     if volume < 0.0:
-        return jsonify({"error":"Non negative volume required"}), 400
+        return jsonify({"error": "Non negative volume required"}), 400
 
     today = date.today()
     log = WaterLog.query.filter_by(user_id=current_user.id, date=today).first()
     if not log:
-        log = WaterLog(user_id=current_user.id, date=today, volume_ml=0)
+        log = WaterLog(user_id=current_user.id, date=today, volume_ml=0, daily_goal_ml=current_app.config.get("DAILY_GOAL_ML", 3000.0))
 
     log.volume_ml = volume
-    private_daily_goal = log.daily_goal_ml
+    private_daily_goal = log.daily_goal_ml or current_app.config.get("DAILY_GOAL_ML", 3000.0)
     log.goal_met = log.volume_ml >= private_daily_goal
 
     db.session.add(log)
@@ -61,7 +64,7 @@ def detailed_stats():
     if not stats:
         return jsonify({"error": "No statistics available"}), 404
 
-    goal_completed_dates = json.loads(stats.month_goal_completed_dates)
+    goal_completed_dates = json.loads(stats.month_goal_completed_dates or "[]")
 
     return jsonify({
         "today_percentage": round(stats.today_percentage, 2),
@@ -74,51 +77,67 @@ def detailed_stats():
         "month_goal_completed_dates": goal_completed_dates,
         "calculated_date": str(stats.calculated_date)
     })
-@main_bp.route("daily-goal", methods=["POST", "GET"])
+
+@main_bp.route("/daily-goal", methods=["POST", "GET"])
 @login_required
 def daily_goal():
     today = date.today()
-    today_log=WaterLog.query.filter_by(user_id=current_user.id, date=today).first()
+    today_log = WaterLog.query.filter_by(user_id=current_user.id, date=today).first()
+
     if request.method == "POST":
         data = request.json or {}
         new_goal = data.get("daily_volume_goal")
         try:
             new_goal = float(new_goal)
-            if new_goal <=0:
-                return jsonify({"error":"Positive volume required."}), 400
-        except(TypeError, ValueError):
-            return jsonify({"error":"Invalid volume value"}), 400
+            if new_goal <= 0:
+                return jsonify({"error": "Positive volume required."}), 400
+        except (TypeError, ValueError):
+            return jsonify({"error": "Invalid volume value"}), 400
 
-        if not today_log and today_log.daily_goal_ml is None:
+        if not today_log:
             today_log = WaterLog(user_id=current_user.id, date=today)
+
         today_log.daily_goal_ml = new_goal
         db.session.add(today_log)
         db.session.commit()
 
-        return jsonify("daily_volume_goal", new_goal), 200
+        return jsonify({"daily_volume_goal": new_goal}), 200
+
     else:
+        if not today_log:
+            today_log = WaterLog(user_id=current_user.id, date=today)
+
         if today_log.daily_goal_ml is None:
             today_log.daily_goal_ml = current_app.config.get("DAILY_GOAL_ML", 3000.0)
-            private_daily_goal = today_log.daily_goal_ml
-        else:
-            private_daily_goal = today_log.daily_goal_ml
+
+        private_daily_goal = today_log.daily_goal_ml
+
         db.session.add(today_log)
         db.session.commit()
+
         return jsonify({"daily_volume_goal": private_daily_goal}), 200
 
 def update_user_stats(user_id):
-    today=date.today()
+    today = date.today()
+    today_log = WaterLog.query.filter_by(user_id=user_id, date=today).first()
 
-    today_log=WaterLog.query.filter_by(user_id=user_id, date=today).first()
-    if not today_log or today_log.daily_goal_ml is None:
-        daily_goal_ml = 3000.0
-        today_log.daily_goal_ml = daily_goal_ml
-
-    else:
-        daily_goal_ml = today_log.daily_goal_ml
+    if not today_log:
+        today_log = WaterLog(
+            user_id=user_id,
+            date=today,
+            volume_ml=0,
+            daily_goal_ml=current_app.config.get("DAILY_GOAL_ML", 3000.0)
+        )
         db.session.add(today_log)
         db.session.commit()
-    today_volume=float(today_log.volume_ml) if today_log else 0
+
+    if today_log.daily_goal_ml is None:
+        today_log.daily_goal_ml = current_app.config.get("DAILY_GOAL_ML", 3000.0)
+        db.session.add(today_log)
+        db.session.commit()
+
+    daily_goal_ml = today_log.daily_goal_ml
+    today_volume = float(today_log.volume_ml) if today_log.volume_ml is not None else 0.0
     today_percentage = (today_volume / daily_goal_ml) * 100
 
     week_start, week_end = get_week_start_end(today)
@@ -127,9 +146,9 @@ def update_user_stats(user_id):
         WaterLog.date >= week_start,
         WaterLog.date <= week_end
     ).all()
-    week_volume = float(sum(log.volume_ml for log in week_logs))
-    week_goal_ml = daily_goal_ml*7
-    week_percentage=(week_volume/week_goal_ml)*100
+    week_volume = float(sum(log.volume_ml or 0.0 for log in week_logs))
+    week_goal_ml = daily_goal_ml * 7
+    week_percentage = (week_volume / week_goal_ml) * 100
 
     month_start, month_end = get_month_start_end(today)
     month_logs = WaterLog.query.filter(
@@ -137,15 +156,14 @@ def update_user_stats(user_id):
         WaterLog.date >= month_start,
         WaterLog.date <= month_end
     ).all()
-    month_volume = float(sum(log.volume_ml for log in month_logs))
+    month_volume = float(sum(log.volume_ml or 0.0 for log in month_logs))
 
     days_in_month = calendar.monthrange(today.year, today.month)[1]
-    month_goal_ml = float(days_in_month * daily_goal_ml)
+    month_goal_ml = days_in_month * daily_goal_ml
     month_percentage = (month_volume / month_goal_ml) * 100
 
-    goal_completed_dates=[
-        str(log.date) for log in month_logs
-        if log.goal_met
+    goal_completed_dates = [
+        str(log.date) for log in month_logs if log.goal_met
     ]
 
     stats = WaterStats.query.filter_by(
@@ -154,7 +172,7 @@ def update_user_stats(user_id):
     ).first()
 
     if not stats:
-        stats= WaterStats(user_id=user_id, calculated_date=today)
+        stats = WaterStats(user_id=user_id, calculated_date=today)
 
     stats.today_percentage = today_percentage
     stats.week_percentage = week_percentage
@@ -169,4 +187,3 @@ def update_user_stats(user_id):
     db.session.commit()
 
     return stats
-
