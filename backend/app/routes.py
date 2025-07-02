@@ -97,10 +97,10 @@ def daily_goal():
 
         return jsonify("daily_volume_goal", new_goal), 200
     else:
-        if today_log.daily_goal_ml is not None:
+        if today_log.daily_goal_ml is None:
+            today_log.daily_goal_ml = current_app.config.get("DAILY_GOAL_ML", 3000.0)
             private_daily_goal = today_log.daily_goal_ml
         else:
-            today_log.daily_goal_ml = current_app.config.get("DAILY_GOAL_ML", 3000.0)
             private_daily_goal = today_log.daily_goal_ml
         db.session.add(today_log)
         db.session.commit()
@@ -110,11 +110,12 @@ def update_user_stats(user_id):
     today=date.today()
 
     today_log=WaterLog.query.filter_by(user_id=user_id, date=today).first()
-    if today_log and today_log.daily_goal_ml is not None:
-        daily_goal_ml = today_log.daily_goal_ml
-    else:
+    if not today_log or today_log.daily_goal_ml is None:
         daily_goal_ml = 3000.0
         today_log.daily_goal_ml = daily_goal_ml
+
+    else:
+        daily_goal_ml = today_log.daily_goal_ml
         db.session.add(today_log)
         db.session.commit()
     today_volume=float(today_log.volume_ml) if today_log else 0

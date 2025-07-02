@@ -6,6 +6,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 export FLASK_APP=run.py
+rm -rf migrations
 flask db upgrade || (
   flask db init && flask db migrate -m "init" && flask db upgrade && echo "Migration is finished."
 )
