@@ -106,11 +106,28 @@ class PasswordChangeActivity : AppCompatActivity() {
         changePasswordButton.setOnClickListener {
             val oldPassword = oldPasswordEditText.text.toString()
             val newPassword = newPasswordEditText.text.toString()
-            if(!oldPassword.isEmpty()&&!newPassword.isEmpty())
-                changePassword(oldPassword, newPassword)
-            else{
-                Toast.makeText(this@PasswordChangeActivity, "Both old and new passwords are required.", Toast.LENGTH_SHORT).show()
+            if (oldPassword.isEmpty() || newPassword.isEmpty()){
+                Toast.makeText(this, "Please enter both fields.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
+            if (newPassword.length < 5){
+                Toast.makeText(this, "Password must be at least 5 characters long.", Toast.LENGTH_SHORT).show()
+                newPasswordEditText.setText("")
+                return@setOnClickListener
+            }
+            if(!newPassword.any{ it.isUpperCase()}) {
+                Toast.makeText(this, "Password must contain at least one uppercase letter.", Toast.LENGTH_SHORT).show()
+                newPasswordEditText.setText("")
+                return@setOnClickListener
+            }
+            if(!newPassword.any {!it.isLetterOrDigit()}) {
+                Toast.makeText(this, "Password must contain at least one special character.", Toast.LENGTH_SHORT).show()
+                newPasswordEditText.setText("")
+                return@setOnClickListener
+
+            }
+
+            changePassword(oldPassword, newPassword)
 
         }
 
@@ -165,8 +182,13 @@ class PasswordChangeActivity : AppCompatActivity() {
                         }
                         401 -> {
                             oldPasswordEditText.text.clear()
-                            Toast.makeText(this@PasswordChangeActivity, "Current password is incorrect.", Toast.LENGTH_SHORT).show()
-                            oldPasswordEditText.setText("")
+                            try {
+                                val jsonResponse = JSONObject(responseBody ?: "{}")
+                                val errorMessage = jsonResponse.optString("error", "Unauthorized access")
+                                Toast.makeText(this@PasswordChangeActivity, errorMessage, Toast.LENGTH_SHORT).show()
+                            } catch (e: Exception) {
+                                Toast.makeText(this@PasswordChangeActivity, "An unexpected error occurred", Toast.LENGTH_SHORT).show()
+                            }
                         }
                         else -> {
                             try {

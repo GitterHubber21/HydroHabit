@@ -115,11 +115,28 @@ class SignupActivity : AppCompatActivity() {
         signupButton.setOnClickListener {
             val username = usernameInput.text.toString().trim()
             val password = passwordInput.text.toString().trim()
-            if (username.isNotEmpty() && password.isNotEmpty()) {
-                sendSignupRequest(username, password)
-            } else {
+            if (username.isEmpty() || password.isEmpty()){
                 Toast.makeText(this, "Please enter both fields.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
+            if (password.length < 5){
+                Toast.makeText(this, "Password must be at least 5 characters long.", Toast.LENGTH_SHORT).show()
+                passwordInput.setText("")
+                return@setOnClickListener
+            }
+            if(!password.any{ it.isUpperCase()}) {
+                Toast.makeText(this, "Password must contain at least one uppercase letter.", Toast.LENGTH_SHORT).show()
+                passwordInput.setText("")
+                return@setOnClickListener
+            }
+            if(!password.any {!it.isLetterOrDigit()}) {
+                Toast.makeText(this, "Password must contain at least one special character.", Toast.LENGTH_SHORT).show()
+                passwordInput.setText("")
+                return@setOnClickListener
+
+            }
+
+            sendSignupRequest(username, password)
         }
     }
     @Deprecated("This method has been deprecated in favor of using the\n      " +

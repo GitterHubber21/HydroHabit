@@ -54,10 +54,11 @@ def change_password():
 
     if not current_user.check_password(old_password):
         return jsonify({"error": "Current password is incorrect."}), 401
+    if old_password == new_password:
+        return jsonify({"error":"New password can't match the current password."}), 401
 
     current_user.set_password(new_password)
     db.session.commit()
-
     return jsonify({"message": "Password changed successfully"}), 200
 @auth_bp.route("/delete_account", methods=["POST"])
 @login_required
