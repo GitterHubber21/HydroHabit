@@ -31,11 +31,14 @@ import org.json.JSONObject
 import kotlin.math.abs
 import android.animation.ObjectAnimator
 import android.animation.AnimatorSet
+import android.util.TypedValue
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.GridLayout
 import android.widget.LinearLayout
 import androidx.compose.animation.core.Animation
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.updateLayoutParams
 
 class MainActivity : ComponentActivity() {
 
@@ -126,7 +129,26 @@ class MainActivity : ComponentActivity() {
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         bottomNavigationView.selectedItemId = R.id.nav_home
         bottomNavigationView.itemIconTintList = null
+
         val settingsIcon: ImageView = findViewById(R.id.settingsIcon)
+        val pageTitle: TextView = findViewById(R.id.appTitle)
+        val decorView = window.decorView
+        val fitSystemWindows = decorView.fitsSystemWindows
+        val marginTopDp = if(!fitSystemWindows) 36 else 24
+        val marginTopPx = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            marginTopDp.toFloat(),
+            resources.displayMetrics
+        ).toInt()
+
+        settingsIcon.updateLayoutParams<ConstraintLayout.LayoutParams> {
+            topMargin = marginTopPx
+        }
+        pageTitle.updateLayoutParams<ConstraintLayout.LayoutParams> {
+            topMargin = marginTopPx
+        }
+
+
         rainView = findViewById(R.id.rainView)
         waterVolumeText = findViewById(R.id.waterVolume)
         dailyGoal = sharedPrefs.getFloat("daily_volume_goal", 3000f)

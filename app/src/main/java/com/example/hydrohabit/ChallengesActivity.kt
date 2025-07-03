@@ -15,6 +15,10 @@ import android.animation.AnimatorListenerAdapter
 import android.widget.FrameLayout
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import android.content.SharedPreferences
+import android.util.TypedValue
+import android.widget.RelativeLayout
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.updateLayoutParams
 import java.util.Locale
 import java.text.SimpleDateFormat
 import java.util.*
@@ -69,6 +73,22 @@ class ChallengesActivity : AppCompatActivity() {
         }
 
         val settingsIcon: ImageView = findViewById(R.id.settingsIcon)
+        val pageTitle: TextView = findViewById(R.id.appTitle)
+        val decorView = window.decorView
+        val fitSystemWindows = decorView.fitsSystemWindows
+        val marginTopDp = if(!fitSystemWindows) 36 else 24
+        val marginTopPx = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            marginTopDp.toFloat(),
+            resources.displayMetrics
+        ).toInt()
+
+        settingsIcon.updateLayoutParams<RelativeLayout.LayoutParams> {
+            topMargin = marginTopPx
+        }
+        pageTitle.updateLayoutParams<RelativeLayout.LayoutParams> {
+            topMargin = marginTopPx
+        }
         settingsIcon.setOnClickListener {
             finishWithAnimation()
         }

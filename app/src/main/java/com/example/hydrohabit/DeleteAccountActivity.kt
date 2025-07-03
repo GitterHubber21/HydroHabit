@@ -160,7 +160,7 @@ class DeleteAccountActivity : AppCompatActivity() {
             override fun onResponse(call: Call, response: Response) {
 
                 runOnUiThread {
-                        when(response.code){
+                    when(response.code){
                         200 ->{
                             Toast.makeText(this@DeleteAccountActivity, "Account deleted successfully.", Toast.LENGTH_SHORT).show()
                             CoroutineScope(Dispatchers.Main).launch {
@@ -173,11 +173,11 @@ class DeleteAccountActivity : AppCompatActivity() {
                             Toast.makeText(this@DeleteAccountActivity, "Password is incorrect.", Toast.LENGTH_SHORT).show()
                         }else ->{
 
-                                Toast.makeText(this@DeleteAccountActivity, "Error deleting account", Toast.LENGTH_SHORT).show()
-                                Log.e("server_response", "$response")
-                                passwordEditText.text.clear()
-                                confirmPasswordEditText.text.clear()
-                        }
+                        Toast.makeText(this@DeleteAccountActivity, "Error deleting account", Toast.LENGTH_SHORT).show()
+                        Log.e("server_response", "$response")
+                        passwordEditText.text.clear()
+                        confirmPasswordEditText.text.clear()
+                    }
                     }
                 }
             }

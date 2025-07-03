@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -18,8 +19,11 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.animation.DecelerateInterpolator
 import android.widget.LinearLayout
+import android.widget.RelativeLayout
+import androidx.constraintlayout.widget.ConstraintLayout
 import kotlin.math.abs
 import androidx.core.content.edit
+import androidx.core.view.updateLayoutParams
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import okhttp3.Cookie
@@ -104,6 +108,22 @@ class InsightsActivity : AppCompatActivity() {
         }
 
         val settingsIcon: ImageView = findViewById(R.id.settingsIcon)
+        val pageTitle: TextView = findViewById(R.id.appTitle)
+        val decorView = window.decorView
+        val fitSystemWindows = decorView.fitsSystemWindows
+        val marginTopDp = if(!fitSystemWindows) 36 else 24
+        val marginTopPx = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            marginTopDp.toFloat(),
+            resources.displayMetrics
+        ).toInt()
+
+        settingsIcon.updateLayoutParams<RelativeLayout.LayoutParams> {
+            topMargin = marginTopPx
+        }
+        pageTitle.updateLayoutParams<RelativeLayout.LayoutParams> {
+            topMargin = marginTopPx
+        }
 
         settingsIcon.setOnClickListener {
             startActivity(Intent(applicationContext, SettingsActivity::class.java))

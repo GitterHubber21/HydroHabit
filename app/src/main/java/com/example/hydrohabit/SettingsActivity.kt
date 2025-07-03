@@ -34,9 +34,12 @@ import java.io.IOException
 import android.widget.Toast
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.util.TypedValue
 import android.view.animation.DecelerateInterpolator
 import android.widget.EditText
 import android.widget.LinearLayout
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.updateLayoutParams
 import kotlinx.coroutines.coroutineScope
 import okhttp3.internal.cache.DiskLruCache
 
@@ -87,17 +90,28 @@ class SettingsActivity : AppCompatActivity() {
         val deleteAccountButton: TextView = findViewById(R.id.deleteAccountButton)
         val changeGoalButton: TextView = findViewById(R.id.changeGoalButton)
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
 
         val backArrow: ImageView = findViewById(R.id.backIcon)
         backArrow.rotation = 90f
 
         backArrow.setOnClickListener {
             finishWithAnimation()
+        }
+        val pageTitle: TextView = findViewById(R.id.appTitle)
+        val decorView = window.decorView
+        val fitSystemWindows = decorView.fitsSystemWindows
+        val marginTopDp = if(!fitSystemWindows) 36 else 24
+        val marginTopPx = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            marginTopDp.toFloat(),
+            resources.displayMetrics
+        ).toInt()
+
+        backArrow.updateLayoutParams<LinearLayout.LayoutParams> {
+            topMargin = marginTopPx
+        }
+        pageTitle.updateLayoutParams<LinearLayout.LayoutParams> {
+            topMargin = marginTopPx
         }
 
         initializePrefs()
