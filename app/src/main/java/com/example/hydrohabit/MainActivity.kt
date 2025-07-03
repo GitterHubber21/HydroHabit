@@ -29,14 +29,9 @@ import android.view.GestureDetector
 import androidx.core.content.edit
 import org.json.JSONObject
 import kotlin.math.abs
-import android.animation.ObjectAnimator
-import android.animation.AnimatorSet
 import android.util.TypedValue
-import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.DecelerateInterpolator
-import android.widget.GridLayout
 import android.widget.LinearLayout
-import androidx.compose.animation.core.Animation
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.updateLayoutParams
 
@@ -156,8 +151,33 @@ class MainActivity : ComponentActivity() {
             runOnUiThread {
                 if (!isTimedRainActive) {
                     displayedVolume += dropletVolume
-                    if (displayedVolume > dailyGoal) displayedVolume = dailyGoal
                     waterVolumeText.text = String.format("%.1f ml", displayedVolume)
+                }
+                val motivationalTextDisplayed50 = sharedPrefs.getBoolean("motivational_text_displayed_50", false)
+                val motivationalTextDisplayed90 = sharedPrefs.getBoolean("motivational_text_displayed_90", false)
+                val motivationalTextDisplayed100 = sharedPrefs.getBoolean("motivational_text_displayed_100", false)
+                val vibrator = getSystemService<Vibrator>()
+
+                if(displayedVolume/dailyGoal >= 0.5 && !motivationalTextDisplayed50){
+                    animateMotivationalText50()
+                    vibrator?.vibrate(VibrationEffect.createOneShot(10, VibrationEffect.DEFAULT_AMPLITUDE))
+                    sharedPrefs.edit{
+                        putBoolean("motivational_text_displayed_50", true)
+                    }
+                }
+                if(displayedVolume/dailyGoal >= 0.9 && !motivationalTextDisplayed90){
+                    animateMotivationalText90()
+                    vibrator?.vibrate(VibrationEffect.createOneShot(10, VibrationEffect.DEFAULT_AMPLITUDE))
+                    sharedPrefs.edit{
+                        putBoolean("motivational_text_displayed_90", true)
+                    }
+                }
+                if(displayedVolume/dailyGoal >= 1 && !motivationalTextDisplayed100){
+                    animateMotivationalText100()
+                    vibrator?.vibrate(VibrationEffect.createOneShot(10, VibrationEffect.DEFAULT_AMPLITUDE))
+                    sharedPrefs.edit{
+                        putBoolean("motivational_text_displayed_100", true)
+                    }
                 }
             }
             Log.d("RainVolume", "Displayed volume: $displayedVolume")
@@ -322,7 +342,33 @@ class MainActivity : ComponentActivity() {
             onPress = {
                 if (!isTimedRainActive) {
                     displayedVolume += amount
-                    if (displayedVolume > dailyGoal) displayedVolume = dailyGoal
+                    val progress = displayedVolume / dailyGoal
+                    val motivationalTextDisplayed50 = sharedPrefs.getBoolean("motivational_text_displayed_50", false)
+                    val motivationalTextDisplayed90 = sharedPrefs.getBoolean("motivational_text_displayed_90", false)
+                    val motivationalTextDisplayed100 = sharedPrefs.getBoolean("motivational_text_displayed_100", false)
+
+                    when{
+                        progress >= 1f && !motivationalTextDisplayed100 ->{
+                            animateMotivationalText100()
+                            sharedPrefs.edit{
+                                putBoolean("motivational_text_displayed_100", true)
+                            }
+                        }
+                        progress >= 0.9f && !motivationalTextDisplayed90 ->{
+                            animateMotivationalText90()
+                            sharedPrefs.edit{
+                                putBoolean("motivational_text_displayed_90", true)
+                            }
+                        }
+                        progress >= 0.5f && !motivationalTextDisplayed50 ->{
+                            animateMotivationalText50()
+                            sharedPrefs.edit{
+                                putBoolean("motivational_text_displayed_50", true)
+                            }
+                        }
+                    }
+
+
                     waterVolumeText.text = String.format("%.1f ml", displayedVolume)
                     rainView.addWaterDirectly(amount.toFloat())
                 }
@@ -446,6 +492,71 @@ class MainActivity : ComponentActivity() {
             })
             .start()
     }
+    private fun animateMotivationalText50() {
+        val motivationalText = findViewById<TextView>(R.id.motivation_50)
+
+
+        motivationalText.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setDuration(400)
+            .setInterpolator(DecelerateInterpolator())
+            .withEndAction {
+                motivationalText.postDelayed({
+                    motivationalText.animate()
+                        .alpha(0f)
+                        .translationY(-20f)
+                        .setDuration(400)
+                        .setInterpolator(DecelerateInterpolator())
+                        .start()
+                }, 1000)
+            }
+            .start()
+
+    }
+    private fun animateMotivationalText90() {
+        val motivationalText = findViewById<TextView>(R.id.motivation_90)
+
+        motivationalText.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setDuration(400)
+            .setInterpolator(DecelerateInterpolator())
+            .withEndAction {
+                motivationalText.postDelayed({
+                    motivationalText.animate()
+                        .alpha(0f)
+                        .translationY(-20f)
+                        .setDuration(400)
+                        .setInterpolator(DecelerateInterpolator())
+                        .start()
+                }, 1000)
+            }
+            .start()
+
+    }
+    private fun animateMotivationalText100() {
+        val motivationalText = findViewById<TextView>(R.id.motivation_100)
+
+        motivationalText.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setDuration(400)
+            .setInterpolator(DecelerateInterpolator())
+            .withEndAction {
+                motivationalText.postDelayed({
+                    motivationalText.animate()
+                        .alpha(0f)
+                        .translationY(-20f)
+                        .setDuration(400)
+                        .setInterpolator(DecelerateInterpolator())
+                        .start()
+                }, 1000)
+            }
+            .start()
+
+    }
+
 
 
 }

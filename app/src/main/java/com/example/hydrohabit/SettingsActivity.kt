@@ -418,6 +418,12 @@ class SettingsActivity : AppCompatActivity() {
         val json = JSONObject().apply { put("volume_ml", 0.0) }.toString()
         val body = RequestBody.create("application/json; charset=utf-8".toMediaTypeOrNull(), json)
 
+        sharedPrefs.edit{
+            putBoolean("motivational_text_displayed_50", false)
+            putBoolean("motivational_text_displayed_90", false)
+            putBoolean("motivational_text_displayed_100", false)
+        }
+
         val request = Request.Builder().url(url).post(body).build()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {}

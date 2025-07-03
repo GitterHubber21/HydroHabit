@@ -70,7 +70,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="40dp"
         android:text="Don't have an account? Sign up"
-        android:textColor="#87CEEB"
+        android:textColor="#FFFFFF"
         android:textSize="16sp" />
 
 </RelativeLayout>

@@ -61,15 +61,54 @@
 
 
         <FrameLayout
-            android:id="@+id/glassContainer"
             android:layout_width="200dp"
             android:layout_height="200dp"
             android:layout_marginTop="32dp"
+            android:id="@+id/glassContainer"
             android:alpha="0"
             android:translationY="20dp"
-            android:background="@drawable/ic_cup"
-            android:contentDescription="@string/water_glass"
-            android:elevation="6dp" />
+            android:elevation="6dp">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/ic_cup"
+                android:contentDescription="@string/water_glass" />
+
+            <TextView
+                android:id="@+id/motivation_90"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="You are so close!"
+                android:gravity="center"
+                android:textColor="#F0F4F8"
+                android:alpha="0"
+                android:translationY="20dp"
+                android:fontFamily="@font/dosis_bold"
+                android:textSize="12sp" />
+            <TextView
+                android:id="@+id/motivation_50"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="You are halfway there!"
+                android:gravity="center"
+                android:textColor="#F0F4F8"
+                android:alpha="0"
+                android:translationY="20dp"
+                android:fontFamily="@font/dosis_bold"
+                android:textSize="12sp" />
+            <TextView
+                android:id="@+id/motivation_100"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Congratulations!"
+                android:gravity="center"
+                android:textColor="#F0F4F8"
+                android:alpha="0"
+                android:translationY="20dp"
+                android:fontFamily="@font/dosis_bold"
+                android:textSize="12sp" />
+        </FrameLayout>
 
 
         <TextView
