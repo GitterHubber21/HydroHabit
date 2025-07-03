@@ -34,7 +34,9 @@ import java.io.IOException
 import android.widget.Toast
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.view.animation.DecelerateInterpolator
 import android.widget.EditText
+import android.widget.LinearLayout
 import kotlinx.coroutines.coroutineScope
 import okhttp3.internal.cache.DiskLruCache
 
@@ -45,6 +47,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var gestureDetector: GestureDetector
     private lateinit var sharedPrefs: SharedPreferences
     private val cookieStorage = mutableMapOf<String, String>()
+    private val ANIMATION_DELAY = 100L
 
     private val client = OkHttpClient.Builder()
         .cookieJar(object : CookieJar {
@@ -143,6 +146,7 @@ class SettingsActivity : AppCompatActivity() {
             val vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
             vibrator.vibrate(VibrationEffect.createOneShot(25, VibrationEffect.DEFAULT_AMPLITUDE))
         }
+        animateLayoutElements()
 
     }
 
@@ -441,6 +445,91 @@ class SettingsActivity : AppCompatActivity() {
                 Toast.makeText(this@SettingsActivity,"Error during goal update", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+    private fun animateLayoutElements(){
+        val titleGeneral = findViewById<TextView>(R.id.titleGeneral)
+        val layoutGeneral = findViewById<LinearLayout>(R.id.layout_general)
+
+        val titleSecurity = findViewById<TextView>(R.id.titleSecurity)
+        val layoutSecurity = findViewById<LinearLayout>(R.id.layout_security)
+
+        val titleLicenses = findViewById<TextView>(R.id.titleLicenses)
+        val layoutLicenses = findViewById<LinearLayout>(R.id.layout_licenses)
+
+        val titleLogout = findViewById<TextView>(R.id.titleLogout)
+        val layoutLogout = findViewById<LinearLayout>(R.id.layout_logout)
+
+        titleGeneral.postDelayed({
+            titleGeneral.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(400)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
+        }, ANIMATION_DELAY)
+        layoutGeneral.postDelayed({
+            layoutGeneral.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(400)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
+        }, ANIMATION_DELAY)
+
+
+        titleSecurity.postDelayed({
+            titleSecurity.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(400)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
+        }, ANIMATION_DELAY*2)
+        layoutSecurity.postDelayed({
+            layoutSecurity.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(400)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
+        }, ANIMATION_DELAY*2)
+
+
+        titleLicenses.postDelayed({
+            titleLicenses.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(400)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
+        }, ANIMATION_DELAY*3)
+        layoutLicenses.postDelayed({
+            layoutLicenses.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(400)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
+        }, ANIMATION_DELAY*3)
+
+
+        titleLogout.postDelayed({
+            titleLogout.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(400)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
+        }, ANIMATION_DELAY*4)
+        layoutLogout.postDelayed({
+            layoutLogout.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(400)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
+        }, ANIMATION_DELAY*4)
+
     }
 
 

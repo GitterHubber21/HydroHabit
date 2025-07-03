@@ -45,15 +45,20 @@
             android:layout_height="wrap_content"
             android:clickable="true"
             android:focusable="true"
+            android:translationY="20dp"
+            android:alpha="0"
             android:gravity="start"
             android:padding="10dp"
             android:textColor="#3b86d6"
             android:text="General"
             android:textSize="24sp"/>
         <LinearLayout
+            android:id="@+id/layout_general"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:translationY="20dp"
+            android:alpha="0"
             android:orientation="vertical"
             android:layout_marginStart="16dp"
             android:background="@drawable/rounded_transparent_square"
@@ -124,6 +129,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clickable="true"
+            android:translationY="20dp"
+            android:alpha="0"
             android:focusable="true"
             android:gravity="start"
             android:padding="10dp"
@@ -131,10 +138,13 @@
             android:text="Security"
             android:textSize="24sp"/>
         <LinearLayout
+            android:id="@+id/layout_security"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:orientation="vertical"
+            android:translationY="20dp"
+            android:alpha="0"
             android:layout_marginStart="16dp"
             android:background="@drawable/rounded_transparent_square"
             android:layout_marginEnd="16dp">
@@ -171,6 +181,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clickable="true"
+            android:translationY="20dp"
+            android:alpha="0"
             android:focusable="true"
             android:gravity="start"
             android:padding="10dp"
@@ -178,10 +190,13 @@
             android:text="Licenses"
             android:textSize="24sp"/>
         <LinearLayout
+            android:id="@+id/layout_licenses"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:orientation="vertical"
+            android:translationY="20dp"
+            android:alpha="0"
             android:layout_marginStart="16dp"
             android:background="@drawable/rounded_transparent_square"
             android:layout_marginEnd="16dp">
@@ -203,17 +218,22 @@
             android:layout_height="wrap_content"
             android:clickable="true"
             android:focusable="true"
+            android:translationY="20dp"
+            android:alpha="0"
             android:gravity="left"
             android:padding="10dp"
             android:textColor="#3b86d6"
             android:text="Logout"
             android:textSize="24sp"/>
         <LinearLayout
+            android:id="@+id/layout_logout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:orientation="vertical"
             android:layout_marginStart="16dp"
+            android:translationY="20dp"
+            android:alpha="0"
             android:background="@drawable/rounded_transparent_square"
             android:layout_marginEnd="16dp">
             <TextView
