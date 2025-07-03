@@ -33,17 +33,9 @@ class RainView @JvmOverloads constructor(
     private var waterSurfacePoints = mutableListOf<WaterPoint>()
     private var waterTiltX = 0f
     private var waterTiltY = 0f
-    private var waterVelocityX = 0f
-    private var waterVelocityY = 0f
-    private var lastGyroTime = 0L
-    private var baselineRoll = 0f
-    private var baselinePitch = 0f
-    private var isCalibrated = false
-
     private val dampingFactor = 0.95f
     private val springConstant = 0.4f
-    private val maxTilt = 30f
-    private val tiltSensitivity = 0.8f
+
 
     private val regularPaint = Paint().apply {
         color = "#3b86d6".toColorInt()
@@ -203,10 +195,8 @@ class RainView @JvmOverloads constructor(
 
     fun start() {
         handler.post(animator)
-        gyroscopeSensor?.let {
-            sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_GAME)
-        }
-        accelerometerSensor?.let {
+        val rotationSensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
+        rotationSensor?.let {
             sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_GAME)
         }
     }
@@ -217,62 +207,30 @@ class RainView @JvmOverloads constructor(
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
-        event ?: return
+        if (event == null || event.sensor.type != Sensor.TYPE_ROTATION_VECTOR) return
 
-        val currentTime = System.currentTimeMillis()
+        val rotationMatrix = FloatArray(9)
+        SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values)
 
-        when (event.sensor.type) {
-            Sensor.TYPE_GYROSCOPE -> {
-                if (lastGyroTime == 0L) {
-                    lastGyroTime = currentTime
-                    return
-                }
+        val remappedRotationMatrix = FloatArray(9)
+        SensorManager.remapCoordinateSystem(
+            rotationMatrix,
+            SensorManager.AXIS_X,
+            SensorManager.AXIS_Z,
+            remappedRotationMatrix
+        )
 
-                val dt = (currentTime - lastGyroTime) / 1000f
-                lastGyroTime = currentTime
+        val orientation = FloatArray(3)
+        SensorManager.getOrientation(remappedRotationMatrix, orientation)
 
-                val rotationX = event.values[0] * dt * tiltSensitivity
-                val rotationY = event.values[1] * dt * tiltSensitivity
+        val roll = Math.toDegrees(orientation[2].toDouble()).toFloat()
 
-                waterVelocityX += rotationX
-                waterVelocityY += rotationY
 
-                waterVelocityX *= 0.98f
-                waterVelocityY *= 0.98f
+        val alpha = 0.1f
+        waterTiltX = waterTiltX * (1f - alpha) + roll * alpha
 
-                waterTiltX += waterVelocityX
-                waterTiltY += waterVelocityY
 
-                waterTiltX = waterTiltX.coerceIn(-maxTilt, maxTilt)
-                waterTiltY = waterTiltY.coerceIn(-maxTilt, maxTilt)
-            }
-
-            Sensor.TYPE_ACCELEROMETER -> {
-                val x = event.values[0]
-                val y = event.values[1]
-                val z = event.values[2]
-
-                val pitch = atan2(y, sqrt(x * x + z * z)) * 180f / PI.toFloat()
-                val roll = atan2(-x, sqrt(y * y + z * z)) * 180f / PI.toFloat()
-
-                if (!isCalibrated) {
-                    baselinePitch = pitch
-                    baselineRoll = roll
-                    isCalibrated = true
-                    return
-                }
-
-                val adjustedPitch = (pitch - baselinePitch)
-                val adjustedRoll = (roll - baselineRoll)
-
-                val alpha = 0.1f
-                waterTiltX = waterTiltX * (1f - alpha) + adjustedRoll * alpha * tiltSensitivity
-                waterTiltY = waterTiltY * (1f - alpha) + adjustedPitch * alpha * tiltSensitivity
-
-                waterTiltX = waterTiltX.coerceIn(-maxTilt, maxTilt)
-                waterTiltY = waterTiltY.coerceIn(-maxTilt, maxTilt)
-            }
-        }
+        waterTiltX = waterTiltX.coerceIn(-60f, 60f)
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
