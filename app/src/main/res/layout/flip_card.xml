@@ -30,7 +30,6 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:text="Not yet completed"
-            android:alpha="0"
             android:textColor="#FFFFFF"
             android:textStyle="bold"
             android:textSize="20sp" />
@@ -41,7 +40,6 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:src="@drawable/ic_check"
-            android:alpha="0"
             />
     </FrameLayout>
     <FrameLayout
@@ -57,7 +55,6 @@
             app:indicatorColor="#3b86d6"
             android:gravity="center"
             app:trackColor="#7fb3d5"
-            android:alpha="0"
             app:trackThickness="8dp"
             app:indicatorSize="80dp"
             />
@@ -69,7 +66,6 @@
             android:gravity="center"
             android:text="60%"
             android:textColor="#FFFFFF"
-            android:alpha="0"
             android:textStyle="bold"
             android:textSize="20sp" />
     </FrameLayout>
@@ -85,7 +81,6 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:text="X/X"
-            android:alpha="0"
             android:textColor="#FFFFFF"
             android:textStyle="bold"
             android:textSize="20sp" />

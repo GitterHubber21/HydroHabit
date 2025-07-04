@@ -206,6 +206,7 @@ class PasswordChangeActivity : AppCompatActivity() {
                         }
                         401 -> {
                             oldPasswordEditText.text.clear()
+                            newPasswordEditText.text.clear()
                             try {
                                 val jsonResponse = JSONObject(responseBody ?: "{}")
                                 val errorMessage = jsonResponse.optString("error", "Unauthorized access")

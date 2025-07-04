@@ -12,6 +12,7 @@ import android.widget.TextView
 import android.view.animation.DecelerateInterpolator
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.content.Context
 import android.widget.FrameLayout
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import android.content.SharedPreferences
@@ -28,14 +29,8 @@ class ChallengesActivity : AppCompatActivity() {
     private lateinit var gestureDetector: GestureDetector
     private lateinit var cards: List<FrameLayout>
     private val isFlipped = BooleanArray(4)
-    private val dailyChallenges = mapOf("Drink 1 liter of water today." to 1,
-                                        "Reach 2.5 liters by the end of the day." to 1,
-                                        "Hit 1.5 liters before 6 PM." to 1,
-                                        "Complete your daily hydration goal." to 3,
-                                        "Drink 500 mL every 3 hours." to 2,
-                                        "Double your usual water intake today." to 3,
-                                        "Drink 750 mL before lunch." to 1,
-                                        "Fill your bottle three times today." to 2)
+    private var dailyGoal = 0f
+    private var dailyChallenges = mapOf<String, Any>()
     //1 means circularProgressIndicator measurement
     //2 means X times out of X times measurement
     //3 means checked or not measurement
@@ -47,6 +42,17 @@ class ChallengesActivity : AppCompatActivity() {
         enableEdgeToEdge()
         sharedPreferences = getSharedPreferences("challenges_prefs", MODE_PRIVATE)
         setContentView(R.layout.activity_challenges)
+
+        dailyGoal = sharedPreferences.getFloat("daily_volume_goal", 3000f)
+
+        dailyChallenges = mapOf("Drink ${dailyGoal*0.8f} liter of water today." to 1,
+            "Reach ${dailyGoal*0.75f} liters by the end of the day." to 1,
+            "Hit ${dailyGoal*0.6f} liters before 6 PM." to 1,
+            "Complete your daily hydration goal." to 3,
+            "Drink ${dailyGoal*0.15f} mL every 3 hours." to 2,
+            "Pour into your glass before 9 AM." to 3,
+            "Drink ${dailyGoal*0.5f} mL before lunch." to 1,
+            "Pour into your glass three times today." to 2)
 
         initializeViews()
         setupClickListeners()
@@ -106,6 +112,8 @@ class ChallengesActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
+        val sharedPrefs = getSharedPreferences("challenge_prefs", MODE_PRIVATE)
+        val editor = sharedPrefs.edit()
         val frontIds = listOf(
             R.id.card_front,
             R.id.card_front,
@@ -125,6 +133,9 @@ class ChallengesActivity : AppCompatActivity() {
             val backCircle = card.findViewById<FrameLayout>(R.id.card_back_circle)
             val backText = card.findViewById<FrameLayout>(R.id.card_back_text)
             val backCheck = card.findViewById<FrameLayout>(R.id.card_back_check)
+            backCircle.alpha = 0f
+            backText.alpha = 0f
+            backCheck.alpha = 0f
 
             val back = when (challengeType) {
                 1 -> backCircle
@@ -135,36 +146,53 @@ class ChallengesActivity : AppCompatActivity() {
 
             front.text = challengeText
             front.alpha = 1f
-            back.alpha = 0f
 
-            card.setTag(R.layout.activity_challenges, back)
+            editor.putInt("card_back_id_$i", back.id)
         }
+        editor.apply()
     }
 
 
 
     private fun flipCard(card: FrameLayout, index: Int) {
+        val sharedPref = getSharedPreferences("challenge_prefs", MODE_PRIVATE)
+        val backId = sharedPref.getInt("card_back_id_$index", R.id.card_back_circle)
+
         val front = card.findViewById<TextView>(R.id.card_front)
-        val back = card.getTag(R.layout.activity_challenges) as FrameLayout
+        val back = card.findViewById<FrameLayout>(backId)
+
+        val backLayouts = listOf(
+            R.id.card_back_circle,
+            R.id.card_back_text,
+            R.id.card_back_check
+        )
 
         card.isClickable = false
 
         card.animate()
-            .scaleX(0f)
+            .rotationY(90f)
             .setDuration(150)
             .setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     isFlipped[index] = !isFlipped[index]
+
                     if (isFlipped[index]) {
+
                         front.alpha = 0f
-                        back.alpha = 1f
+                        backLayouts.forEach {
+                            val view = card.findViewById<FrameLayout>(it)
+                            view?.alpha = if (it == backId) 1f else 0f
+                        }
                     } else {
-                        front.alpha = 1f
+
                         back.alpha = 0f
+                        front.alpha = 1f
                     }
 
+                    card.rotationY = -90f
+
                     card.animate()
-                        .scaleX(1f)
+                        .rotationY(0f)
                         .setDuration(150)
                         .setListener(object : AnimatorListenerAdapter() {
                             override fun onAnimationEnd(animation: Animator) {
@@ -174,6 +202,9 @@ class ChallengesActivity : AppCompatActivity() {
                 }
             })
     }
+
+
+
 
 
 
