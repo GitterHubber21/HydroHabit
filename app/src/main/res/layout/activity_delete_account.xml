@@ -23,40 +23,75 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="80dp"
         android:gravity="center" />
-
-    <EditText
-        android:id="@+id/passwordInput"
+    <LinearLayout
+        android:id="@+id/passwordInput_layout"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         android:layout_below="@id/resetTitle"
         android:layout_marginTop="60dp"
-        android:hint="Password"
-        android:textColorHint="#CCFFFFFF"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
         android:background="@drawable/rounded_transparent_square"
-        android:padding="16dp"
-        android:inputType="textPassword" />
+        android:orientation="horizontal">
 
-    <EditText
-        android:id="@+id/passwordInputAgain"
+        <EditText
+            android:id="@+id/passwordInput"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:hint="Password"
+            android:textColorHint="#CCFFFFFF"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:background="@android:color/transparent"
+            android:padding="16dp"
+            android:inputType="textPassword"
+            android:textCursorDrawable="@drawable/text_cursor_drawable"/>
+
+        <ImageView
+            android:id="@+id/passwordToggleFirst"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_visible"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="16dp" />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/passwordInputAgain_layout"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_below="@id/passwordInput"
-        android:layout_marginTop="20dp"
-        android:hint="Password again"
-        android:textColorHint="#CCFFFFFF"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/passwordInput_layout"
         android:background="@drawable/rounded_transparent_square"
-        android:padding="16dp"
-        android:inputType="textPassword" />
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/passwordInputAgain"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:hint="Password again"
+            android:textColorHint="#CCFFFFFF"
+            android:layout_weight="1"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:background="@android:color/transparent"
+            android:padding="16dp"
+            android:inputType="textPassword"
+            android:textCursorDrawable="@drawable/text_cursor_drawable"/>
+        <ImageView
+            android:id="@+id/passwordToggleSecond"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_visible"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="16dp" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/enterButton"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_below="@id/passwordInputAgain"
+        android:layout_below="@id/passwordInputAgain_layout"
         android:layout_marginTop="40dp"
         android:text="Enter"
         android:clickable="true"

@@ -3,5 +3,6 @@
     <style name="Theme.HydroHabit" parent="Theme.MaterialComponents.Light.NoActionBar" >
         <item name="android:fontFamily">@font/dosis_semibold</item>
         <item name="colorPrimary">@color/default_gray</item>
+        <item name="android:textCursorDrawable">@drawable/text_cursor_drawable</item>
     </style>
 </resources>

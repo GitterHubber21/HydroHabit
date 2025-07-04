@@ -27,7 +27,7 @@
     <EditText
         android:id="@+id/usernameInput"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="64dp"
         android:layout_below="@id/signupTitle"
         android:layout_marginTop="60dp"
         android:hint="Username"
@@ -37,26 +37,43 @@
         android:background="@drawable/rounded_transparent_square"
         android:padding="16dp"
         android:inputType="text" />
-
-    <EditText
-        android:id="@+id/passwordInput"
+    <LinearLayout
+        android:id="@+id/passwordInput_layout"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         android:layout_below="@id/usernameInput"
-        android:layout_marginTop="20dp"
-        android:hint="Password"
-        android:textColorHint="#CCFFFFFF"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
         android:background="@drawable/rounded_transparent_square"
-        android:padding="16dp"
-        android:inputType="textPassword" />
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal"
+        >
+
+        <EditText
+            android:id="@+id/passwordInput"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:hint="Password"
+            android:textColorHint="#CCFFFFFF"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:background="@android:color/transparent"
+            android:padding="16dp"
+            android:inputType="textPassword" />
+        <ImageView
+            android:id="@+id/passwordToggleFirst"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_visible"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="16dp" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/signupButton"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_below="@id/passwordInput"
+        android:layout_below="@id/passwordInput_layout"
         android:layout_marginTop="40dp"
         android:text="Signup"
         android:textSize="28sp"
