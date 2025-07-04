@@ -30,17 +30,8 @@ class ChallengesActivity : AppCompatActivity() {
     private val isFlipped = BooleanArray(4)
     private var dailyGoal = 0f
     data class Challenge(val text: String, val type: Int)
-    private val dailyChallenges = mapOf(
-        0 to Challenge("Drink ${(dailyGoal*0.8f).toInt()} ml of water today.", 1),
-        1 to Challenge("Reach ${(dailyGoal*0.75f).toInt()} ml by the end of the day.", 1),
-        2 to Challenge("Hit ${(dailyGoal*0.6f).toInt()} ml before 6 PM.", 1),
-        3 to Challenge("Drink ${(dailyGoal*0.5f).toInt()} ml before lunch.", 1),
-        4 to Challenge("Drink ${(dailyGoal*0.15f).toInt()} ml every 3 hours.", 2),
-        5 to Challenge("Pour into your glass three times today.", 2),
-        6 to Challenge("Complete your daily hydration goal.", 3),
-        7 to Challenge("Pour into your glass before 9 AM.", 3)
-    )
 
+    private var dailyChallenges: Map<Int, Challenge> = mapOf()
 
     private lateinit var sharedPreferences: SharedPreferences
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -51,6 +42,16 @@ class ChallengesActivity : AppCompatActivity() {
         sharedPreferences = getSharedPreferences("secure_cookies", MODE_PRIVATE)
         setContentView(R.layout.activity_challenges)
         dailyGoal = sharedPreferences.getFloat("daily_volume_goal", 3000f)
+        dailyChallenges = mapOf(
+            0 to Challenge("Drink ${(dailyGoal*0.8f).toInt()} ml of water today.", 1),
+            1 to Challenge("Reach ${(dailyGoal*0.75f).toInt()} ml by the end of the day.", 1),
+            2 to Challenge("Hit ${(dailyGoal*0.6f).toInt()} ml before 6 PM.", 1),
+            3 to Challenge("Drink ${(dailyGoal*0.5f).toInt()} ml before lunch.", 1),
+            4 to Challenge("Drink ${(dailyGoal*0.15f).toInt()} ml every 3 hours.", 2),
+            5 to Challenge("Pour into your glass three times today.", 2),
+            6 to Challenge("Complete your daily hydration goal.", 3),
+            7 to Challenge("Pour into your glass before 9 AM.", 3)
+        )
 
         //1 means circularProgressIndicator measurement
         //2 means X times out of X times measurement
@@ -317,9 +318,8 @@ class ChallengesActivity : AppCompatActivity() {
     private fun getTodaysChallenges(): List<Int> {
         val today = dateFormat.format(Date())
         val savedDate = sharedPreferences.getString("challenge_date", "")
-        val challengeRegeneration = sharedPreferences.getBoolean("challenge_generation_since_goal_change", true)
 
-        return if (savedDate == today && challengeRegeneration) {
+        return if (savedDate == today) {
             (0..3).map { i ->
                 sharedPreferences.getInt("challenge_$i", i)
             }

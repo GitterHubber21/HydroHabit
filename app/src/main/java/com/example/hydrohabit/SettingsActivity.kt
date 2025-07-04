@@ -270,6 +270,9 @@ class SettingsActivity : AppCompatActivity() {
     }
     private fun showGoalChangePopup() {
         val dialogView = layoutInflater.inflate(R.layout.goal_change_popup, null)
+        val oldGoalDisplay = dialogView.findViewById<TextView>(R.id.current_goal_display_value)
+        val oldGoal = sharedPrefs.getFloat("daily_volume_goal", 3000f)
+        oldGoalDisplay.setText("$oldGoal ml")
 
         val alertDialog = AlertDialog.Builder(this)
             .setView(dialogView)
@@ -449,8 +452,7 @@ class SettingsActivity : AppCompatActivity() {
                         Log.d("server_response", "Successfully posted daily goal = $newGoal ml")
                         runOnUiThread {
                             Toast.makeText(this@SettingsActivity,"Goal updated successfully", Toast.LENGTH_SHORT).show()
-                            sharedPrefs.edit{putFloat("daily_volume_goal", newGoal)
-                                            putBoolean("challenge_generation_since_goal_change", false)}
+                            sharedPrefs.edit{putFloat("daily_volume_goal", newGoal) }
                         }
                     } else {
                         Log.w("server_response", "POST daily_goal failed: ${response.code}")
