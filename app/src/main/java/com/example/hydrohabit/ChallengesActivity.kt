@@ -345,6 +345,54 @@ class ChallengesActivity : AppCompatActivity() {
             newChallenges
         }
     }
+    private fun evaluateChallengeProgress(challenge: Challenge): Pair<Float, Boolean> {
+        val currentVolume = sharedPreferences.getFloat("current_volume", 0f)
+        val calendar = Calendar.getInstance()
+        val hour = calendar.get(Calendar.HOUR_OF_DAY)
+
+        return when (challenge.type) {
+            1 -> {
+                val goalVolume = Regex("\\d+").find(challenge.text)?.value?.toFloatOrNull() ?: return 0f to false
+                val isTimeRestricted = when {
+                    challenge.text.contains("before lunch", ignoreCase = true) -> hour < 12
+                    challenge.text.contains("before 6 PM", ignoreCase = true) -> hour < 18
+                    else -> true
+                }
+
+                val validForNow = isTimeRestricted || !challenge.text.contains("before", ignoreCase = true)
+                val progress = (currentVolume / goalVolume).coerceAtMost(1f)
+                val isCompleted = progress >= 1f && validForNow
+                progress to isCompleted
+            }
+
+            2 -> {
+                val interval = 3
+                val portionsPerDay = (24f / interval).toInt()
+                val perIntervalVolume = Regex("\\d+").find(challenge.text)?.value?.toFloatOrNull() ?: return 0f to false
+                val currentPortion = (currentVolume / perIntervalVolume).toInt().coerceAtMost(portionsPerDay)
+                val progress = currentPortion.toFloat() / portionsPerDay
+                val isCompleted = currentPortion >= portionsPerDay
+                progress to isCompleted
+            }
+
+            3 -> {
+                val isCompleted = when {
+                    challenge.text.contains("before 9 AM", ignoreCase = true) -> {
+                        hour < 9 && currentVolume > 0f
+                    }
+
+                    challenge.text.contains("complete your daily goal", ignoreCase = true) -> {
+                        currentVolume >= dailyGoal
+                    }
+
+                    else -> false
+                }
+                (if (isCompleted) 1f else 0f) to isCompleted
+            }
+
+            else -> 0f to false
+        }
+    }
 
 
 }

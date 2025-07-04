@@ -274,6 +274,9 @@ class MainActivity : ComponentActivity() {
         val url = "https://water.coolcoder.hackclub.app/api/log"
         val json = JSONObject().apply { put("volume_ml", volume) }.toString()
         val body = RequestBody.create("application/json; charset=utf-8".toMediaTypeOrNull(), json)
+        sharedPrefs.edit{
+            putFloat("current_volume", volume)
+        }
 
         val request = Request.Builder().url(url).post(body).build()
         client.newCall(request).enqueue(object : Callback {
