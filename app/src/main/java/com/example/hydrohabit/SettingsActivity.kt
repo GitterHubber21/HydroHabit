@@ -449,7 +449,8 @@ class SettingsActivity : AppCompatActivity() {
                         Log.d("server_response", "Successfully posted daily goal = $newGoal ml")
                         runOnUiThread {
                             Toast.makeText(this@SettingsActivity,"Goal updated successfully", Toast.LENGTH_SHORT).show()
-                            sharedPrefs.edit{putFloat("daily_volume_goal", newGoal)}
+                            sharedPrefs.edit{putFloat("daily_volume_goal", newGoal)
+                                            putBoolean("challenge_generation_since_goal_change", false)}
                         }
                     } else {
                         Log.w("server_response", "POST daily_goal failed: ${response.code}")

@@ -29,7 +29,19 @@ class ChallengesActivity : AppCompatActivity() {
     private lateinit var cards: List<FrameLayout>
     private val isFlipped = BooleanArray(4)
     private var dailyGoal = 0f
-    private var dailyChallenges = mapOf<String, Any>()
+    data class Challenge(val text: String, val type: Int)
+    private val dailyChallenges = mapOf(
+        0 to Challenge("Drink ${(dailyGoal*0.8f).toInt()} ml of water today.", 1),
+        1 to Challenge("Reach ${(dailyGoal*0.75f).toInt()} ml by the end of the day.", 1),
+        2 to Challenge("Hit ${(dailyGoal*0.6f).toInt()} ml before 6 PM.", 1),
+        3 to Challenge("Drink ${(dailyGoal*0.5f).toInt()} ml before lunch.", 1),
+        4 to Challenge("Drink ${(dailyGoal*0.15f).toInt()} ml every 3 hours.", 2),
+        5 to Challenge("Pour into your glass three times today.", 2),
+        6 to Challenge("Complete your daily hydration goal.", 3),
+        7 to Challenge("Pour into your glass before 9 AM.", 3)
+    )
+
+
     private lateinit var sharedPreferences: SharedPreferences
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
@@ -38,17 +50,7 @@ class ChallengesActivity : AppCompatActivity() {
         enableEdgeToEdge()
         sharedPreferences = getSharedPreferences("secure_cookies", MODE_PRIVATE)
         setContentView(R.layout.activity_challenges)
-
         dailyGoal = sharedPreferences.getFloat("daily_volume_goal", 3000f)
-
-        dailyChallenges = mapOf("Drink ${(dailyGoal*0.8f).toInt()} ml of water today." to 1,
-            "Reach ${(dailyGoal*0.75f).toInt()} ml by the end of the day." to 1,
-            "Hit ${(dailyGoal*0.6f).toInt()} ml before 6 PM." to 1,
-            "Complete your daily hydration goal." to 3,
-            "Drink ${(dailyGoal*0.15f).toInt()} ml every 3 hours." to 2,
-            "Pour into your glass before 9 AM." to 3,
-            "Drink ${(dailyGoal*0.5f).toInt()} ml before lunch." to 1,
-            "Pour into your glass three times today." to 2)
 
         //1 means circularProgressIndicator measurement
         //2 means X times out of X times measurement
@@ -124,8 +126,9 @@ class ChallengesActivity : AppCompatActivity() {
 
         for (i in cards.indices) {
             val card = cards[i]
-            val challengeText = todaysChallenges[i]
-            val challengeType = dailyChallenges[challengeText] ?: 1
+            val challengeId = todaysChallenges[i]
+            val challenge = dailyChallenges[challengeId]
+            val challengeType = challenge?.type ?: 1
 
             card.setOnClickListener { flipCard(card, i) }
 
@@ -144,7 +147,7 @@ class ChallengesActivity : AppCompatActivity() {
                 else -> backCircle
             }
 
-            front.text = challengeText
+            front.text = challenge?.text ?: "No challenge"
             front.alpha = 1f
 
             editor.putInt("card_back_id_$i", back.id)
@@ -311,37 +314,37 @@ class ChallengesActivity : AppCompatActivity() {
                 .start()
         }, finalDelay + 200)
     }
-    private fun getTodaysChallenges(): List<String> {
+    private fun getTodaysChallenges(): List<Int> {
         val today = dateFormat.format(Date())
         val savedDate = sharedPreferences.getString("challenge_date", "")
-        Log.d("saved_date", "$savedDate")
+        val challengeRegeneration = sharedPreferences.getBoolean("challenge_generation_since_goal_change", true)
 
-        return if (savedDate == today) {
+        return if (savedDate == today && challengeRegeneration) {
             (0..3).map { i ->
-                sharedPreferences.getString("challenge_$i", dailyChallenges.keys.first()) ?: dailyChallenges.keys.first()
+                sharedPreferences.getInt("challenge_$i", i)
             }
         } else {
             val usedIndices = mutableSetOf<Int>()
-            val newChallenges = mutableListOf<String>()
-            val challengeList = dailyChallenges.keys.toList()
+            val newChallenges = mutableListOf<Int>()
 
-            repeat(4) {
-                var challengeIndex: Int
-                do {
-                    challengeIndex = challengeList.indices.random()
-                } while (challengeIndex in usedIndices)
-
-                usedIndices.add(challengeIndex)
-                newChallenges.add(challengeList[challengeIndex])
+            while (newChallenges.size < 4) {
+                val random = (0..7).random()
+                if (random !in usedIndices) {
+                    usedIndices.add(random)
+                    newChallenges.add(random)
+                }
             }
+
             sharedPreferences.edit {
                 putString("challenge_date", today)
-                newChallenges.forEachIndexed { index, challenge ->
-                    putString("challenge_$index", challenge)
+                newChallenges.forEachIndexed { index, value ->
+                    putInt("challenge_$index", value)
                 }
+                putBoolean("challenge_generation_since_goal_change", true)
             }
             newChallenges
         }
     }
+
 
 }
