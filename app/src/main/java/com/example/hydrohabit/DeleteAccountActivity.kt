@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Rect
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
 import android.view.MotionEvent
 import android.view.inputmethod.InputMethodManager
@@ -79,6 +80,29 @@ class DeleteAccountActivity : AppCompatActivity() {
         val passwordEditText = findViewById<EditText>(R.id.passwordInput)
         val confirmPasswordEditText = findViewById<EditText>(R.id.passwordInputAgain)
         val deleteAccountButton = findViewById<TextView>(R.id.enterButton)
+
+        val passwordToggleFirst = findViewById<ImageView>(R.id.passwordToggleFirst)
+        val passwordToggleSecond = findViewById<ImageView>(R.id.passwordToggleSecond)
+        passwordToggleFirst.setOnClickListener {
+            passwordToggleFirst.isSelected = !passwordToggleFirst.isSelected
+            if (passwordToggleFirst.isSelected) {
+                passwordEditText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+            } else {
+                passwordEditText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            }
+
+            passwordEditText.setSelection(passwordEditText.text?.length ?: 0)
+        }
+        passwordToggleSecond.setOnClickListener {
+            passwordToggleSecond.isSelected = !passwordToggleSecond.isSelected
+            if (passwordToggleSecond.isSelected) {
+                confirmPasswordEditText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+            } else {
+                confirmPasswordEditText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            }
+
+            confirmPasswordEditText.setSelection(confirmPasswordEditText.text?.length ?: 0)
+        }
 
 
 

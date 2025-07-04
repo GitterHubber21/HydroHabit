@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Rect
 import android.os.Bundle
+import android.text.InputType
 import android.view.MotionEvent
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
@@ -79,6 +80,29 @@ class PasswordChangeActivity : AppCompatActivity() {
         val oldPasswordEditText = findViewById<EditText>(R.id.oldPasswordInput)
         val newPasswordEditText = findViewById<EditText>(R.id.newPasswordInput)
         val changePasswordButton = findViewById<TextView>(R.id.changeButton)
+
+        val passwordToggleFirst = findViewById<ImageView>(R.id.passwordToggleFirst)
+        val passwordToggleSecond = findViewById<ImageView>(R.id.passwordToggleSecond)
+        passwordToggleFirst.setOnClickListener {
+            passwordToggleFirst.isSelected = !passwordToggleFirst.isSelected
+            if (passwordToggleFirst.isSelected) {
+                oldPasswordEditText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+            } else {
+                oldPasswordEditText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            }
+
+            oldPasswordEditText.setSelection(oldPasswordEditText.text?.length ?: 0)
+        }
+        passwordToggleSecond.setOnClickListener {
+            passwordToggleSecond.isSelected = !passwordToggleSecond.isSelected
+            if (passwordToggleSecond.isSelected) {
+                newPasswordEditText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+            } else {
+                newPasswordEditText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            }
+
+            newPasswordEditText.setSelection(newPasswordEditText.text?.length ?: 0)
+        }
 
         sharedPrefs = getSharedPreferences("secure_cookies", MODE_PRIVATE)
 

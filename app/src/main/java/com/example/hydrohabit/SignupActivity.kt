@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
 import android.view.MotionEvent
 import android.view.inputmethod.InputMethodManager
@@ -90,6 +91,18 @@ class SignupActivity : AppCompatActivity() {
         val usernameInput: EditText = findViewById(R.id.usernameInput)
         val passwordInput: EditText = findViewById(R.id.passwordInput)
         val rootLayout = findViewById<RelativeLayout>(R.id.relativeLayout_signup)
+
+        val passwordToggleFirst = findViewById<ImageView>(R.id.passwordToggleFirst)
+        passwordToggleFirst.setOnClickListener {
+            passwordToggleFirst.isSelected = !passwordToggleFirst.isSelected
+            if (passwordToggleFirst.isSelected) {
+                passwordInput.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+            } else {
+                passwordInput.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            }
+
+            passwordInput.setSelection(passwordInput.text?.length ?: 0)
+        }
 
         backArrow.setOnClickListener {
             startActivity(Intent(applicationContext, LoginActivity::class.java))
