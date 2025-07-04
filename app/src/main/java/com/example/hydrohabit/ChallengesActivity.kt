@@ -12,18 +12,17 @@ import android.widget.TextView
 import android.view.animation.DecelerateInterpolator
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
-import android.content.Context
 import android.widget.FrameLayout
-import com.google.android.material.progressindicator.CircularProgressIndicator
 import android.content.SharedPreferences
+import android.util.Log
 import android.util.TypedValue
 import android.widget.RelativeLayout
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.updateLayoutParams
 import java.util.Locale
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.abs
+import androidx.core.content.edit
 
 class ChallengesActivity : AppCompatActivity() {
     private lateinit var gestureDetector: GestureDetector
@@ -31,28 +30,29 @@ class ChallengesActivity : AppCompatActivity() {
     private val isFlipped = BooleanArray(4)
     private var dailyGoal = 0f
     private var dailyChallenges = mapOf<String, Any>()
-    //1 means circularProgressIndicator measurement
-    //2 means X times out of X times measurement
-    //3 means checked or not measurement
     private lateinit var sharedPreferences: SharedPreferences
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        sharedPreferences = getSharedPreferences("challenges_prefs", MODE_PRIVATE)
+        sharedPreferences = getSharedPreferences("secure_cookies", MODE_PRIVATE)
         setContentView(R.layout.activity_challenges)
 
         dailyGoal = sharedPreferences.getFloat("daily_volume_goal", 3000f)
 
-        dailyChallenges = mapOf("Drink ${dailyGoal*0.8f} liter of water today." to 1,
-            "Reach ${dailyGoal*0.75f} liters by the end of the day." to 1,
-            "Hit ${dailyGoal*0.6f} liters before 6 PM." to 1,
+        dailyChallenges = mapOf("Drink ${(dailyGoal*0.8f).toInt()} ml of water today." to 1,
+            "Reach ${(dailyGoal*0.75f).toInt()} ml by the end of the day." to 1,
+            "Hit ${(dailyGoal*0.6f).toInt()} ml before 6 PM." to 1,
             "Complete your daily hydration goal." to 3,
-            "Drink ${dailyGoal*0.15f} mL every 3 hours." to 2,
+            "Drink ${(dailyGoal*0.15f).toInt()} ml every 3 hours." to 2,
             "Pour into your glass before 9 AM." to 3,
-            "Drink ${dailyGoal*0.5f} mL before lunch." to 1,
+            "Drink ${(dailyGoal*0.5f).toInt()} ml before lunch." to 1,
             "Pour into your glass three times today." to 2)
+
+        //1 means circularProgressIndicator measurement
+        //2 means X times out of X times measurement
+        //3 means checked or not measurement
 
         initializeViews()
         setupClickListeners()
@@ -112,7 +112,7 @@ class ChallengesActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-        val sharedPrefs = getSharedPreferences("challenge_prefs", MODE_PRIVATE)
+        val sharedPrefs = getSharedPreferences("secure_cookies", MODE_PRIVATE)
         val editor = sharedPrefs.edit()
         val frontIds = listOf(
             R.id.card_front,
@@ -155,8 +155,8 @@ class ChallengesActivity : AppCompatActivity() {
 
 
     private fun flipCard(card: FrameLayout, index: Int) {
-        val sharedPref = getSharedPreferences("challenge_prefs", MODE_PRIVATE)
-        val backId = sharedPref.getInt("card_back_id_$index", R.id.card_back_circle)
+        val sharedPrefs = getSharedPreferences("secure_cookies", MODE_PRIVATE)
+        val backId = sharedPrefs.getInt("card_back_id_$index", R.id.card_back_circle)
 
         val front = card.findViewById<TextView>(R.id.card_front)
         val back = card.findViewById<FrameLayout>(backId)
@@ -314,6 +314,7 @@ class ChallengesActivity : AppCompatActivity() {
     private fun getTodaysChallenges(): List<String> {
         val today = dateFormat.format(Date())
         val savedDate = sharedPreferences.getString("challenge_date", "")
+        Log.d("saved_date", "$savedDate")
 
         return if (savedDate == today) {
             (0..3).map { i ->
@@ -333,12 +334,11 @@ class ChallengesActivity : AppCompatActivity() {
                 usedIndices.add(challengeIndex)
                 newChallenges.add(challengeList[challengeIndex])
             }
-            with(sharedPreferences.edit()) {
+            sharedPreferences.edit {
                 putString("challenge_date", today)
                 newChallenges.forEachIndexed { index, challenge ->
                     putString("challenge_$index", challenge)
                 }
-                apply()
             }
             newChallenges
         }
