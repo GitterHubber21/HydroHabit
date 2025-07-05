@@ -61,7 +61,14 @@ class MainActivity : ComponentActivity() {
     private val coroutineScope = CoroutineScope(Dispatchers.Default + job)
 
     private lateinit var sharedPrefs: SharedPreferences
-
+    private enum class MotivationLevel(val priority: Int) {
+        LEVEL_50(1),
+        LEVEL_90(2),
+        LEVEL_100(3)
+    }
+    @Volatile
+    private var isMotivationalAnimating = false
+    private val motivationalQueue: MutableSet<MotivationLevel> = mutableSetOf()
     private val client = OkHttpClient.Builder()
         .cookieJar(object : CookieJar {
             override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
@@ -496,70 +503,56 @@ class MainActivity : ComponentActivity() {
             .start()
     }
     private fun animateMotivationalText50() {
-        val motivationalText = findViewById<TextView>(R.id.motivation_50)
-
-
-        motivationalText.animate()
-            .alpha(1f)
-            .translationY(0f)
-            .setDuration(400)
-            .setInterpolator(DecelerateInterpolator())
-            .withEndAction {
-                motivationalText.postDelayed({
-                    motivationalText.animate()
-                        .alpha(0f)
-                        .translationY(-20f)
-                        .setDuration(400)
-                        .setInterpolator(DecelerateInterpolator())
-                        .start()
-                }, 1000)
-            }
-            .start()
-
+        enqueueMotivationalAnimation(MotivationLevel.LEVEL_50) {}
     }
     private fun animateMotivationalText90() {
-        val motivationalText = findViewById<TextView>(R.id.motivation_90)
-
-        motivationalText.animate()
-            .alpha(1f)
-            .translationY(0f)
-            .setDuration(400)
-            .setInterpolator(DecelerateInterpolator())
-            .withEndAction {
-                motivationalText.postDelayed({
-                    motivationalText.animate()
-                        .alpha(0f)
-                        .translationY(-20f)
-                        .setDuration(400)
-                        .setInterpolator(DecelerateInterpolator())
-                        .start()
-                }, 1000)
-            }
-            .start()
-
+        enqueueMotivationalAnimation(MotivationLevel.LEVEL_90) {}
     }
     private fun animateMotivationalText100() {
-        val motivationalText = findViewById<TextView>(R.id.motivation_100)
+        enqueueMotivationalAnimation(MotivationLevel.LEVEL_100) {}
+    }
+    private fun enqueueMotivationalAnimation(level: MotivationLevel, animation: () -> Unit){
+        synchronized(motivationalQueue) {
+            motivationalQueue.add(level)
+
+            val highest = motivationalQueue.maxByOrNull {it.priority}
+            motivationalQueue.retainAll(setOfNotNull(highest))
+
+            if(!isMotivationalAnimating && highest != null){
+                runMotivationalAnimation(highest)
+            }
+        }
+    }
+    private fun runMotivationalAnimation(level: MotivationLevel){
+        val motivationalText: TextView = when(level){
+            MotivationLevel.LEVEL_50 -> findViewById(R.id.motivation_50)
+            MotivationLevel.LEVEL_90 -> findViewById(R.id.motivation_90)
+            MotivationLevel.LEVEL_100 -> findViewById(R.id.motivation_100)
+        }
+
+        isMotivationalAnimating = true
 
         motivationalText.animate()
             .alpha(1f)
             .translationY(0f)
             .setDuration(400)
             .setInterpolator(DecelerateInterpolator())
-            .withEndAction {
+            .withEndAction{
                 motivationalText.postDelayed({
                     motivationalText.animate()
                         .alpha(0f)
                         .translationY(-20f)
                         .setDuration(400)
                         .setInterpolator(DecelerateInterpolator())
+                        .withEndAction{
+                            synchronized(motivationalQueue){
+                                motivationalQueue.clear()
+                                isMotivationalAnimating = false
+                            }
+                        }
                         .start()
                 }, 1000)
             }
             .start()
-
     }
-
-
-
 }

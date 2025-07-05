@@ -23,6 +23,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.abs
 import androidx.core.content.edit
+import com.google.android.material.progressindicator.CircularProgressIndicator
+import org.w3c.dom.Text
 
 class ChallengesActivity : AppCompatActivity() {
     private lateinit var gestureDetector: GestureDetector
@@ -152,6 +154,10 @@ class ChallengesActivity : AppCompatActivity() {
             front.alpha = 1f
 
             editor.putInt("card_back_id_$i", back.id)
+
+            if(challenge != null){
+                updateCardBack(card, challenge, i)
+            }
         }
         editor.apply()
     }
@@ -206,12 +212,6 @@ class ChallengesActivity : AppCompatActivity() {
                 }
             })
     }
-
-
-
-
-
-
     private inner class SwipeGestureListener : GestureDetector.SimpleOnGestureListener() {
         private val swipeThreshold = 100
         private val swipeVelocityThreshold = 100
@@ -392,6 +392,42 @@ class ChallengesActivity : AppCompatActivity() {
 
             else -> 0f to false
         }
+    }
+    private fun updateCardBack(card:FrameLayout, challenge: Challenge, index: Int) {
+        val (progress, isCompleted) = evaluateChallengeProgress(challenge)
+
+        val circleProgress = card.findViewById<CircularProgressIndicator>(R.id.circle_progress_indicator)
+        val percentText = card.findViewById<TextView>(R.id.progress_text_percent)
+        val quantityText = card.findViewById<TextView>(R.id.progress_text_quantity)
+        val checkIcon = card.findViewById<ImageView>(R.id.check_icon)
+        val notYetCompleted = card.findViewById<TextView>(R.id.progress_text_not_yet_completed)
+
+        when(challenge.type){
+            1 ->{
+                val percent = (progress*100).toInt()
+                circleProgress.progress = percent
+                percentText.text = "$percent%"
+                if(isCompleted){
+                    card.setBackgroundResource(R.drawable.rounded_transparent_square_glow_outline)
+                }
+            }
+            2 ->{
+                val totalCount = (24f / 3).toInt()
+                val currentCount = sharedPreferences.getFloat("current_volume", 0f)
+                quantityText.text = "$currentCount/$totalCount"
+                if(isCompleted){
+                    card.setBackgroundResource(R.drawable.rounded_transparent_square_glow_outline)
+                }
+            }
+            3 ->{
+                checkIcon.alpha = if(isCompleted) 1f else 0f
+                notYetCompleted.alpha = if(!isCompleted) 1f else 0f
+                if(isCompleted){
+                    card.setBackgroundResource(R.drawable.rounded_transparent_square_glow_outline)
+                }
+            }
+        }
+
     }
 
 
