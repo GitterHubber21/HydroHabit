@@ -347,38 +347,11 @@ class MainActivity : ComponentActivity() {
 
     private fun setupVolumeButton(button: Button, amount: Int) {
         val vibrator = getSystemService<Vibrator>()
-        val dailyGoal = sharedPrefs.getFloat("daily_volume_goal", 3000f)
         setupPressable(button, vibrator, R.drawable.rounded_transparent_square,
             onPress = {
                 if (!isTimedRainActive) {
                     displayedVolume += amount
-                    val progress = displayedVolume / dailyGoal
-                    val motivationalTextDisplayed50 = sharedPrefs.getBoolean("motivational_text_displayed_50", false)
-                    val motivationalTextDisplayed90 = sharedPrefs.getBoolean("motivational_text_displayed_90", false)
-                    val motivationalTextDisplayed100 = sharedPrefs.getBoolean("motivational_text_displayed_100", false)
-
-                    when{
-                        progress >= 1f && !motivationalTextDisplayed100 ->{
-                            animateMotivationalText100()
-                            sharedPrefs.edit{
-                                putBoolean("motivational_text_displayed_100", true)
-                            }
-                        }
-                        progress >= 0.9f && !motivationalTextDisplayed90 ->{
-                            animateMotivationalText90()
-                            sharedPrefs.edit{
-                                putBoolean("motivational_text_displayed_90", true)
-                            }
-                        }
-                        progress >= 0.5f && !motivationalTextDisplayed50 ->{
-                            animateMotivationalText50()
-                            sharedPrefs.edit{
-                                putBoolean("motivational_text_displayed_50", true)
-                            }
-                        }
-                    }
-
-
+                    checkAndAnimateMotivation()
                     waterVolumeText.text = String.format("%.1f ml", displayedVolume)
                     rainView.addWaterDirectly(amount.toFloat())
                 }
@@ -555,4 +528,43 @@ class MainActivity : ComponentActivity() {
             }
             .start()
     }
+    private fun checkAndAnimateMotivation() {
+        val progress = displayedVolume / dailyGoal
+
+        val levels = listOf(
+            MotivationLevel.LEVEL_100 to 1.0f,
+            MotivationLevel.LEVEL_90 to 0.9f,
+            MotivationLevel.LEVEL_50 to 0.5f
+        )
+
+        for ((level, threshold) in levels) {
+            val key = when (level) {
+                MotivationLevel.LEVEL_50 -> "motivational_text_displayed_50"
+                MotivationLevel.LEVEL_90 -> "motivational_text_displayed_90"
+                MotivationLevel.LEVEL_100 -> "motivational_text_displayed_100"
+            }
+
+            if (progress >= threshold && !sharedPrefs.getBoolean(key, false)) {
+                sharedPrefs.edit {
+                    when (level) {
+                        MotivationLevel.LEVEL_100 -> {
+                            putBoolean("motivational_text_displayed_100", true)
+                            putBoolean("motivational_text_displayed_90", true)
+                            putBoolean("motivational_text_displayed_50", true)
+                        }
+                        MotivationLevel.LEVEL_90 -> {
+                            putBoolean("motivational_text_displayed_90", true)
+                            putBoolean("motivational_text_displayed_50", true)
+                        }
+                        MotivationLevel.LEVEL_50 -> {
+                            putBoolean("motivational_text_displayed_50", true)
+                        }
+                    }
+                }
+                enqueueMotivationalAnimation(level) {}
+                break
+            }
+        }
+    }
+
 }

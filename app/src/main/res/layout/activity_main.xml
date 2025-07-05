@@ -74,12 +74,11 @@
                 android:layout_height="match_parent"
                 android:background="@drawable/ic_cup"
                 android:contentDescription="@string/water_glass" />
-
             <TextView
-                android:id="@+id/motivation_90"
+                android:id="@+id/motivation_50"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="You are so close!"
+                android:text="You got this!"
                 android:gravity="center"
                 android:textColor="#F0F4F8"
                 android:alpha="0"
@@ -87,10 +86,10 @@
                 android:fontFamily="@font/dosis_bold"
                 android:textSize="12sp" />
             <TextView
-                android:id="@+id/motivation_50"
+                android:id="@+id/motivation_90"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="You are halfway there!"
+                android:text="You are so close!"
                 android:gravity="center"
                 android:textColor="#F0F4F8"
                 android:alpha="0"
