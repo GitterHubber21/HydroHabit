@@ -61,6 +61,7 @@ class ChallengesActivity : AppCompatActivity() {
 
         initializeViews()
         setupClickListeners()
+        updateMonthlyChallengeDisplay()
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
 
@@ -444,5 +445,30 @@ class ChallengesActivity : AppCompatActivity() {
             }
         }
     }
+    private fun updateMonthlyChallengeDisplay() {
+        val daysInMonth = sharedPreferences.getInt("days_in_current_month", 0)
+        val completedDays = sharedPreferences.getInt("number_of_completed_days_in_current_month", 0)
+        val monthDisplayTextView = findViewById<TextView>(R.id.monthlyChallengeDisplay)
+
+        if (daysInMonth > 0) {
+            val calendar = Calendar.getInstance()
+            val currentMonthIndex = calendar.get(Calendar.MONTH)
+            val englishMonths = arrayOf(
+                "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+            )
+            val currentMonth = englishMonths[currentMonthIndex]
+
+            monthDisplayTextView.text =
+                "Complete your daily goal every day in $currentMonth : $completedDays/$daysInMonth"
+
+            if (completedDays == daysInMonth) {
+                monthDisplayTextView.setBackgroundResource(R.drawable.rounded_transparent_square_glow_outline)
+            }
+        } else {
+            monthDisplayTextView.text = "Monthly challenge data not available"
+        }
+    }
+
 
 }

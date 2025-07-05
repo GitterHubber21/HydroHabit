@@ -75,6 +75,7 @@ def detailed_stats():
         "month_volume_ml": stats.month_volume_ml,
         "days_in_current_month": stats.days_in_current_month,
         "month_goal_completed_dates": goal_completed_dates,
+        "number_of_completed_days_in_current_month" : len(goal_completed_dates),
         "calculated_date": str(stats.calculated_date)
     })
 

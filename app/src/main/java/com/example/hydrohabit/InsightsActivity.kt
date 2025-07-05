@@ -20,7 +20,6 @@ import android.view.MotionEvent
 import android.view.animation.DecelerateInterpolator
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
-import androidx.constraintlayout.widget.ConstraintLayout
 import kotlin.math.abs
 import androidx.core.content.edit
 import androidx.core.view.updateLayoutParams
@@ -36,12 +35,12 @@ import kotlin.collections.component2
 import kotlin.collections.iterator
 import kotlinx.coroutines.*
 import org.json.JSONObject
-import org.json.JSONArray
 import com.google.android.material.progressindicator.CircularProgressIndicator
 
 class InsightsActivity : AppCompatActivity() {
     private var cellSize = 0
     private lateinit var gestureDetector: GestureDetector
+    private lateinit var securePrefs: SharedPreferences
     private lateinit var sharedPrefs: SharedPreferences
     private val scope = CoroutineScope(Dispatchers.Main+SupervisorJob())
     private var completedDates = mutableSetOf<Int>()
@@ -51,7 +50,7 @@ class InsightsActivity : AppCompatActivity() {
             override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
                 if (url.host == "water.coolcoder.hackclub.app") {
                     for (cookie in cookies) {
-                        sharedPrefs.edit {
+                        securePrefs.edit {
                             putString(cookie.name, cookie.value)
                         }
                     }
@@ -60,7 +59,7 @@ class InsightsActivity : AppCompatActivity() {
 
             override fun loadForRequest(url: HttpUrl): List<Cookie> {
                 val cookies = mutableListOf<Cookie>()
-                val allCookies = sharedPrefs.all
+                val allCookies = securePrefs.all
                 for ((name, value) in allCookies) {
                     if (value is String) {
                         cookies.add(
@@ -199,13 +198,15 @@ class InsightsActivity : AppCompatActivity() {
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
             .build()
 
-        sharedPrefs = EncryptedSharedPreferences.create(
+        securePrefs = EncryptedSharedPreferences.create(
             this,
             "secure_cookies_encrypted",
             masterKey,
             EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
             EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
         )
+        sharedPrefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+
     }
 
 
@@ -383,6 +384,7 @@ class InsightsActivity : AppCompatActivity() {
                     processWeekPercentProgress(it)
                     processMonthPercentProgress(it)
                     processCompletedDates(it)
+                    processMonthDays(it)
                 }
 
             } catch (e: Exception) {
@@ -443,6 +445,25 @@ class InsightsActivity : AppCompatActivity() {
 
             dayPercentTextView.text = "${progressValue}%"
             Log.d("InsightsActivity", "Updated UI with today_percentage: $monthPercentage")
+
+
+        }catch (e: Exception) {
+            Log.e("InsightsActivity", "Error parsing stats response", e)
+        }
+    }
+    private fun processMonthDays(responseBody: String) {
+        try {
+            val jsonObject = JSONObject(responseBody)
+            val monthDays = jsonObject.optInt("days_in_current_month", 0)
+            val monthNumberOfCompletedDays = jsonObject.optInt("number_of_completed_days_in_current_month", 0)
+
+            sharedPrefs.edit{
+                putInt("days_in_current_month", monthDays)
+                putInt("number_of_completed_days_in_current_month", monthNumberOfCompletedDays)
+            }
+
+
+            Log.d("InsightsActivity", "Got monthDays and completedDays from the server.: $monthDays, $monthNumberOfCompletedDays")
 
 
         }catch (e: Exception) {

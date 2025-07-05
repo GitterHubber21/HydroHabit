@@ -160,7 +160,7 @@
             android:id="@+id/monthlyChallengeDisplay"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="Monthly Challenge"
+            android:text="Complete your daily goal every day in July."
             android:gravity="center"
             android:background="@drawable/rounded_transparent_square_challenge"
             android:textColor="@android:color/white"
