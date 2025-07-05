@@ -463,11 +463,11 @@ class InsightsActivity : AppCompatActivity() {
             }
 
 
-            Log.d("InsightsActivity", "Got monthDays and completedDays from the server.: $monthDays, $monthNumberOfCompletedDays")
+            Log.d("server_response", "Got monthDays and completedDays from the server.: $monthDays, $monthNumberOfCompletedDays")
 
 
         }catch (e: Exception) {
-            Log.e("InsightsActivity", "Error parsing stats response", e)
+            Log.e("server_response", "Error parsing stats response", e)
         }
     }
 

@@ -236,6 +236,9 @@ class MainActivity : ComponentActivity() {
             updateQuantity(displayedVolume)
         }
         isVolumeInitialized = false
+        coroutineScope.launch {
+            fetchTotalVolume()
+        }
     }
 
     override fun onDestroy() {
@@ -245,6 +248,9 @@ class MainActivity : ComponentActivity() {
         }
         isVolumeInitialized = false
         job.cancel()
+        coroutineScope.launch {
+            fetchTotalVolume()
+        }
     }
 
 
@@ -321,6 +327,7 @@ class MainActivity : ComponentActivity() {
                 if (response.isSuccessful) {
                     val body = response.body?.string()
                     if (body != null) {
+                        processMonthDays(body)
                         val total = JSONObject(body).optDouble("today_volume_ml", 0.0)
                         total.toFloat()
                     } else 0f
@@ -332,6 +339,25 @@ class MainActivity : ComponentActivity() {
         } catch (e: Exception) {
             Log.e("MainActivity", "stats request error", e)
             0f
+        }
+    }
+    private fun processMonthDays(responseBody: String) {
+        try {
+            val jsonObject = JSONObject(responseBody)
+            val monthDays = jsonObject.optInt("days_in_current_month", 0)
+            val monthNumberOfCompletedDays = jsonObject.optInt("number_of_completed_days_in_current_month", 0)
+
+            sharedPrefs.edit{
+                putInt("days_in_current_month", monthDays)
+                putInt("number_of_completed_days_in_current_month", monthNumberOfCompletedDays)
+            }
+
+
+            Log.d("server_response", "Got monthDays and completedDays from the server.: $monthDays, $monthNumberOfCompletedDays")
+
+
+        }catch (e: Exception) {
+            Log.e("server_response", "Error parsing stats response", e)
         }
     }
 

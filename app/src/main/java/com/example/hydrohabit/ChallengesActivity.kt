@@ -14,8 +14,8 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.widget.FrameLayout
 import android.content.SharedPreferences
-import android.util.Log
 import android.util.TypedValue
+import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.core.view.updateLayoutParams
 import java.util.Locale
@@ -24,7 +24,6 @@ import java.util.*
 import kotlin.math.abs
 import androidx.core.content.edit
 import com.google.android.material.progressindicator.CircularProgressIndicator
-import org.w3c.dom.Text
 
 class ChallengesActivity : AppCompatActivity() {
     private lateinit var gestureDetector: GestureDetector
@@ -61,7 +60,6 @@ class ChallengesActivity : AppCompatActivity() {
 
         initializeViews()
         setupClickListeners()
-        updateMonthlyChallengeDisplay()
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
 
@@ -118,6 +116,7 @@ class ChallengesActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
+        updateMonthlyChallengeDisplay()
         val sharedPrefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
         val editor = sharedPrefs.edit()
         val frontIds = listOf(
@@ -265,7 +264,7 @@ class ChallengesActivity : AppCompatActivity() {
         val square4 = findViewById<FrameLayout>(R.id.card4_container)
         val dailyTitle = findViewById<TextView>(R.id.dailyTitle)
         val monthlyTitle = findViewById<TextView>(R.id.monthlyTitle)
-        val monthlyChallenge = findViewById<TextView>(R.id.monthlyChallengeDisplay)
+        val monthlyChallenge = findViewById<LinearLayout>(R.id.monthlyChallengeDisplay)
 
         val animationDuration = 300L
         val dealingDelay = 200L
@@ -448,7 +447,9 @@ class ChallengesActivity : AppCompatActivity() {
     private fun updateMonthlyChallengeDisplay() {
         val daysInMonth = sharedPreferences.getInt("days_in_current_month", 0)
         val completedDays = sharedPreferences.getInt("number_of_completed_days_in_current_month", 0)
-        val monthDisplayTextView = findViewById<TextView>(R.id.monthlyChallengeDisplay)
+        val monthlyChallengeDisplay = findViewById<TextView>(R.id.monthlyChallengeText)
+        val monthDisplayTextProgress = findViewById<TextView>(R.id.monthlyChallengeProgress)
+        val monthlyChallengeLayout = findViewById<LinearLayout>(R.id.monthlyChallengeDisplay)
 
         if (daysInMonth > 0) {
             val calendar = Calendar.getInstance()
@@ -459,14 +460,17 @@ class ChallengesActivity : AppCompatActivity() {
             )
             val currentMonth = englishMonths[currentMonthIndex]
 
-            monthDisplayTextView.text =
-                "Complete your daily goal every day in $currentMonth : $completedDays/$daysInMonth"
+            monthlyChallengeDisplay.text =
+                "Complete your daily goal every day in $currentMonth."
+
+            monthDisplayTextProgress.text =
+                "$completedDays/$daysInMonth"
 
             if (completedDays == daysInMonth) {
-                monthDisplayTextView.setBackgroundResource(R.drawable.rounded_transparent_square_glow_outline)
+                monthlyChallengeLayout.setBackgroundResource(R.drawable.rounded_transparent_square_glow_outline)
             }
         } else {
-            monthDisplayTextView.text = "Monthly challenge data not available"
+            monthDisplayTextProgress.text = "Monthly challenge data not available"
         }
     }
 
