@@ -32,7 +32,11 @@ class ChallengesActivity : AppCompatActivity() {
     private val isFlipped = BooleanArray(4)
     private var dailyGoal = 0f
     data class Challenge(val text: String, val type: Int)
-
+    enum class ChallengeStatus{
+        COMPLETED,
+        NOT_YET_COMPLETED,
+        IMPOSSIBLE
+    }
     private var dailyChallenges: Map<Int, Challenge> = mapOf()
 
     private lateinit var sharedPreferences: SharedPreferences
@@ -45,19 +49,15 @@ class ChallengesActivity : AppCompatActivity() {
         setContentView(R.layout.activity_challenges)
         dailyGoal = sharedPreferences.getFloat("daily_volume_goal", 3000f)
         dailyChallenges = mapOf(
-            0 to Challenge("Drink ${(dailyGoal*0.8f).toInt()} ml of water today.", 1),
-            1 to Challenge("Reach ${(dailyGoal*0.75f).toInt()} ml by the end of the day.", 1),
-            2 to Challenge("Hit ${(dailyGoal*0.6f).toInt()} ml before 6 PM.", 1),
-            3 to Challenge("Drink ${(dailyGoal*0.5f).toInt()} ml before lunch.", 1),
-            4 to Challenge("Drink ${(dailyGoal*0.15f).toInt()} ml every 3 hours.", 2),
-            5 to Challenge("Pour into your glass three times today.", 2),
-            6 to Challenge("Complete your daily hydration goal.", 3),
-            7 to Challenge("Pour into your glass before 9 AM.", 3)
+            0 to Challenge("Hit ${(dailyGoal*0.6f).toInt()} ml before 6 PM.", 1),
+            1 to Challenge("Drink ${(dailyGoal*0.5f).toInt()} ml before lunch.", 1),
+            2 to Challenge("Pour into your glass three times today.", 2),
+            3 to Challenge("Complete your daily hydration goal.", 2),
+            4 to Challenge("Pour into your glass before 9 AM.", 2)
         )
 
         //1 means circularProgressIndicator measurement
-        //2 means X times out of X times measurement
-        //3 means checked or not measurement
+        //2 means checked or not measurement
 
         initializeViews()
         setupClickListeners()
@@ -137,16 +137,13 @@ class ChallengesActivity : AppCompatActivity() {
 
             val front = card.findViewById<TextView>(frontIds[i])
             val backCircle = card.findViewById<FrameLayout>(R.id.card_back_circle)
-            val backText = card.findViewById<FrameLayout>(R.id.card_back_text)
             val backCheck = card.findViewById<FrameLayout>(R.id.card_back_check)
             backCircle.alpha = 0f
-            backText.alpha = 0f
             backCheck.alpha = 0f
 
             val back = when (challengeType) {
                 1 -> backCircle
-                2 -> backText
-                3 -> backCheck
+                2 -> backCheck
                 else -> backCircle
             }
 
@@ -173,7 +170,6 @@ class ChallengesActivity : AppCompatActivity() {
 
         val backLayouts = listOf(
             R.id.card_back_circle,
-            R.id.card_back_text,
             R.id.card_back_check
         )
 
@@ -324,11 +320,12 @@ class ChallengesActivity : AppCompatActivity() {
                 sharedPreferences.getInt("challenge_$i", i)
             }
         } else {
+            val availableChallengeIds = dailyChallenges.keys.toList()
             val usedIndices = mutableSetOf<Int>()
             val newChallenges = mutableListOf<Int>()
 
-            while (newChallenges.size < 4) {
-                val random = (0..7).random()
+            while (newChallenges.size < 4 && usedIndices.size < availableChallengeIds.size) {
+                val random = availableChallengeIds.random()
                 if (random !in usedIndices) {
                     usedIndices.add(random)
                     newChallenges.add(random)
@@ -345,90 +342,107 @@ class ChallengesActivity : AppCompatActivity() {
             newChallenges
         }
     }
-    private fun evaluateChallengeProgress(challenge: Challenge): Pair<Float, Boolean> {
+
+    private fun evaluateChallengeProgress(challenge: Challenge): Triple<Float, Boolean, ChallengeStatus> {
         val currentVolume = sharedPreferences.getFloat("current_volume", 0f)
         val calendar = Calendar.getInstance()
         val hour = calendar.get(Calendar.HOUR_OF_DAY)
+        val pourNumber = sharedPreferences.getInt("pour_number", 0)
 
         return when (challenge.type) {
             1 -> {
-                val goalVolume = Regex("\\d+").find(challenge.text)?.value?.toFloatOrNull() ?: return 0f to false
-                val isTimeRestricted = when {
-                    challenge.text.contains("before lunch", ignoreCase = true) -> hour < 12
-                    challenge.text.contains("before 6 PM", ignoreCase = true) -> hour < 18
-                    else -> true
+                val goalVolume = Regex("\\d+").find(challenge.text)?.value?.toFloatOrNull() ?: return Triple(0f, false, ChallengeStatus.NOT_YET_COMPLETED)
+
+                val timeLimit = when {
+                    challenge.text.contains("before lunch", true) -> 12
+                    challenge.text.contains("before 6 PM", true) -> 18
+                    else -> null
                 }
 
-                val validForNow = isTimeRestricted || !challenge.text.contains("before", ignoreCase = true)
                 val progress = (currentVolume / goalVolume).coerceAtMost(1f)
-                val isCompleted = progress >= 1f && validForNow
-                progress to isCompleted
+                return when {
+                    progress >= 1f && (timeLimit == null || hour < timeLimit) ->
+                        Triple(progress, true, ChallengeStatus.COMPLETED)
+
+                    timeLimit != null && hour >= timeLimit ->
+                        Triple(progress, false, ChallengeStatus.IMPOSSIBLE)
+
+                    else ->
+                        Triple(progress, false, ChallengeStatus.NOT_YET_COMPLETED)
+                }
             }
 
             2 -> {
-                val interval = 3
-                val portionsPerDay = (24f / interval).toInt()
-                val perIntervalVolume = Regex("\\d+").find(challenge.text)?.value?.toFloatOrNull() ?: return 0f to false
-                val currentPortion = (currentVolume / perIntervalVolume).toInt().coerceAtMost(portionsPerDay)
-                val progress = currentPortion.toFloat() / portionsPerDay
-                val isCompleted = currentPortion >= portionsPerDay
-                progress to isCompleted
-            }
-
-            3 -> {
-                val isCompleted = when {
-                    challenge.text.contains("before 9 AM", ignoreCase = true) -> {
-                        hour < 9 && currentVolume > 0f
+                val status = when {
+                    challenge.text.contains("before 9 AM", true) -> {
+                        if (hour < 9 && currentVolume > 0f) ChallengeStatus.COMPLETED
+                        else if (hour >= 9 && currentVolume == 0f) ChallengeStatus.IMPOSSIBLE
+                        else ChallengeStatus.NOT_YET_COMPLETED
                     }
 
-                    challenge.text.contains("complete your daily goal", ignoreCase = true) -> {
-                        currentVolume >= dailyGoal
-                    }
+                    challenge.text.contains("complete your daily hydration goal", true) ->
+                        if (currentVolume >= dailyGoal) ChallengeStatus.COMPLETED else ChallengeStatus.NOT_YET_COMPLETED
 
-                    else -> false
+                    challenge.text.contains("glass three times today", true) ->
+                        if (pourNumber >= 3) ChallengeStatus.COMPLETED else ChallengeStatus.NOT_YET_COMPLETED
+
+                    else -> ChallengeStatus.NOT_YET_COMPLETED
                 }
-                (if (isCompleted) 1f else 0f) to isCompleted
+
+                return Triple(if (status == ChallengeStatus.COMPLETED) 1f else 0f, status == ChallengeStatus.COMPLETED, status)
             }
 
-            else -> 0f to false
+            else -> Triple(0f, false, ChallengeStatus.NOT_YET_COMPLETED)
         }
     }
-    private fun updateCardBack(card:FrameLayout, challenge: Challenge, index: Int) {
-        val (progress, isCompleted) = evaluateChallengeProgress(challenge)
+    private fun updateCardBack(card: FrameLayout, challenge: Challenge, index: Int) {
+        val (progress, isCompleted, status) = evaluateChallengeProgress(challenge)
 
         val circleProgress = card.findViewById<CircularProgressIndicator>(R.id.circle_progress_indicator)
         val percentText = card.findViewById<TextView>(R.id.progress_text_percent)
-        val quantityText = card.findViewById<TextView>(R.id.progress_text_quantity)
         val checkIcon = card.findViewById<ImageView>(R.id.check_icon)
         val notYetCompleted = card.findViewById<TextView>(R.id.progress_text_not_yet_completed)
 
-        when(challenge.type){
-            1 ->{
-                val percent = (progress*100).toInt()
+        when (challenge.type) {
+            1 -> {
+                val percent = (progress * 100).toInt()
                 circleProgress.progress = percent
                 percentText.text = "$percent%"
-                if(isCompleted){
-                    card.setBackgroundResource(R.drawable.rounded_transparent_square_glow_outline)
+
+                when (status) {
+                    ChallengeStatus.COMPLETED -> {
+                        card.setBackgroundResource(R.drawable.rounded_transparent_square_glow_outline)
+                    }
+                    ChallengeStatus.IMPOSSIBLE -> {
+                        percentText.text = "Missed"
+                        circleProgress.alpha=0f
+                        card.setBackgroundResource(R.drawable.rounded_transparent_square_glow_outline_fail)}
+                    ChallengeStatus.NOT_YET_COMPLETED -> {percentText.text = "$percent%"}
                 }
             }
-            2 ->{
-                val totalCount = (24f / 3).toInt()
-                val currentCount = sharedPreferences.getFloat("current_volume", 0f)
-                quantityText.text = "$currentCount/$totalCount"
-                if(isCompleted){
-                    card.setBackgroundResource(R.drawable.rounded_transparent_square_glow_outline)
-                }
-            }
-            3 ->{
-                checkIcon.alpha = if(isCompleted) 1f else 0f
-                notYetCompleted.alpha = if(!isCompleted) 1f else 0f
-                if(isCompleted){
-                    card.setBackgroundResource(R.drawable.rounded_transparent_square_glow_outline)
+
+            2 -> {
+                when (status) {
+                    ChallengeStatus.COMPLETED -> {
+                        checkIcon.alpha = 1f
+                        notYetCompleted.alpha = 0f
+                        card.setBackgroundResource(R.drawable.rounded_transparent_square_glow_outline)
+                    }
+
+                    ChallengeStatus.NOT_YET_COMPLETED -> {
+                        checkIcon.alpha = 0f
+                        notYetCompleted.alpha = 1f
+                    }
+
+                    ChallengeStatus.IMPOSSIBLE -> {
+                        checkIcon.alpha = 0f
+                        notYetCompleted.text = "Too Late"
+                        notYetCompleted.alpha = 1f
+                        card.setBackgroundResource(R.drawable.rounded_transparent_square_glow_outline_fail)
+                    }
                 }
             }
         }
-
     }
-
 
 }

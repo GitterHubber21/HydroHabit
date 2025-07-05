@@ -56,6 +56,7 @@ class MainActivity : ComponentActivity() {
     private var dailyGoal = 3000f
     private var isVolumeInitialized = false
     private var isAnimationActive = false
+    private var pourNumber = 0
 
     private val job = Job()
     private val coroutineScope = CoroutineScope(Dispatchers.Default + job)
@@ -107,7 +108,7 @@ class MainActivity : ComponentActivity() {
         setContentView(R.layout.activity_main)
 
         sharedPrefs = getSharedPreferences("secure_cookies", MODE_PRIVATE)
-
+        checkAndResetPourNumberIfNewDay()
         initViews()
         setupRainView()
         setupButtons()
@@ -338,6 +339,12 @@ class MainActivity : ComponentActivity() {
             },
             onRelease = {
                 if (!isTimedRainActive) rainView.stopRain()
+                val today = java.time.LocalDate.now().toString()
+                pourNumber += 1
+                sharedPrefs.edit{
+                    putInt("pour_number", pourNumber)
+                    putString("last_pour_date", today)
+                }
             }
         )
         setupVolumeButton(add250Button, AMOUNT_250)
@@ -356,7 +363,14 @@ class MainActivity : ComponentActivity() {
                     rainView.addWaterDirectly(amount.toFloat())
                 }
             },
-            onRelease = {}
+            onRelease = {
+                val today = java.time.LocalDate.now().toString()
+                pourNumber += 1
+                sharedPrefs.edit{
+                    putInt("pour_number", pourNumber)
+                    putString("last_pour_date", today)
+                }
+            }
         )
     }
 
@@ -564,6 +578,20 @@ class MainActivity : ComponentActivity() {
                 enqueueMotivationalAnimation(level) {}
                 break
             }
+        }
+    }
+    private fun checkAndResetPourNumberIfNewDay(){
+        val today = java.time.LocalDate.now().toString()
+        val lastDate = sharedPrefs.getString("last_pour_date", null)
+
+        if(lastDate != today){
+            pourNumber = 0
+            sharedPrefs.edit{
+                putInt("pour_number", 0)
+                putString("last_pour_date", today)
+            }
+        }else{
+            pourNumber = sharedPrefs.getInt("pour_number", 0)
         }
     }
 
