@@ -45,7 +45,7 @@ class ChallengesActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        sharedPreferences = getSharedPreferences("secure_cookies", MODE_PRIVATE)
+        sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE)
         setContentView(R.layout.activity_challenges)
         dailyGoal = sharedPreferences.getFloat("daily_volume_goal", 3000f)
         dailyChallenges = mapOf(
@@ -117,7 +117,7 @@ class ChallengesActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-        val sharedPrefs = getSharedPreferences("secure_cookies", MODE_PRIVATE)
+        val sharedPrefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
         val editor = sharedPrefs.edit()
         val frontIds = listOf(
             R.id.card_front,
@@ -162,7 +162,7 @@ class ChallengesActivity : AppCompatActivity() {
 
 
     private fun flipCard(card: FrameLayout, index: Int) {
-        val sharedPrefs = getSharedPreferences("secure_cookies", MODE_PRIVATE)
+        val sharedPrefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
         val backId = sharedPrefs.getInt("card_back_id_$index", R.id.card_back_circle)
 
         val front = card.findViewById<TextView>(R.id.card_front)

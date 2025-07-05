@@ -29,6 +29,8 @@ import kotlin.collections.component2
 import kotlin.collections.iterator
 import android.widget.TextView
 import android.widget.Toast
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -106,7 +108,17 @@ class DeleteAccountActivity : AppCompatActivity() {
 
 
 
-        sharedPrefs = getSharedPreferences("secure_cookies", MODE_PRIVATE)
+        val masterKey = MasterKey.Builder(this)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+
+        sharedPrefs = EncryptedSharedPreferences.create(
+            this,
+            "secure_cookies_encrypted",
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
 
         backArrow.setOnClickListener {
             startActivity(Intent(applicationContext, SettingsActivity::class.java))
@@ -225,7 +237,17 @@ class DeleteAccountActivity : AppCompatActivity() {
         }
     }
     private fun initializePrefs() {
-        sharedPrefs = getSharedPreferences("secure_cookies", MODE_PRIVATE)
+        val masterKey = MasterKey.Builder(this)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+
+        sharedPrefs = EncryptedSharedPreferences.create(
+            this,
+            "secure_cookies_encrypted",
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
     }
 
     private fun initializeCookies() {

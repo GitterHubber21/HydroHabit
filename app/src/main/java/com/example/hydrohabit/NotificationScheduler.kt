@@ -15,7 +15,7 @@ object NotificationScheduler {
     private const val PREFS_KEY_NEXT_NOTIFICATION = "next_notification_time"
 
     fun scheduleNotifications(context: Context) {
-        val sharedPrefs = context.getSharedPreferences("secure_cookies", Context.MODE_PRIVATE)
+        val sharedPrefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
         val savedNextNotificationTime = sharedPrefs.getLong(PREFS_KEY_NEXT_NOTIFICATION, 0L)
         val currentTime = System.currentTimeMillis()
 
@@ -50,7 +50,7 @@ object NotificationScheduler {
     }
 
     fun cancelNotifications(context: Context) {
-        val sharedPrefs = context.getSharedPreferences("secure_cookies", Context.MODE_PRIVATE)
+        val sharedPrefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, NotificationReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(
@@ -67,7 +67,7 @@ object NotificationScheduler {
     }
 
     fun forceScheduleNotifications(context: Context) {
-        val sharedPrefs = context.getSharedPreferences("secure_cookies", Context.MODE_PRIVATE)
+        val sharedPrefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, NotificationReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(

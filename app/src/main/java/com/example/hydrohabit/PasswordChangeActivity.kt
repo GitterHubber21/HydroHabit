@@ -29,21 +29,22 @@ import java.io.IOException
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.iterator
-import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 
 
 class PasswordChangeActivity : AppCompatActivity() {
 
-    private lateinit var sharedPrefs: SharedPreferences
+    private lateinit var securePrefs: SharedPreferences
 
     private val client = OkHttpClient.Builder()
         .cookieJar(object : CookieJar {
             override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
                 if (url.host == "water.coolcoder.hackclub.app") {
                     for (cookie in cookies) {
-                        sharedPrefs.edit {
+                        securePrefs.edit {
                             putString(cookie.name, cookie.value)
                         }
                     }
@@ -52,7 +53,7 @@ class PasswordChangeActivity : AppCompatActivity() {
 
             override fun loadForRequest(url: HttpUrl): List<Cookie> {
                 val cookies = mutableListOf<Cookie>()
-                val allCookies = sharedPrefs.all
+                val allCookies = securePrefs.all
                 for ((name, value) in allCookies) {
                     if (value is String) {
                         cookies.add(
@@ -104,7 +105,17 @@ class PasswordChangeActivity : AppCompatActivity() {
             newPasswordEditText.setSelection(newPasswordEditText.text?.length ?: 0)
         }
 
-        sharedPrefs = getSharedPreferences("secure_cookies", MODE_PRIVATE)
+        val masterKey = MasterKey.Builder(this)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+
+        securePrefs = EncryptedSharedPreferences.create(
+            this,
+            "secure_cookies_encrypted",
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
 
         backArrow.setOnClickListener {
             startActivity(Intent(applicationContext, SettingsActivity::class.java))

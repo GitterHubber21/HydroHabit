@@ -105,7 +105,7 @@ class RainView @JvmOverloads constructor(
         waterSurfacePoints.clear()
     }
     private fun loadGlassVolume(){
-        val sharedPrefs = context.getSharedPreferences("secure_cookies", Context.MODE_PRIVATE)
+        val sharedPrefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
         glassVolumeMl = sharedPrefs.getFloat("daily_volume_goal", 3000f)
     }
 

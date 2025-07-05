@@ -7,6 +7,7 @@
     android:background="#7fb3d5"
     android:orientation="vertical">
 
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -14,244 +15,223 @@
 
         <TextView
             android:id="@+id/appTitle"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Settings"
             android:layout_weight="1"
+            android:text="Settings"
             android:textColor="@color/white"
             android:textSize="35sp"
             android:layout_marginStart="16dp"
-            android:fontFamily="@font/dosis_bold"/>
+            android:fontFamily="@font/dosis_bold" />
 
         <ImageView
             android:id="@+id/backIcon"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_marginEnd="16dp"
-            android:src="@drawable/ic_back_arrow"/>
-
+            android:src="@drawable/ic_back_arrow" />
     </LinearLayout>
+
+
     <LinearLayout
-        android:id="@+id/main2"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:orientation="vertical"
-        android:layout_marginTop="25dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp">
-        <TextView
-            android:id="@+id/titleGeneral"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:focusable="true"
-            android:translationY="20dp"
-            android:alpha="0"
-            android:gravity="start"
-            android:padding="10dp"
-            android:textColor="#3b86d6"
-            android:text="General"
-            android:textSize="24sp"/>
+        android:gravity="center_vertical">
         <LinearLayout
-            android:id="@+id/layout_general"
+            android:id="@+id/main2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:translationY="20dp"
-            android:alpha="0"
             android:orientation="vertical"
             android:layout_marginStart="16dp"
-            android:background="@drawable/rounded_transparent_square"
             android:layout_marginEnd="16dp">
-            <TextView
-                android:id="@+id/notificationButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:padding="10dp"
-                android:background="@drawable/notifications_button_selector"
-                android:textColor="@color/white"
-                android:text="Notifications"
-                android:textSize="18sp"/>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="6dp"
-                android:background="@drawable/menu_separator" />
-            <TextView
-                android:id="@+id/profileButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:padding="10dp"
-                android:textColor="@color/white"
-                android:text="Profile"
-                android:textSize="18sp" />
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="6dp"
-                android:background="@drawable/menu_separator" />
-            <TextView
-                android:id = "@+id/changeGoalButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:padding="10dp"
-                android:textColor="#FFFFFF"
-                android:text="Change goal"
-                android:textSize="18sp"/>
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="6dp"
-                android:background="@drawable/menu_separator" />
 
             <TextView
-                android:id="@+id/resetButton"
+                android:id="@+id/titleGeneral"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:clickable="true"
                 android:focusable="true"
-                android:gravity="center"
+                android:translationY="20dp"
+                android:alpha="0"
+                android:gravity="start"
                 android:padding="10dp"
-                android:textColor="#c34031"
-                android:text="Reset water in glass"
-                android:textSize="18sp" />
+                android:textColor="#3b86d6"
+                android:text="General"
+                android:textSize="24sp"/>
 
-        </LinearLayout>
-        <TextView
-            android:id="@+id/titleSecurity"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:translationY="20dp"
-            android:alpha="0"
-            android:focusable="true"
-            android:gravity="start"
-            android:padding="10dp"
-            android:textColor="#3b86d6"
-            android:text="Security"
-            android:textSize="24sp"/>
-        <LinearLayout
-            android:id="@+id/layout_security"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:orientation="vertical"
-            android:translationY="20dp"
-            android:alpha="0"
-            android:layout_marginStart="16dp"
-            android:background="@drawable/rounded_transparent_square"
-            android:layout_marginEnd="16dp">
-            <TextView
-                android:id="@+id/resetPasswordButton"
+            <LinearLayout
+                android:id="@+id/layout_general"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:padding="10dp"
-                android:textColor="#c34031"
-                android:text="Change password"
-                android:textSize="18sp"/>
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="6dp"
-                android:background="@drawable/menu_separator" />
+                android:orientation="vertical"
+                android:translationY="20dp"
+                android:alpha="0"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/rounded_transparent_square">
+
+                <TextView
+                    android:id="@+id/notificationButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:padding="10dp"
+                    android:background="@drawable/notifications_button_selector"
+                    android:textColor="@color/white"
+                    android:text="Notifications"
+                    android:textSize="18sp"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="6dp"
+                    android:background="@drawable/menu_separator" />
+
+                <TextView
+                    android:id="@+id/profileButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:padding="10dp"
+                    android:textColor="@color/white"
+                    android:text="Profile"
+                    android:textSize="18sp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="6dp"
+                    android:background="@drawable/menu_separator" />
+
+                <TextView
+                    android:id="@+id/changeGoalButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:padding="10dp"
+                    android:textColor="#FFFFFF"
+                    android:text="Change goal"
+                    android:textSize="18sp"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="6dp"
+                    android:background="@drawable/menu_separator" />
+
+                <TextView
+                    android:id="@+id/resetButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:padding="10dp"
+                    android:textColor="#c34031"
+                    android:text="Reset water in glass"
+                    android:textSize="18sp" />
+            </LinearLayout>
 
             <TextView
-                android:id="@+id/deleteAccountButton"
+                android:id="@+id/titleSecurity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:clickable="true"
+                android:translationY="20dp"
+                android:alpha="0"
                 android:focusable="true"
-                android:gravity="center"
+                android:gravity="start"
                 android:padding="10dp"
-                android:textColor="#c34031"
-                android:text="Delete account"
-                android:textSize="18sp"/>
-        </LinearLayout>
-        <TextView
-            android:id="@+id/titleLicenses"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:translationY="20dp"
-            android:alpha="0"
-            android:focusable="true"
-            android:gravity="start"
-            android:padding="10dp"
-            android:textColor="#3b86d6"
-            android:text="Licenses"
-            android:textSize="24sp"/>
-        <LinearLayout
-            android:id="@+id/layout_licenses"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:orientation="vertical"
-            android:translationY="20dp"
-            android:alpha="0"
-            android:layout_marginStart="16dp"
-            android:background="@drawable/rounded_transparent_square"
-            android:layout_marginEnd="16dp">
+                android:textColor="#3b86d6"
+                android:text="Security"
+                android:textSize="24sp"/>
+
+            <LinearLayout
+                android:id="@+id/layout_security"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:translationY="20dp"
+                android:alpha="0"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/rounded_transparent_square">
+
+                <TextView
+                    android:id="@+id/resetPasswordButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:padding="10dp"
+                    android:textColor="#c34031"
+                    android:text="Change password"
+                    android:textSize="18sp"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="6dp"
+                    android:background="@drawable/menu_separator" />
+
+                <TextView
+                    android:id="@+id/deleteAccountButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:padding="10dp"
+                    android:textColor="#c34031"
+                    android:text="Delete account"
+                    android:textSize="18sp"/>
+            </LinearLayout>
+
             <TextView
-                android:id="@+id/licenseButton"
+                android:id="@+id/titleLogout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:clickable="true"
                 android:focusable="true"
-                android:gravity="center"
+                android:translationY="20dp"
+                android:alpha="0"
+                android:gravity="start"
                 android:padding="10dp"
-                android:textColor="@color/white"
-                android:text="Third party licenses"
-                android:textSize="18sp"/>
-        </LinearLayout>
-        <TextView
-            android:id="@+id/titleLogout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:focusable="true"
-            android:translationY="20dp"
-            android:alpha="0"
-            android:gravity="left"
-            android:padding="10dp"
-            android:textColor="#3b86d6"
-            android:text="Logout"
-            android:textSize="24sp"/>
-        <LinearLayout
-            android:id="@+id/layout_logout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:orientation="vertical"
-            android:layout_marginStart="16dp"
-            android:translationY="20dp"
-            android:alpha="0"
-            android:layout_marginBottom="25dp"
-            android:background="@drawable/rounded_transparent_square"
-            android:layout_marginEnd="16dp">
-            <TextView
-                android:id="@+id/logoutButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:padding="10dp"
-                android:textColor="#c34031"
+                android:textColor="#3b86d6"
                 android:text="Logout"
-                android:textSize="18sp"/>
+                android:textSize="24sp"/>
+
+            <LinearLayout
+                android:id="@+id/layout_logout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="25dp"
+                android:translationY="20dp"
+                android:alpha="0"
+                android:background="@drawable/rounded_transparent_square">
+
+                <TextView
+                    android:id="@+id/logoutButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:padding="10dp"
+                    android:textColor="#c34031"
+                    android:text="Logout"
+                    android:textSize="18sp"/>
+            </LinearLayout>
+
         </LinearLayout>
 
     </LinearLayout>
 </LinearLayout>
-
-

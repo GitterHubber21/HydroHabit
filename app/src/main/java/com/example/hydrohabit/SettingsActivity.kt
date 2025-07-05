@@ -2,7 +2,6 @@ package com.example.hydrohabit
 
 import android.content.Intent
 import android.content.SharedPreferences
-import android.health.connect.datatypes.units.Length
 import android.os.Bundle
 import android.util.Log
 import android.view.GestureDetector
@@ -12,6 +11,8 @@ import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AlertDialog
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -41,10 +42,10 @@ import androidx.core.view.updateLayoutParams
 
 class SettingsActivity : AppCompatActivity() {
 
-
     private lateinit var rainView: RainView
     private lateinit var gestureDetector: GestureDetector
-    private lateinit var sharedPrefs: SharedPreferences
+    private lateinit var encryptedSharedPrefs: SharedPreferences
+    private lateinit var regularSharedPrefs: SharedPreferences
     private val cookieStorage = mutableMapOf<String, String>()
     private val ANIMATION_DELAY = 100L
 
@@ -53,21 +54,26 @@ class SettingsActivity : AppCompatActivity() {
             override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
                 if (url.host == "water.coolcoder.hackclub.app") {
                     for (cookie in cookies) {
-                        cookieStorage[cookie.name] = cookie.value
+                        encryptedSharedPrefs.edit {
+                            putString(cookie.name, cookie.value)
+                        }
                     }
                 }
             }
 
             override fun loadForRequest(url: HttpUrl): List<Cookie> {
                 val cookies = mutableListOf<Cookie>()
-                for ((name, value) in cookieStorage) {
-                    cookies.add(
-                        Cookie.Builder()
-                            .name(name)
-                            .value(value)
-                            .domain(url.host)
-                            .build()
-                    )
+                val allCookies = encryptedSharedPrefs.all
+                for ((name, value) in allCookies) {
+                    if (value is String) {
+                        cookies.add(
+                            Cookie.Builder()
+                                .name(name)
+                                .value(value)
+                                .domain(url.host)
+                                .build()
+                        )
+                    }
                 }
                 return cookies
             }
@@ -85,7 +91,6 @@ class SettingsActivity : AppCompatActivity() {
         val notificationButton: TextView = findViewById(R.id.notificationButton)
         val deleteAccountButton: TextView = findViewById(R.id.deleteAccountButton)
         val changeGoalButton: TextView = findViewById(R.id.changeGoalButton)
-
 
         val backArrow: ImageView = findViewById(R.id.backIcon)
         backArrow.rotation = 90f
@@ -134,14 +139,14 @@ class SettingsActivity : AppCompatActivity() {
             showGoalChangePopup()
         }
 
-        val isNotificationsEnabled = sharedPrefs.getBoolean("notifications_enabled", false)
+        val isNotificationsEnabled = regularSharedPrefs.getBoolean("notifications_enabled", true)
         notificationButton.isSelected = isNotificationsEnabled
 
         notificationButton.setOnClickListener {
             val newState = !notificationButton.isSelected
             notificationButton.isSelected = newState
 
-            sharedPrefs.edit {
+            regularSharedPrefs.edit {
                 putBoolean("notifications_enabled", newState)
             }
 
@@ -157,7 +162,6 @@ class SettingsActivity : AppCompatActivity() {
             vibrator.vibrate(VibrationEffect.createOneShot(25, VibrationEffect.DEFAULT_AMPLITUDE))
         }
         animateLayoutElements()
-
     }
 
     private fun showLogoutConfirmationDialog() {
@@ -168,7 +172,6 @@ class SettingsActivity : AppCompatActivity() {
             .setCancelable(true)
             .create()
         alertDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-
 
         dialogView.findViewById<TextView>(R.id.button_no).setOnClickListener {
             alertDialog.dismiss()
@@ -191,7 +194,6 @@ class SettingsActivity : AppCompatActivity() {
             .create()
         alertDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-
         dialogView.findViewById<TextView>(R.id.button_no).setOnClickListener {
             alertDialog.dismiss()
         }
@@ -202,6 +204,7 @@ class SettingsActivity : AppCompatActivity() {
         }
         alertDialog.show()
     }
+
     private fun showWaterConfirmationDialog() {
         val dialogView = layoutInflater.inflate(R.layout.water_warning, null)
 
@@ -210,7 +213,6 @@ class SettingsActivity : AppCompatActivity() {
             .setCancelable(true)
             .create()
         alertDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-
 
         dialogView.findViewById<TextView>(R.id.button_no).setOnClickListener {
             alertDialog.dismiss()
@@ -222,6 +224,7 @@ class SettingsActivity : AppCompatActivity() {
         }
         alertDialog.show()
     }
+
     private fun showProfilePopup() {
         val dialogView = layoutInflater.inflate(R.layout.profile_popup, null)
 
@@ -248,6 +251,7 @@ class SettingsActivity : AppCompatActivity() {
             }
         }
     }
+
     private fun showDeleteConfirmationDialog() {
         val dialogView = layoutInflater.inflate(R.layout.delete_warning, null)
 
@@ -256,7 +260,6 @@ class SettingsActivity : AppCompatActivity() {
             .setCancelable(true)
             .create()
         alertDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-
 
         dialogView.findViewById<TextView>(R.id.button_no).setOnClickListener {
             alertDialog.dismiss()
@@ -268,10 +271,11 @@ class SettingsActivity : AppCompatActivity() {
         }
         alertDialog.show()
     }
+
     private fun showGoalChangePopup() {
         val dialogView = layoutInflater.inflate(R.layout.goal_change_popup, null)
         val oldGoalDisplay = dialogView.findViewById<TextView>(R.id.current_goal_display_value)
-        val oldGoal = sharedPrefs.getFloat("daily_volume_goal", 3000f)
+        val oldGoal = regularSharedPrefs.getFloat("daily_volume_goal", 3000f)
         oldGoalDisplay.setText("$oldGoal ml")
 
         val alertDialog = AlertDialog.Builder(this)
@@ -297,17 +301,40 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
-
     private fun initializePrefs() {
-        sharedPrefs = getSharedPreferences("secure_cookies", MODE_PRIVATE)
+        try {
+            val masterKey = MasterKey.Builder(this)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build()
+
+            encryptedSharedPrefs = EncryptedSharedPreferences.create(
+                this,
+                "secure_cookies_encrypted",
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+
+
+            regularSharedPrefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+
+        } catch (e: Exception) {
+            Log.e("SettingsActivity", "Failed to initialize encrypted preferences", e)
+            encryptedSharedPrefs = getSharedPreferences("secure_cookies_fallback", MODE_PRIVATE)
+            regularSharedPrefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+        }
     }
 
     private fun initializeCookies() {
-        val allCookies = sharedPrefs.all
-        for ((key, value) in allCookies) {
-            if (value is String) {
-                cookieStorage[key] = value
+        try {
+            encryptedSharedPrefs.all.forEach { (key, value) ->
+                if (value is String) {
+                    cookieStorage[key] = value
+                }
             }
+        } catch (e: Exception) {
+            Log.e("SettingsActivity", "Failed to load cookies from encrypted storage", e)
+            encryptedSharedPrefs.edit { clear() }
         }
     }
 
@@ -357,7 +384,6 @@ class SettingsActivity : AppCompatActivity() {
             startActivity(intent)
             overridePendingTransition(R.anim.slide_in_from_bottom, R.anim.slide_out_to_top)
             finish()
-
         }
     }
 
@@ -394,13 +420,14 @@ class SettingsActivity : AppCompatActivity() {
 
     private suspend fun clearCookiesAndLogout() {
         withContext(Dispatchers.Main) {
-            sharedPrefs.all.keys.forEach { key ->
-                if (!key.startsWith("__androidx_security_crypto_encrypted_prefs__")) {
-                    sharedPrefs.edit { remove(key) }
-                }
-            }
+            try {
+                encryptedSharedPrefs.edit { clear() }
+                cookieStorage.clear()
+                regularSharedPrefs.edit { putBoolean("login_completed", false) }
 
-            cookieStorage.clear()
+            } catch (e: Exception) {
+                Log.e("SettingsActivity", "Failed to clear encrypted session data", e)
+            }
 
             val intent = Intent(this@SettingsActivity, LoginActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -409,16 +436,18 @@ class SettingsActivity : AppCompatActivity() {
             finish()
         }
     }
+
     override fun onBackPressed() {
         super.onBackPressed()
         finishWithAnimation()
     }
+
     private fun resetQuantity() {
         val url = "https://water.coolcoder.hackclub.app/api/log"
         val json = JSONObject().apply { put("volume_ml", 0.0) }.toString()
         val body = RequestBody.create("application/json; charset=utf-8".toMediaTypeOrNull(), json)
 
-        sharedPrefs.edit{
+        regularSharedPrefs.edit{
             putBoolean("motivational_text_displayed_50", false)
             putBoolean("motivational_text_displayed_90", false)
             putBoolean("motivational_text_displayed_100", false)
@@ -432,8 +461,8 @@ class SettingsActivity : AppCompatActivity() {
             }
         })
     }
-    private fun postDailyGoal(newGoal: Float) {
 
+    private fun postDailyGoal(newGoal: Float) {
         CoroutineScope(Dispatchers.IO).launch {
             val url = "https://water.coolcoder.hackclub.app/api/daily-goal"
             try {
@@ -452,7 +481,7 @@ class SettingsActivity : AppCompatActivity() {
                         Log.d("server_response", "Successfully posted daily goal = $newGoal ml")
                         runOnUiThread {
                             Toast.makeText(this@SettingsActivity,"Goal updated successfully", Toast.LENGTH_SHORT).show()
-                            sharedPrefs.edit{putFloat("daily_volume_goal", newGoal) }
+                            regularSharedPrefs.edit{putFloat("daily_volume_goal", newGoal) }
                         }
                     } else {
                         Log.w("server_response", "POST daily_goal failed: ${response.code}")
@@ -465,15 +494,13 @@ class SettingsActivity : AppCompatActivity() {
             }
         }
     }
+
     private fun animateLayoutElements(){
         val titleGeneral = findViewById<TextView>(R.id.titleGeneral)
         val layoutGeneral = findViewById<LinearLayout>(R.id.layout_general)
 
         val titleSecurity = findViewById<TextView>(R.id.titleSecurity)
         val layoutSecurity = findViewById<LinearLayout>(R.id.layout_security)
-
-        val titleLicenses = findViewById<TextView>(R.id.titleLicenses)
-        val layoutLicenses = findViewById<LinearLayout>(R.id.layout_licenses)
 
         val titleLogout = findViewById<TextView>(R.id.titleLogout)
         val layoutLogout = findViewById<LinearLayout>(R.id.layout_logout)
@@ -495,7 +522,6 @@ class SettingsActivity : AppCompatActivity() {
                 .start()
         }, ANIMATION_DELAY)
 
-
         titleSecurity.postDelayed({
             titleSecurity.animate()
                 .alpha(1f)
@@ -513,25 +539,6 @@ class SettingsActivity : AppCompatActivity() {
                 .start()
         }, ANIMATION_DELAY*2)
 
-
-        titleLicenses.postDelayed({
-            titleLicenses.animate()
-                .alpha(1f)
-                .translationY(0f)
-                .setDuration(400)
-                .setInterpolator(DecelerateInterpolator())
-                .start()
-        }, ANIMATION_DELAY*3)
-        layoutLicenses.postDelayed({
-            layoutLicenses.animate()
-                .alpha(1f)
-                .translationY(0f)
-                .setDuration(400)
-                .setInterpolator(DecelerateInterpolator())
-                .start()
-        }, ANIMATION_DELAY*3)
-
-
         titleLogout.postDelayed({
             titleLogout.animate()
                 .alpha(1f)
@@ -548,9 +555,5 @@ class SettingsActivity : AppCompatActivity() {
                 .setInterpolator(DecelerateInterpolator())
                 .start()
         }, ANIMATION_DELAY*4)
-
     }
-
-
-
 }

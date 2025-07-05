@@ -195,7 +195,17 @@ class InsightsActivity : AppCompatActivity() {
         }
     }
     private fun initializeSharedPrefs() {
-        sharedPrefs = getSharedPreferences("secure_cookies", MODE_PRIVATE)
+        val masterKey = MasterKey.Builder(this)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+
+        sharedPrefs = EncryptedSharedPreferences.create(
+            this,
+            "secure_cookies_encrypted",
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
     }
 
 

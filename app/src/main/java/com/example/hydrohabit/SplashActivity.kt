@@ -9,12 +9,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.graphics.drawable.DrawableCompat
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import okhttp3.*
 import java.io.IOException
 
 class SplashActivity : AppCompatActivity() {
 
-    private lateinit var sharedPrefs: SharedPreferences
+    private lateinit var encryptedSharedPrefs: SharedPreferences
+    private lateinit var regularSharedPrefs: SharedPreferences
     private val cookieStorage = mutableMapOf<String, String>()
 
     private val client = OkHttpClient.Builder()
@@ -51,12 +54,39 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun initializePrefs() {
-        sharedPrefs = getSharedPreferences("secure_cookies", MODE_PRIVATE)
+        try {
+
+            val masterKey = MasterKey.Builder(this)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build()
+
+            encryptedSharedPrefs = EncryptedSharedPreferences.create(
+                this,
+                "secure_cookies_encrypted",
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+
+
+            regularSharedPrefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+
+        } catch (e: Exception) {
+            Log.e("SplashActivity", "Failed to initialize encrypted preferences", e)
+
+            encryptedSharedPrefs = getSharedPreferences("secure_cookies_fallback", MODE_PRIVATE)
+            regularSharedPrefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+        }
     }
 
     private fun initializeCookies() {
-        sharedPrefs.all.forEach { (k, v) ->
-            if (v is String) cookieStorage[k] = v
+        try {
+            encryptedSharedPrefs.all.forEach { (k, v) ->
+                if (v is String) cookieStorage[k] = v
+            }
+        } catch (e: Exception) {
+            Log.e("SplashActivity", "Failed to load cookies from encrypted storage", e)
+            encryptedSharedPrefs.edit { clear() }
         }
     }
 
@@ -69,8 +99,7 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun handleExpiredSession() {
-        val onboardingDone = getSharedPreferences("app_prefs", MODE_PRIVATE)
-            .getBoolean("onboarding_complete", false)
+        val onboardingDone = regularSharedPrefs.getBoolean("onboarding_complete", false)
 
         if (onboardingDone) {
             navigateToLogin()
@@ -110,16 +139,15 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun clearStoredSession() {
-        sharedPrefs.all.keys.forEach { key ->
-            if (!key.startsWith("__androidx_security_crypto_encrypted_prefs__")) {
-                sharedPrefs.edit { remove(key) }
-            }
+        try {
+
+            encryptedSharedPrefs.edit { clear() }
+            cookieStorage.clear()
+            regularSharedPrefs.edit { putBoolean("login_completed", false) }
+
+        } catch (e: Exception) {
+            Log.e("SplashActivity", "Failed to clear encrypted session data", e)
         }
-
-        cookieStorage.clear()
-
-        getSharedPreferences("app_prefs", MODE_PRIVATE)
-            .edit { putBoolean("login_completed", false) }
     }
 
     private fun navigateToLogin() {

@@ -20,7 +20,7 @@ class NotificationReceiver : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        val sharedPrefs = context.getSharedPreferences("secure_cookies", Context.MODE_PRIVATE)
+        val sharedPrefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
         val isNotificationsEnabled = sharedPrefs.getBoolean("notifications_enabled", false)
 
         if (!isNotificationsEnabled) {

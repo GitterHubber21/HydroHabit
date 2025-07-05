@@ -34,6 +34,8 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.LinearLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.updateLayoutParams
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 
 class MainActivity : ComponentActivity() {
 
@@ -62,6 +64,7 @@ class MainActivity : ComponentActivity() {
     private val coroutineScope = CoroutineScope(Dispatchers.Default + job)
 
     private lateinit var sharedPrefs: SharedPreferences
+    private lateinit var securePrefs: SharedPreferences
     private enum class MotivationLevel(val priority: Int) {
         LEVEL_50(1),
         LEVEL_90(2),
@@ -75,7 +78,7 @@ class MainActivity : ComponentActivity() {
             override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
                 if (url.host == "water.coolcoder.hackclub.app") {
                     for (cookie in cookies) {
-                        sharedPrefs.edit {
+                        securePrefs.edit {
                             putString(cookie.name, cookie.value)
                         }
                     }
@@ -84,7 +87,7 @@ class MainActivity : ComponentActivity() {
 
             override fun loadForRequest(url: HttpUrl): List<Cookie> {
                 val cookies = mutableListOf<Cookie>()
-                val allCookies = sharedPrefs.all
+                val allCookies = securePrefs.all
                 for ((name, value) in allCookies) {
                     if (value is String) {
                         cookies.add(
@@ -107,7 +110,18 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
-        sharedPrefs = getSharedPreferences("secure_cookies", MODE_PRIVATE)
+        sharedPrefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+        val masterKey = MasterKey.Builder(this)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+
+        securePrefs = EncryptedSharedPreferences.create(
+            this,
+            "secure_cookies_encrypted",
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
         checkAndResetPourNumberIfNewDay()
         initViews()
         setupRainView()
@@ -432,8 +446,8 @@ class MainActivity : ComponentActivity() {
         finishWithoutAnimation()
     }
     private fun initializeNotifications() {
-        val sharedPrefs = getSharedPreferences("secure_cookies", MODE_PRIVATE)
-        val isNotificationsEnabled = sharedPrefs.getBoolean("notifications_enabled", false)
+        val sharedPrefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+        val isNotificationsEnabled = sharedPrefs.getBoolean("notifications_enabled", true)
 
         if (isNotificationsEnabled) {
             NotificationScheduler.scheduleNotifications(this)
