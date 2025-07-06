@@ -1,1 +1,3 @@
-[![image](https://github.com/user-attachments/assets/3a5cb2ce-0aa7-4490-9f04-dbe67f184279)](https://neighborhood.hackclub.com/)
+[![image](https://github.com/user-attachments/assets/3a5cb2ce-0aa7-4490-9f04-dbe67f184279)](https://neighborhood.hackclub.com/)  
+
+This is an app, that helps people commit to their water drinking goals. It has a home page with a glass, an insights, a challenges and a settings page. The user has different options to fill the glass, either by using the buttons that add a specific amount or by pressing another button and just letting go when the appropriate amount has been filled. The insights page shows your daily, weekly and monthly progress and on the challenges page the user can complete interesting challenges.
