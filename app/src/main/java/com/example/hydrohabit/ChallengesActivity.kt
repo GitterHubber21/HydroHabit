@@ -376,7 +376,7 @@ class ChallengesActivity : AppCompatActivity() {
                 val status = when {
                     challenge.text.contains("before 9 AM", true) -> {
                         if (hour < 9 && currentVolume > 0f) ChallengeStatus.COMPLETED
-                        else if (hour >= 9 && currentVolume == 0f) ChallengeStatus.IMPOSSIBLE
+                        else if (hour >= 9 && currentVolume >= 0f) ChallengeStatus.IMPOSSIBLE
                         else ChallengeStatus.NOT_YET_COMPLETED
                     }
 

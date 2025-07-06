@@ -125,7 +125,10 @@ class InsightsActivity : AppCompatActivity() {
         }
 
         settingsIcon.setOnClickListener {
-            startActivity(Intent(applicationContext, SettingsActivity::class.java))
+            val settingsIntent = Intent(applicationContext, SettingsActivity::class.java).apply {
+                putExtra("caller_activity", "InsightsActivity")
+            }
+            startActivity(settingsIntent)
             overridePendingTransition(R.anim.slide_in_from_top, R.anim.slide_out_to_bottom)
         }
         gestureDetector = GestureDetector(this, SwipeGestureListener())

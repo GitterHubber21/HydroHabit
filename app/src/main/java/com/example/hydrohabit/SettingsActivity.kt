@@ -423,7 +423,10 @@ class SettingsActivity : AppCompatActivity() {
             try {
                 encryptedSharedPrefs.edit { clear() }
                 cookieStorage.clear()
-                regularSharedPrefs.edit { putBoolean("login_completed", false) }
+                regularSharedPrefs.edit{clear()}
+                regularSharedPrefs.edit {
+                    putBoolean("login_completed", false)
+                    putBoolean("onboarding_complete", true)}
 
             } catch (e: Exception) {
                 Log.e("SettingsActivity", "Failed to clear encrypted session data", e)

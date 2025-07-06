@@ -173,6 +173,12 @@ class MainActivity : ComponentActivity() {
             runOnUiThread {
                 if (!isTimedRainActive) {
                     displayedVolume += dropletVolume
+                    if(displayedVolume >= dailyGoal){
+                        updateQuantity(displayedVolume)
+                        coroutineScope.launch {
+                            fetchTotalVolume()
+                        }
+                    }
                     waterVolumeText.text = String.format("%.1f ml", displayedVolume)
                 }
                 val motivationalTextDisplayed50 = sharedPrefs.getBoolean("motivational_text_displayed_50", false)
@@ -236,9 +242,6 @@ class MainActivity : ComponentActivity() {
             updateQuantity(displayedVolume)
         }
         isVolumeInitialized = false
-        coroutineScope.launch {
-            fetchTotalVolume()
-        }
     }
 
     override fun onDestroy() {
@@ -248,9 +251,6 @@ class MainActivity : ComponentActivity() {
         }
         isVolumeInitialized = false
         job.cancel()
-        coroutineScope.launch {
-            fetchTotalVolume()
-        }
     }
 
 
@@ -401,6 +401,12 @@ class MainActivity : ComponentActivity() {
                     checkAndAnimateMotivation()
                     waterVolumeText.text = String.format("%.1f ml", displayedVolume)
                     rainView.addWaterDirectly(amount.toFloat())
+                    if(displayedVolume >= dailyGoal){
+                        updateQuantity(displayedVolume)
+                        coroutineScope.launch {
+                            fetchTotalVolume()
+                        }
+                    }
                 }
             },
             onRelease = {
