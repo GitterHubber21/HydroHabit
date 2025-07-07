@@ -1,3 +1,70 @@
 [![image](https://github.com/user-attachments/assets/3a5cb2ce-0aa7-4490-9f04-dbe67f184279)](https://neighborhood.hackclub.com/)  
 
-This is an app, that helps people commit to their water drinking goals. It has a home page with a glass, an insights, a challenges and a settings page. The user has different options to fill the glass, either by using the buttons that add a specific amount or by pressing another button and just letting go when the appropriate amount has been filled. The insights page shows your daily, weekly and monthly progress and on the challenges page the user can complete interesting challenges.
+# 💧 HydroHabit
+
+**HydroHabit** is a beautifully designed, water-themed Android application that helps you stay hydrated while having fun! Track your daily water intake, set hydration goals, complete exciting challenges, and gain insightful statistics to keep your hydration habits on point.
+
+## 🌊 Features
+
+### 🚀 Onboarding
+- Smooth onboarding screen.
+
+### 👤 User Authentication
+- Sign Up and Login screens.
+- Secure password hashing.
+- Cookie-based session authentication (Internet connection required).
+- JWT token support coming soon.
+
+### 🏠 Home Screen
+- A dynamic glass UI where users can fill their glass with:
+  - +250ml
+  - +500ml
+  - +750ml
+- A **Hold-to-Fill** button triggers a **rain animation** that gradually fills the glass.
+
+### 📅 Insights Page
+- Interactive calendar highlighting days when the hydration goal was met.
+- Daily, weekly, and monthly hydration completion stats.
+
+### 🎯 Challenges Page
+- Fun and engaging hydration-based:
+  - **Daily challenges**
+  - **Monthly challenges**
+
+### ⚙️ Settings Page
+- Toggle hydration **reminders**.
+- Inspect **profile**.
+- **Change hydration goal**.
+- **Reset water intake** volume.
+- **Change password**.
+- **Delete account**.
+- **Logout** securely.
+
+## 💻 Backend
+- Built using **Flask**.
+- Uses **cookie-based session authentication**.
+- Plans for JWT token-based auth in future versions.
+- Internet connection is **mandatory** for the usage of the app(for now).
+
+## 🎨 Design
+- Water-themed aesthetic for a soothing and refreshing experience.
+- UI components inspired by fluidity and transparency, mimicking the nature of water.
+
+## 🔒 Security
+- All passwords are hashed.
+- Secure session management via cookies.
+- Cookies are encrypted and securely stored on the device.
+- Planned upgrade to JWT tokens for enhanced mobile authentication.
+
+## 📱 Tech Stack
+
+| Layer       | Technology     |
+|-------------|----------------|
+| Frontend    | Android (Kotlin) |
+| Backend     | Flask (Python) |
+| Auth        | Cookie-based session auth |
+| Storage     | Hybrid: Local + Server-side |
+
+## 🧪 Setup Instructions
+
+Download the APK file from the latest release and you're ready to go!
