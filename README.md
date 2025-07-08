@@ -13,7 +13,6 @@
 - Sign Up and Login screens.
 - Secure password hashing.
 - Cookie-based session authentication (Internet connection required).
-- JWT token support coming soon.
 
 ### 🏠 Home Screen
 - A dynamic glass UI where users can fill their glass with:
@@ -21,6 +20,7 @@
   - +500ml
   - +750ml
 - A **Hold-to-Fill** button triggers a **rain animation** that gradually fills the glass.
+- The water in the glass follows the tilt of the device.
 
 ### 📅 Insights Page
 - Interactive calendar highlighting days when the hydration goal was met.
@@ -43,8 +43,7 @@
 ## 💻 Backend
 - Built using **Flask**.
 - Uses **cookie-based session authentication**.
-- Plans for JWT token-based auth in future versions.
-- Internet connection is **mandatory** for the usage of the app(for now).
+- Internet connection is **mandatory** for the usage of the app.
 
 ## 🎨 Design
 - Water-themed aesthetic for a soothing and refreshing experience.
@@ -54,7 +53,6 @@
 - All passwords are hashed.
 - Secure session management via cookies.
 - Cookies are encrypted and securely stored on the device.
-- Planned upgrade to JWT tokens for enhanced mobile authentication.
 
 ## 📱 Tech Stack
 
