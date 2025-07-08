@@ -17,12 +17,12 @@
             android:id="@+id/appTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
             android:layout_weight="1"
+            android:fontFamily="@font/dosis_bold"
             android:text="Settings"
             android:textColor="@color/white"
-            android:textSize="35sp"
-            android:layout_marginStart="16dp"
-            android:fontFamily="@font/dosis_bold" />
+            android:textSize="35sp" />
 
         <ImageView
             android:id="@+id/backIcon"
@@ -37,53 +37,54 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:orientation="vertical"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:orientation="vertical">
+
         <LinearLayout
             android:id="@+id/main2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp">
+            android:layout_marginEnd="16dp"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/titleGeneral"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:alpha="0"
                 android:clickable="true"
                 android:focusable="true"
-                android:translationY="20dp"
-                android:alpha="0"
                 android:gravity="start"
                 android:padding="10dp"
-                android:textColor="#3b86d6"
                 android:text="General"
-                android:textSize="24sp"/>
+                android:textColor="#3b86d6"
+                android:textSize="24sp"
+                android:translationY="20dp" />
 
             <LinearLayout
                 android:id="@+id/layout_general"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:translationY="20dp"
-                android:alpha="0"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
-                android:background="@drawable/rounded_transparent_square">
+                android:alpha="0"
+                android:background="@drawable/rounded_transparent_square"
+                android:orientation="vertical"
+                android:translationY="20dp">
 
                 <TextView
                     android:id="@+id/notificationButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/notifications_button_selector"
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center"
                     android:padding="10dp"
-                    android:background="@drawable/notifications_button_selector"
-                    android:textColor="@color/white"
                     android:text="Notifications"
-                    android:textSize="18sp"/>
+                    android:textColor="@color/white"
+                    android:textSize="18sp" />
 
                 <View
                     android:layout_width="match_parent"
@@ -98,8 +99,8 @@
                     android:focusable="true"
                     android:gravity="center"
                     android:padding="10dp"
-                    android:textColor="@color/white"
                     android:text="Profile"
+                    android:textColor="@color/white"
                     android:textSize="18sp" />
 
                 <View
@@ -115,9 +116,9 @@
                     android:focusable="true"
                     android:gravity="center"
                     android:padding="10dp"
-                    android:textColor="#FFFFFF"
                     android:text="Change goal"
-                    android:textSize="18sp"/>
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp" />
 
                 <View
                     android:layout_width="match_parent"
@@ -132,8 +133,8 @@
                     android:focusable="true"
                     android:gravity="center"
                     android:padding="10dp"
-                    android:textColor="#c34031"
                     android:text="Reset water in glass"
+                    android:textColor="#c34031"
                     android:textSize="18sp" />
             </LinearLayout>
 
@@ -141,26 +142,26 @@
                 android:id="@+id/titleSecurity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:clickable="true"
-                android:translationY="20dp"
                 android:alpha="0"
+                android:clickable="true"
                 android:focusable="true"
                 android:gravity="start"
                 android:padding="10dp"
-                android:textColor="#3b86d6"
                 android:text="Security"
-                android:textSize="24sp"/>
+                android:textColor="#3b86d6"
+                android:textSize="24sp"
+                android:translationY="20dp" />
 
             <LinearLayout
                 android:id="@+id/layout_security"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:translationY="20dp"
-                android:alpha="0"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
-                android:background="@drawable/rounded_transparent_square">
+                android:alpha="0"
+                android:background="@drawable/rounded_transparent_square"
+                android:orientation="vertical"
+                android:translationY="20dp">
 
                 <TextView
                     android:id="@+id/resetPasswordButton"
@@ -170,9 +171,9 @@
                     android:focusable="true"
                     android:gravity="center"
                     android:padding="10dp"
-                    android:textColor="#c34031"
                     android:text="Change password"
-                    android:textSize="18sp"/>
+                    android:textColor="#c34031"
+                    android:textSize="18sp" />
 
                 <View
                     android:layout_width="match_parent"
@@ -187,36 +188,36 @@
                     android:focusable="true"
                     android:gravity="center"
                     android:padding="10dp"
-                    android:textColor="#c34031"
                     android:text="Delete account"
-                    android:textSize="18sp"/>
+                    android:textColor="#c34031"
+                    android:textSize="18sp" />
             </LinearLayout>
 
             <TextView
                 android:id="@+id/titleLogout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:alpha="0"
                 android:clickable="true"
                 android:focusable="true"
-                android:translationY="20dp"
-                android:alpha="0"
                 android:gravity="start"
                 android:padding="10dp"
-                android:textColor="#3b86d6"
                 android:text="Logout"
-                android:textSize="24sp"/>
+                android:textColor="#3b86d6"
+                android:textSize="24sp"
+                android:translationY="20dp" />
 
             <LinearLayout
                 android:id="@+id/layout_logout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="25dp"
-                android:translationY="20dp"
                 android:alpha="0"
-                android:background="@drawable/rounded_transparent_square">
+                android:background="@drawable/rounded_transparent_square"
+                android:orientation="vertical"
+                android:translationY="20dp">
 
                 <TextView
                     android:id="@+id/logoutButton"
@@ -226,9 +227,9 @@
                     android:focusable="true"
                     android:gravity="center"
                     android:padding="10dp"
-                    android:textColor="#c34031"
                     android:text="Logout"
-                    android:textSize="18sp"/>
+                    android:textColor="#c34031"
+                    android:textSize="18sp" />
             </LinearLayout>
 
         </LinearLayout>
