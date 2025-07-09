@@ -7,6 +7,7 @@ import android.content.SharedPreferences
 import android.graphics.Rect
 import android.os.Bundle
 import android.text.InputType
+import android.util.Log
 import android.view.MotionEvent
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
@@ -134,13 +135,27 @@ class LoginActivity : AppCompatActivity() {
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
             .build()
 
-        cookiePrefs = EncryptedSharedPreferences.create(
-            this,
-            "secure_cookies_encrypted",
-            masterKey,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
+        try {
+            cookiePrefs = EncryptedSharedPreferences.create(
+                this,
+                "secure_cookies_encrypted",
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+        } catch (e: Exception) {
+            Log.e("shared_error", "Corrupted EncryptedSharedPreferences, resetting", e)
+            this.getSharedPreferences("secure_cookies_encrypted", MODE_PRIVATE).edit { clear() }
+
+            cookiePrefs = EncryptedSharedPreferences.create(
+                this,
+                "secure_cookies_encrypted",
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+        }
+
 
         val loginButton: TextView = findViewById(R.id.loginButton)
         val signupText: TextView = findViewById(R.id.signupText)
