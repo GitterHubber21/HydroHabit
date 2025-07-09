@@ -30,6 +30,7 @@
 - Fun and engaging hydration-based:
   - **Daily challenges**
   - **Monthly challenges**
+- Card styled display for the daily challenges with two sides(tap to flip)
 
 ### ⚙️ Settings Page
 - Toggle hydration **reminders**.
