@@ -1,3 +1,5 @@
+[![image](https://github.com/user-attachments/assets/3a5cb2ce-0aa7-4490-9f04-dbe67f184279)](https://neighborhood.hackclub.com/)  
+
 # 💧 HydroHabit
 
 **HydroHabit** is a beautifully designed, water-themed Android application that helps you stay hydrated while having fun! Track your daily water intake, set hydration goals, complete exciting challenges, and gain insightful statistics to keep your hydration habits on point.
